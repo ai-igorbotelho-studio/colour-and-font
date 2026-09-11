@@ -1,0 +1,2422 @@
+// Farbenkreis legacy bundle.
+// Etapa 1 da migracao: os nove blocos <script> do farbenkreis.html original,
+// concatenados na ordem original, sem refatoracao.
+// @ts-nocheck
+/* ═══════════ NÚCLEO DE COR ═══════════ */
+const lin=c=>{c/=255;return c<=.04045?c/12.92:Math.pow((c+.055)/1.055,2.4)};
+const unlin=v=>{const x=v<=.0031308?v*12.92:1.055*Math.pow(Math.max(v,0),1/2.4)-.055;return Math.max(0,Math.min(1,x))};
+const hex2rgb=h=>{h=h.replace('#','');if(h.length===3)h=h.split('').map(c=>c+c).join('');
+  return[parseInt(h.slice(0,2),16),parseInt(h.slice(2,4),16),parseInt(h.slice(4,6),16)]};
+const rgb2hex=(r,g,b)=>'#'+[r,g,b].map(v=>Math.max(0,Math.min(255,Math.round(v))).toString(16).padStart(2,'0')).join('').toUpperCase();
+function rgb2oklab(r,g,b){const R=lin(r),G=lin(g),B=lin(b);
+  const l=Math.cbrt(.4122214708*R+.5363325363*G+.0514459929*B),
+        m=Math.cbrt(.2119034982*R+.6806995451*G+.1073969566*B),
+        s=Math.cbrt(.0883024619*R+.2817188376*G+.6299787005*B);
+  return{L:.2104542553*l+.7936177850*m-.0040720468*s,a:1.9779984951*l-2.4285922050*m+.4505937099*s,b:.0259040371*l+.7827717662*m-.8086757660*s}}
+function oklab2raw(L,A,B){const l=(L+.3963377774*A+.2158037573*B)**3,m=(L-.1055613458*A-.0638541728*B)**3,s=(L-.0894841775*A-1.2914855480*B)**3;
+  return[4.0767416621*l-3.3077115913*m+.2309699292*s,-1.2684380046*l+2.6097574011*m-.3413193965*s,-.0041960863*l-.7034186147*m+1.7076147010*s]}
+const inG=v=>v.every(c=>c>=-.001&&c<=1.001);
+function oklch2hex(L,C,H){L=Math.max(0,Math.min(1,L));const rad=H*Math.PI/180;let lo=0,hi=Math.max(C,0);
+  if(inG(oklab2raw(L,C*Math.cos(rad),C*Math.sin(rad))))lo=C;
+  else for(let i=0;i<20;i++){const md=(lo+hi)/2;if(inG(oklab2raw(L,md*Math.cos(rad),md*Math.sin(rad))))lo=md;else hi=md}
+  const v=oklab2raw(L,lo*Math.cos(rad),lo*Math.sin(rad));
+  return rgb2hex(unlin(v[0])*255,unlin(v[1])*255,unlin(v[2])*255)}
+function hex2lch(h){const[r,g,b]=hex2rgb(h),o=rgb2oklab(r,g,b);
+  return{L:o.L,C:Math.hypot(o.a,o.b),H:(Math.atan2(o.b,o.a)*180/Math.PI+360)%360}}
+const lum=h=>{const[r,g,b]=hex2rgb(h);return .2126*lin(r)+.7152*lin(g)+.0722*lin(b)};
+const ratio=(a,b)=>{const x=lum(a),y=lum(b);return(Math.max(x,y)+.05)/(Math.min(x,y)+.05)};
+const readable=bg=>ratio(bg,'#FFFFFF')>=ratio(bg,'#000000')?'#FFFFFF':'#000000';
+const wrapDeg=d=>{d=((d%360)+360)%360;return d>180?d-360:d};
+const mixLch=(A,B,t)=>{const a=hex2lch(A),b=hex2lch(B);
+  return oklch2hex(a.L+(b.L-a.L)*t,a.C+(b.C-a.C)*t,a.H+wrapDeg(b.H-a.H)*t)};
+
+/* ── conversões para exibição ── */
+function rgb2hsl(r,g,b){r/=255;g/=255;b/=255;const mx=Math.max(r,g,b),mn=Math.min(r,g,b),d=mx-mn;
+  let h=0;if(d){h=mx===r?((g-b)/d+(g<b?6:0)):mx===g?((b-r)/d+2):((r-g)/d+4);h*=60}
+  const l=(mx+mn)/2,s=d?d/(1-Math.abs(2*l-1)):0;return[h,s*100,l*100]}
+function rgb2hsv(r,g,b){r/=255;g/=255;b/=255;const mx=Math.max(r,g,b),mn=Math.min(r,g,b),d=mx-mn;
+  let h=0;if(d){h=mx===r?((g-b)/d+(g<b?6:0)):mx===g?((b-r)/d+2):((r-g)/d+4);h*=60}
+  return[h,mx?d/mx*100:0,mx*100]}
+function rgb2cmyk(r,g,b){r/=255;g/=255;b/=255;const k=1-Math.max(r,g,b);
+  if(k===1)return[0,0,0,100];
+  return[(1-r-k)/(1-k)*100,(1-g-k)/(1-k)*100,(1-b-k)/(1-k)*100,k*100]}
+function rgb2xyz(r,g,b){const R=lin(r),G=lin(g),B=lin(b);
+  return[R*.4124564+G*.3575761+B*.1804375,R*.2126729+G*.7151522+B*.0721750,R*.0193339+G*.1191920+B*.9503041]}
+function rgb2lab(r,g,b){const[x,y,z]=rgb2xyz(r,g,b),wr=.95047,wg=1,wb=1.08883;
+  const f=t=>t>.008856?Math.cbrt(t):(7.787*t+16/116);
+  const fx=f(x/wr),fy=f(y/wg),fz=f(z/wb);
+  return[116*fy-16,500*(fx-fy),200*(fy-fz)]}
+const r1=n=>Math.round(n),r2=n=>Math.round(n*10)/10,r3=n=>Math.round(n*1000)/1000;
+
+function allCodes(hex){
+  const [r,g,b]=hex2rgb(hex),hsl=rgb2hsl(r,g,b),hsv=rgb2hsv(r,g,b),cmyk=rgb2cmyk(r,g,b),
+        lab=rgb2lab(r,g,b),o=rgb2oklab(r,g,b),lch=hex2lch(hex);
+  const lchab=[lab[0],Math.hypot(lab[1],lab[2]),(Math.atan2(lab[2],lab[1])*180/Math.PI+360)%360];
+  const dec=(r<<16)+(g<<8)+b;
+  return [
+   ['HEX',hex],
+   ['HEX curto',hex.length===7&&hex[1]===hex[2]&&hex[3]===hex[4]&&hex[5]===hex[6]?'#'+hex[1]+hex[3]+hex[5]:'—'],
+   ['RGB',`${r}, ${g}, ${b}`],
+   ['RGB css',`rgb(${r} ${g} ${b})`],
+   ['RGB 0–1',`${r3(r/255)}, ${r3(g/255)}, ${r3(b/255)}`],
+   ['HSL',`hsl(${r1(hsl[0])} ${r1(hsl[1])}% ${r1(hsl[2])}%)`],
+   ['HSB / HSV',`${r1(hsv[0])}°, ${r1(hsv[1])}%, ${r1(hsv[2])}%`],
+   ['CMYK',`${r1(cmyk[0])}, ${r1(cmyk[1])}, ${r1(cmyk[2])}, ${r1(cmyk[3])}`],
+   ['LAB',`${r2(lab[0])}, ${r2(lab[1])}, ${r2(lab[2])}`],
+   ['LCH',`${r2(lchab[0])}, ${r2(lchab[1])}, ${r1(lchab[2])}°`],
+   ['OKLab',`${r3(o.L)}, ${r3(o.a)}, ${r3(o.b)}`],
+   ['OKLCH css',`oklch(${r1(lch.L*100)}% ${r3(lch.C)} ${r1(lch.H)})`],
+   ['Decimal',String(dec)],
+   ['Luminância',r3(lum(hex))],
+   ['Android',`#FF${hex.slice(1)}`],
+   ['SwiftUI',`Color(red: ${r3(r/255)}, green: ${r3(g/255)}, blue: ${r3(b/255)})`],
+   ['Flutter',`Color(0xFF${hex.slice(1)})`],
+   ['Contraste com branco',ratio(hex,'#FFFFFF').toFixed(2)+' : 1'],
+   ['Contraste com preto',ratio(hex,'#000000').toFixed(2)+' : 1']
+  ];
+}
+
+/* ── simulação de visão de cor (Viénot, Brettel & Mollon) ── */
+const CVD={
+ none:null,
+ protanopia:[[.1706,.8294,0],[.1706,.8294,0],[-.0046,.0046,1]],
+ deuteranopia:[[.3299,.6701,0],[.3299,.6701,0],[-.0284,.0284,1]],
+ tritanopia:[[1,.1273,-.1273],[0,.8739,.1261],[0,.8739,.1261]]
+};
+function simulate(hex,kind){
+  if(!kind||kind==='none')return hex;
+  if(kind==='acromatopsia'){const[r,g,b]=hex2rgb(hex);const y=unlin(.2126*lin(r)+.7152*lin(g)+.0722*lin(b))*255;return rgb2hex(y,y,y)}
+  const M=CVD[kind];if(!M)return hex;
+  const [r,g,b]=hex2rgb(hex),v=[lin(r),lin(g),lin(b)];
+  const o=M.map(row=>row[0]*v[0]+row[1]*v[1]+row[2]*v[2]);
+  return rgb2hex(unlin(o[0])*255,unlin(o[1])*255,unlin(o[2])*255);
+}
+
+/* ── utilitários gerais ── */
+const $=id=>document.getElementById(id);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const slug=s=>s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
+function toast(t){const el=$('toast');el.textContent=t;el.classList.add('on');clearTimeout(el._t);el._t=setTimeout(()=>el.classList.remove('on'),1800)}
+function copy(t,msg){if(!navigator.clipboard)return toast('O navegador bloqueou a cópia');
+  navigator.clipboard.writeText(t).then(()=>toast(msg||'Copiado')).catch(()=>toast('O navegador bloqueou a cópia'))}
+function download(name,content,mime){
+  try{const blob=content instanceof Blob?content:new Blob([content],{type:mime||'text/plain'});
+    const u=URL.createObjectURL(blob),a=document.createElement('a');
+    a.href=u;a.download=name;document.body.appendChild(a);a.click();
+    setTimeout(()=>{URL.revokeObjectURL(u);a.remove()},800);toast(name+' gerado')}
+  catch(e){toast('O navegador bloqueou o download — use copiar')}
+}
+/* ═══════════ DADOS — COR ═══════════ */
+const ANCHORS=[
+ {a:0,nome:'Purpúreo',hex:'#C4003F'},{a:60,nome:'Vermelho-amarelo',hex:'#E96A00'},
+ {a:120,nome:'Amarelo',hex:'#F2CC00'},{a:180,nome:'Verde',hex:'#3E8F45'},
+ {a:240,nome:'Azul',hex:'#22409B'},{a:300,nome:'Vermelho-azul',hex:'#6E2B8C'}
+].map(x=>Object.assign(x,hex2lch(x.hex)));
+function atAngle(a){a=((a%360)+360)%360;
+  const i=Math.floor(a/60),p=ANCHORS[i],n=ANCHORS[(i+1)%6],t=(a-i*60)/60,dh=wrapDeg(n.H-p.H);
+  return{L:p.L+(n.L-p.L)*t,C:p.C+(n.C-p.C)*t,H:p.H+dh*t}}
+const hexAt=a=>{const c=atAngle(a);return oklch2hex(c.L,c.C,c.H)};
+function nameOf(a){a=((a%360)+360)%360;
+  const i=Math.floor(a/60),p=ANCHORS[i],n=ANCHORS[(i+1)%6],t=(a-i*60)/60;
+  if(t<.14)return p.nome;if(t>.86)return n.nome;
+  return t<.5?p.nome+' puxado ao '+n.nome.toLowerCase():n.nome+' puxado ao '+p.nome.toLowerCase()}
+
+const EMO=[
+ {n:'Nenhuma',a:null,g:'Sem intenção declarada, o matiz de partida vem só da convenção do campo, da referência cultural e de onde as bolas estiverem no anel.'},
+ {n:'Alegria e clareza',a:120,g:'O amarelo é a cor imediatamente vizinha da luz. Em estado puro e límpido, diz Goethe, traz consigo uma natureza serena, alegre, suavemente excitante — mas basta sujá-lo um pouco para que essa mesma alegria vire desonra.'},
+ {n:'Otimismo caloroso',a:100,g:'Intensificar o amarelo em direção ao vermelho é dar-lhe calor sem ainda lhe dar violência. É a região em que o olho se sente acolhido e não pressionado.'},
+ {n:'Energia e urgência',a:45,g:'O vermelho-amarelo é o lado ativo em sua maior energia. Goethe observa que animais se irritam diante dele e que pessoas sensíveis não o suportam por muito tempo — o que é exatamente o ponto, quando se quer forçar uma ação.'},
+ {n:'Desejo e apetite',a:35,g:'Aqui a intensificação já beira o insuportável. É a faixa que chama o corpo antes de chamar o juízo.'},
+ {n:'Autoridade e gravidade',a:5,g:'O purpúreo é o cume da intensificação: nele os dois lados do círculo se encontram. Goethe atribui-lhe dignidade e gravidade e nota que não por acaso foi a cor dos que governam.'},
+ {n:'Cerimônia e legado',a:350,g:'Purpúreo puxado ao escuro. Goethe o descreve como severidade e graça ao mesmo tempo — a mesma cor que impõe é a que encanta.'},
+ {n:'Aspiração e inquietação',a:305,g:'O vermelho-azul é inquieto e aspirante. Goethe o descreve como algo que não se acomoda: quer continuar subindo.'},
+ {n:'Mistério e transcendência',a:290,g:'O lado negativo intensificado. A cor deixa de descrever o mundo e passa a sugerir o que está atrás dele.'},
+ {n:'Profundidade e distância',a:240,g:'O azul carrega consigo um princípio de treva. Goethe diz que ele nos atrai e ao mesmo tempo nos puxa para longe — como um belo nada, que se afasta à medida que se olha.'},
+ {n:'Confiança e serenidade',a:225,g:'Azul empurrado ao verde: a contradição entre excitação e repouso que Goethe atribui ao azul começa a se resolver em favor do repouso.'},
+ {n:'Melancolia e saudade',a:258,g:'O azul frio e sombrio. Goethe associa esse lado a um sentimento de ausência que não chega a ser desagradável.'},
+ {n:'Repouso e equilíbrio',a:180,g:'No verde, diz Goethe, olho e alma descansam. Não se quer ir além, e não se pode — é o único ponto do círculo em que a busca termina.'},
+ {n:'Cuidado e regeneração',a:163,g:'Verde com amarelo dentro. O repouso do verde recebe de volta uma parte da atividade da luz, sem virar estímulo.'},
+ {n:'Rigor e precisão',a:203,g:'Verde-azulado de croma contido. Nada nessa faixa pede atenção; ela é lida como método.'},
+ {n:'Abundância e fartura',a:135,g:'Amarelo puxado ao verde, com croma alto. A sensação de excesso vem menos do matiz do que da saturação que ele suporta.'},
+ {n:'Intimidade e calor',a:18,g:'Purpúreo puxado ao vermelho e rebaixado de luminosidade. Goethe nota que essa vizinhança tem graça sem perder gravidade.'}
+];
+
+const MKT=[
+ {n:'Nenhum',a:null,c:'nenhuma',d:'Sem campo declarado, nada puxa o matiz para o lugar já ocupado por outros — o resultado vem da intenção e da geometria, e não de um território disputado.'},
+ {n:'Finanças e bancos',a:235,c:'azul institucional',d:'O azul domina o setor porque promete distância e frieza — exatamente o que Goethe descreve. Por isso deixou de significar qualquer coisa: todos o usam.'},
+ {n:'Fintech e cripto',a:282,c:'violeta e gradiente',d:'A categoria migrou em bloco para o vermelho-azul. Diferenciar-se hoje custa mais do que aderir.'},
+ {n:'Clima e regeneração',a:175,c:'verde de repouso',d:'O verde diz repouso, não transformação. Para um campo cuja tese é mudança sistêmica, a convenção trabalha contra a mensagem.'},
+ {n:'Bioeconomia e agro',a:155,c:'verde com terra',d:'Convenção sólida e pouco disputada; a ruptura útil costuma ser no croma, não no matiz.'},
+ {n:'Saúde e cuidado',a:214,c:'azul clínico',d:'Azul-esverdeado de croma baixo. Ganha credibilidade e perde calor — a troca é conhecida.'},
+ {n:'Bem-estar e longevidade',a:158,c:'verde suave e neutros',d:'Categoria saturada de dessaturação. O bege com sálvia virou o lugar-comum do setor.'},
+ {n:'Alimentos e bebidas',a:40,c:'vermelho-amarelo',d:'O lado ativo em alta energia funciona porque atua no corpo antes do juízo. É também o mais disputado.'},
+ {n:'Luxo e joalheria',a:4,c:'purpúreo e preto',d:'O campo onde o preto já é tratado como cor, não como fundo. A gravidade do purpúreo é a escolha histórica.'},
+ {n:'Moda',a:300,c:'preto e o extremo do círculo',d:'Tolera qualquer matiz porque o sistema é carregado pelo preto e pelo branco.'},
+ {n:'Tecnologia e software',a:248,c:'azul e violeta',d:'A convenção é tão espessa que qualquer coisa fora dela já lê como posicionamento.'},
+ {n:'Turismo e hospitalidade',a:205,c:'azul-verde de destino',d:'Mar e folha. Funciona no destino e falha na peça, porque não distingue um lugar do outro.'},
+ {n:'Viagem transformacional',a:288,c:'violeta e terrosos',d:'Categoria jovem, convenção ainda mole — é onde a ruptura custa menos.'},
+ {n:'Energia e infraestrutura',a:58,c:'laranja e amarelo',d:'Herança de segurança industrial. O amarelo aqui não é alegria: é sinalização.'},
+ {n:'Educação',a:122,c:'amarelo e azul',d:'A combinação característica amarelo e azul é a mais antiga do setor e continua funcionando.'},
+ {n:'Mídia e cultura',a:345,c:'purpúreo e preto',d:'Campo que recompensa contraste de valor mais do que matiz.'},
+ {n:'Setor público e ONGs',a:230,c:'azul de instituição',d:'Convenção defensiva. Romper aqui exige sustentar a ruptura por anos.'},
+ {n:'Arte e editorial',a:352,c:'preto, branco e um acento',d:'O conteúdo carrega o sistema. A cor entra como pontuação, não como estrutura.'},
+ {n:'Imobiliário e arquitetura',a:148,c:'verde e neutros quentes',d:'Croma baixo por padrão; a diferenciação costuma vir do preto escolhido.'},
+ {n:'Varejo e e-commerce',a:28,c:'vermelho de conversão',d:'O vermelho-amarelo vende porque pressiona. Usado o tempo todo, deixa de pressionar.'}
+];
+
+/* esquemas geométricos — off = deslocamentos de matiz a partir da primeira cor */
+const SCH=[
+ {n:'Nenhum — livre',off:null,d:'As bolas ficam onde você as deixar. Nada é forçado a manter distância.'},
+ {n:'Goethe — harmônica',off:[180,180,0,180,0],mirror:true,d:'Os opostos do círculo: a combinação que, segundo Goethe, traz em si a condição de totalidade.'},
+ {n:'Goethe — característica',off:[120,240,120,240,120],d:'Um espaço de distância. Diz alguma coisa, ainda que não tudo.'},
+ {n:'Goethe — sem caráter',off:[60,-60,120,-120,30],d:'Vizinhas no círculo. Não desagradam, mas segundo ele falta-lhes caráter.'},
+ {n:'Monocromático',off:[0,0,0,0,0],mono:true,d:'Um só matiz, variando luminosidade e croma. Toda a hierarquia vem do valor.'},
+ {n:'Análogo',off:[30,-30,60,-60,90],d:'Vizinhança estreita. Coeso e sem tensão; precisa de contraste de valor para não achatar.'},
+ {n:'Complementar',off:[180,180,180,0,180],mirror:true,d:'Cruza o círculo. Máxima tensão de matiz entre dois polos.'},
+ {n:'Complementar dividido',off:[150,210,150,210,180],d:'Troca o oposto pelos dois vizinhos dele. Mantém a tensão e reduz o choque.'},
+ {n:'Tríade',off:[120,240,120,240,0],d:'Divide o círculo em três. Vivo e equilibrado, difícil de dosar em área.'},
+ {n:'Tetrádico',off:[60,180,240,0,120],d:'Retângulo no círculo: dois pares de opostos. Rico e o mais difícil de equilibrar.'},
+ {n:'Quadrado',off:[90,180,270,45,225],d:'Quatro pontos equidistantes. Tetrádico simétrico, com a mesma exigência de dosagem.'}
+];
+
+const LENS=[
+ {n:'Nenhuma',Cm:1,Lp:[.93,.62,.44,.76,.28,.55],w:[30,22,18,14,10,6],
+  m:'Sem método declarado, a paleta distribui luminosidade e área de forma equilibrada, sem privilegiar nem a contenção nem o volume.'},
+ {n:'Pentagram — Londres e Nova York',Cm:.90,Lp:[.965,.17,.58,.78,.42,.88],w:[70,18,7,3,1.2,.8],
+  m:'Sabem ser barulhentos, mas quase sempre escolhem clareza: a tipografia carrega o sistema e a cor entra em dose única. Daí o trabalho envelhecer bem enquanto o resto persegue ciclo de tendência.'},
+ {n:'Wolff Olins — Londres e Nova York',Cm:1.18,Lp:[.62,.96,.16,.44,.80,.34],w:[56,22,12,6,3,1],
+  m:'Contratados quando o mercado precisa perceber que algo mudou de fato. A cor entra em volume alto e é tratada como propriedade do sistema, não como acento.'},
+ {n:'COLLINS — Nova York e São Francisco',Cm:1.22,Lp:[.66,.52,.76,.38,.90,.22],w:[26,20,18,15,12,9],
+  m:'Maximalismo cromático: o sistema inteiro é a paleta, não uma cor com apoios. Funciona quando há superfície suficiente para mostrar variação.'},
+ {n:'PORTO ROCHA — Nova York e Londres',Cm:1.10,Lp:[.95,.30,.62,.15,.78,.45],w:[44,24,16,10,4,2],
+  m:'Fundado por dois brasileiros e virou referência editorial em poucos anos. Contraste de valor alto, direção de arte forte, cor a serviço do conceito.'},
+ {n:'Koto — Londres e Nova York',Cm:.95,Lp:[.96,.55,.72,.86,.24,.40],w:[48,20,12,10,6,4],
+  m:'Sistema digital limpo, construído para escalar em produto. A paleta vem como escala de tons, não como conjunto de cores soltas.'},
+ {n:'Jones Knowles Ritchie — Londres e Nova York',Cm:1.30,Lp:[.60,.46,.92,.20,.72,.34],w:[50,20,14,10,4,2],
+  m:'Disciplina de gôndola: a cor precisa vencer a distância de três metros e a concorrência ao lado. Saturação alta e recorte duro.'},
+ {n:'Studio Dumbar — Roterdã',Cm:1.24,Lp:[.14,.60,.74,.94,.46,.34],w:[52,24,12,7,3,2],dark:true,
+  m:'Identidade pensada em movimento antes de pensada parada. Cores duras sobre fundo escuro, porque o sistema vai viver em tela.'},
+ {n:'Chermayeff & Geismar & Haviv — Nova York',Cm:1.02,Lp:[.96,.54,.16,.70,.40,.84],w:[60,26,10,2,1,1],
+  m:'A casa dos símbolos que atravessaram décadas. Redução plana: duas cores e a forma resolvem, e o que sobra é subtraído.'},
+ {n:'Landor — rede global',Cm:.86,Lp:[.95,.52,.72,.22,.84,.40],w:[52,22,12,9,3,2],
+  m:'Programas multimercado com governança e pesquisa longa. O desvio em relação ao que já existe é pequeno de propósito: protege o valor acumulado.'},
+ {n:'Mucho — Barcelona e São Francisco',Cm:.98,Lp:[.95,.50,.18,.70,.38,.82],w:[54,20,14,8,3,1],
+  m:'Modernismo europeu contido: grade visível, paleta fechada, nada sobrando. Cor usada como estrutura, não como emoção declarada.'},
+ {n:'Experimental Jetset — Amsterdã',Cm:1.05,Lp:[.97,.13,.55,.75,.35,.88],w:[58,32,8,1,.5,.5],
+  m:'Preto, branco e uma cor. A prova viva de que os dois polos de Goethe são cores plenas: aqui eles fazem quase todo o trabalho e o matiz entra como acontecimento.'},
+ {n:'&Walsh — Nova York',Cm:1.26,Lp:[.64,.50,.90,.34,.74,.20],w:[32,22,18,14,9,5],
+  m:'Expressivo e saturado, com contraste de valor deliberadamente alto. A paleta é personagem.'},
+ {n:'DixonBaxi — Londres',Cm:1.16,Lp:[.15,.62,.50,.90,.36,.74],w:[46,24,14,10,4,2],dark:true,
+  m:'Melhor escolha quando o sistema precisa funcionar em movimento e no digital. Fundo escuro por padrão, porque é onde ele vai ser visto.'},
+ {n:'Ragged Edge — Londres',Cm:1.20,Lp:[.58,.94,.20,.70,.42,.80],w:[48,26,14,8,3,1],
+  m:'Trabalho opinativo: a cor toma partido e aceita afastar parte do público. Não existe versão morna.'},
+ {n:'Pearlfisher — Londres e Nova York',Cm:.80,Lp:[.94,.66,.78,.48,.30,.86],w:[54,18,12,9,5,2],
+  m:'Ofício de embalagem: cor dessaturada, sensação de material, acabamento acima do impacto.'},
+ {n:'Interbrand e Siegel+Gale — rede global',Cm:.88,Lp:[.96,.48,.72,.20,.84,.60],w:[58,20,12,7,2,1],
+  m:'A disciplina é simplificar: poucos tokens, acessibilidade resolvida na origem, sistema que sobrevive a quem o implementa mal.'}
+];
+
+const CULT=[
+ {n:'Nenhuma',pull:0,Cm:1,luzD:0,trevaD:0,m:''},
+ {n:'Aotearoa — kōkōwai, pango, mā',anc:[22],pull:.62,Cm:1.04,luzD:.006,trevaD:-.055,
+  m:'Kōkōwai é o ocre vermelho de argila e arenito ricos em ferro, queimados e moídos, depois misturados a óleo de fígado de tubarão ou de tītoki. A tradição polinésia associa o vermelho a kura — algo precioso — e o que era pintado de vermelho tornava-se tapu. Pango e mā não são fundo: são princípios, e o branco vinha de concha queimada ou argila, por isso é quente.'},
+ {n:'Amazônia indígena — urucum, jenipapo, tabatinga',anc:[35,250],pull:.68,Cm:1.10,luzD:.004,trevaD:-.045,
+  m:'O vermelho vem da polpa do urucum, o azul-escuro e o preto do suco fermentado do jenipapo — cujo nome, do guarani, quer dizer fruta que serve para pintar — e o branco da tabatinga ou do calcário. Entre os Kayapó, o vermelho testemunha a vida social e o preto é a cor da criatividade; a pintura indica idade, filhos e condição, e não é só ritual: também é prazer estético.'},
+ {n:'Japão — aizome, sumi, kurenai',anc:[255,18],pull:.60,Cm:.72,luzD:.008,trevaD:-.06,
+  m:'Índigo de tina, tinta de fuligem e um vermelho que aparece pouco e em pouca área. A lógica não é de matiz, é de intervalo: croma baixo em quase tudo, para que um acontecimento de cor tenha peso.'},
+ {n:'África Ocidental — índigo adire, ouro kente',anc:[250,105,30],pull:.58,Cm:1.22,luzD:0,trevaD:-.03,
+  m:'Índigo resistido a amarração e a amido, contra ouro e vermelho de tecelagem em faixas. Cores fortes que convivem porque são separadas por estrutura — a trama faz o trabalho que uma grade faria.'},
+ {n:'Andes — cochonilha e índigo',anc:[358,252],pull:.60,Cm:1.12,luzD:-.01,trevaD:-.04,
+  m:'O carmim de cochonilha e o índigo em lã. O par vive de contraste de matiz com luminosidade parecida — o oposto do que o design ocidental costuma fazer.'},
+ {n:'Mediterrâneo — cal e azul',anc:[243],pull:.52,Cm:.90,luzD:.014,trevaD:-.01,
+  m:'A cal domina em área e o azul entra em recorte pequeno. É uma paleta de proporção, não de quantidade de cores.'},
+ {n:'Nórdico — luz baixa',anc:[218],pull:.48,Cm:.62,luzD:.006,trevaD:-.02,
+  m:'Latitude alta, luz difusa e longa. Croma contido e faixa de luminosidade estreita: nada brilha porque nada precisa competir com sol forte.'},
+ {n:'México — Barragán',anc:[340,108,240],pull:.58,Cm:1.26,luzD:-.004,trevaD:-.02,
+  m:'Rosa, amarelo e azul em planos inteiros de parede. A cor é arquitetura: não decora superfície, define volume e sombra.'},
+ {n:'Índia — sindoor, açafrão, índigo',anc:[22,88,255],pull:.58,Cm:1.24,luzD:.002,trevaD:-.035,
+  m:'Vermelho, açafrão e índigo em saturação alta e sem transição. A vizinhança de cores plenas é a regra, não a exceção a administrar.'},
+ {n:'Bauhaus — primárias e plano',anc:[18,115,245],pull:.66,Cm:1.06,luzD:.012,trevaD:-.05,
+  m:'Vermelho, amarelo e azul tratados como material, sobre branco e preto. O pressuposto é o de Goethe invertido: a cor serve à forma, e a forma é geométrica.'}
+];
+
+const MUS=[
+ {n:'Nenhum',Cm:1,ct:0,sy:.5,m:''},
+ {n:'Bossa nova',Cm:.72,ct:-.35,sy:.25,m:'Harmonia complexa em dinâmica baixa. Croma reduzido e contraste curto: tudo acontece dentro de uma faixa estreita, e a sofisticação está no intervalo, não no volume.'},
+ {n:'Samba de roda e batucada',Cm:1.28,ct:.25,sy:.88,m:'Síncope pesada. A proporção deixa de ser regular: uma cor domina, as outras entram fora do tempo, em áreas pequenas e recorrentes.'},
+ {n:'Choro',Cm:.92,ct:0,sy:.62,m:'Virtuosismo dentro de forma fixa. Proporção irregular, mas sempre voltando ao mesmo ponto de apoio.'},
+ {n:'Techno de Berlim',Cm:.82,ct:.9,sy:.12,m:'Repetição sobre grade rígida. Contraste de valor extremo, quase nenhum evento de matiz, proporção regular — tudo vive no escuro e no pulso.'},
+ {n:'Ambient e drone',Cm:.40,ct:-.7,sy:0,m:'Sem ataque e sem borda. Croma mínimo e diferenças de luminosidade que quase não se resolvem: a paleta é lida como campo, não como conjunto.'},
+ {n:'Punk',Cm:1.34,ct:1,sy:.35,m:'Preto, branco e uma cor gritando. Contraste máximo, nenhuma transição, nenhuma cor de apoio.'},
+ {n:'Jazz modal',Cm:.96,ct:.1,sy:.58,m:'Poucos acordes, muito espaço. Intervalos largos entre os matizes e proporção que respira.'},
+ {n:'Gospel e soul',Cm:1.14,ct:-.15,sy:.42,m:'Luz alta e calor. Grande área clara com cores cheias por cima — a paleta é coral, não solo.'},
+ {n:'Dub e reggae',Cm:1.08,ct:.55,sy:.72,m:'Grave enorme e eco. O escuro ganha área, o resto entra em atraso e em pedaços separados por silêncio.'},
+ {n:'Fado',Cm:.58,ct:.45,sy:.22,m:'Modo menor, sem ornamento. Croma baixo sobre escuro, e a cor aparece como voz única.'},
+ {n:'Afrobeats',Cm:1.26,ct:.15,sy:.78,m:'Camadas de percussão que não coincidem. Várias cores em áreas médias, nenhuma totalmente subordinada.'},
+ {n:'Romantismo clássico',Cm:.84,ct:.2,sy:.28,m:'Crescendo longo e resolução. Proporção quase regular, com uma dominante que só se impõe no fim.'}
+];
+
+const CVDLIST=[
+ {v:'none',n:'Nenhuma — visão tricromática'},
+ {v:'deuteranopia',n:'Deuteranopia — a mais comum'},
+ {v:'protanopia',n:'Protanopia'},
+ {v:'tritanopia',n:'Tritanopia'},
+ {v:'acromatopsia',n:'Acromatopsia — sem cor'}
+];
+/* ═══════════ DADOS — TIPOGRAFIA ═══════════ */
+const CLS={
+ 'serif-old'  :{n:'Serifada humanista',d:'As mais antigas, herdeiras da pena inclinada. Eixo oblíquo, contraste moderado, aberturas generosas. Lêem bem em texto longo e trazem calor sem parecer nostálgicas.'},
+ 'serif-trans':{n:'Serifada transicional',d:'O passo entre a pena e o compasso. Eixo mais vertical, contraste médio, formas reguladas. É a classe mais neutra do lado serifado e a mais segura para texto contínuo.'},
+ 'serif-mod'  :{n:'Serifada moderna',d:'As didonas. Eixo vertical, contraste extremo, serifas finas e retas. Brilham em corpo grande e desmancham em corpo pequeno.'},
+ 'serif-slab' :{n:'Serifada egípcia',d:'Serifas retangulares do mesmo peso da haste. Contraste quase nulo, presença mecânica. Aguentam condições ruins de impressão e tela.'},
+ 'sans-grot'  :{n:'Sem serifa grotesca',d:'As primeiras sem serifa do século XIX. Terminais horizontais, aberturas fechadas, personalidade áspera. Boas em título e em corpo médio.'},
+ 'sans-neo'   :{n:'Sem serifa neogrotesca',d:'A reforma modernista da grotesca: uniforme, silenciosa, quase sem maneirismo. É a classe padrão da interface.'},
+ 'sans-geo'   :{n:'Sem serifa geométrica',d:'Construída a partir de círculo e reta. Contraste mínimo, clareza em título, cansaço em texto longo por causa da repetição de formas.'},
+ 'sans-hum'   :{n:'Sem serifa humanista',d:'Uma serifada sem as serifas: eixo caligráfico, proporções variadas, aberturas amplas. A melhor classe sem serifa para texto corrido.'},
+ 'mono'       :{n:'Monoespaçada',d:'Todas as letras com a mesma largura. Nasceu da máquina e do terminal; hoje carrega leitura técnica, dado, código e legenda.'},
+ 'display'    :{n:'De exibição',d:'Desenhada para corpo grande e área pequena. Espaçamento apertado, formas fortes, nenhuma pretensão de servir a um parágrafo.'}
+};
+
+/* [nome, banco, classe, altura de x, contraste, largura, papel, pesos, superfamília, humores] */
+const FRAW=[
+ ['EB Garamond','g','serif-old',.42,.55,.5,'both','400;500;600;700',null,'cerimônia,repouso,editorial,elegante'],
+ ['Cormorant Garamond','g','serif-old',.38,.78,.47,'display','300;400;500;600;700',null,'elegante,cerimônia,melancolia,mistério'],
+ ['Crimson Pro','g','serif-old',.45,.52,.48,'body','300;400;600;700',null,'editorial,repouso,intimidade'],
+ ['Gentium Book Plus','g','serif-old',.48,.45,.5,'body','400;700',null,'repouso,cuidado'],
+ ['Alegreya','g','serif-old',.5,.5,.5,'both','400;500;700;800','alegreya','calor,editorial,intimidade'],
+ ['Vollkorn','g','serif-old',.53,.45,.52,'both','400;500;600;700;800;900',null,'calor,abundância,intimidade'],
+ ['Cardo','g','serif-old',.44,.55,.48,'body','400;700',null,'cerimônia,melancolia'],
+ ['Petrona','g','serif-old',.5,.5,.48,'both','300;400;500;600;700',null,'intimidade,calor'],
+ ['Erode','f','serif-old',.5,.45,.5,'both','300;400;500;600;700',null,'repouso,cuidado,editorial'],
+ ['Lora','g','serif-trans',.52,.5,.5,'both','400;500;600;700',null,'confiança,editorial,cerimônia'],
+ ['Spectral','g','serif-trans',.5,.45,.48,'both','300;400;500;600;700',null,'rigor,editorial,repouso'],
+ ['Source Serif 4','g','serif-trans',.52,.45,.5,'both','300;400;600;700','source','confiança,institucional,rigor'],
+ ['Literata','g','serif-trans',.53,.4,.52,'body','300;400;500;600;700',null,'repouso,editorial,cuidado'],
+ ['Newsreader','g','serif-trans',.52,.55,.48,'both','300;400;500;600;700',null,'editorial,confiança'],
+ ['Libre Baskerville','g','serif-trans',.55,.55,.54,'body','400;700',null,'confiança,institucional,editorial'],
+ ['Libre Caslon Text','g','serif-trans',.5,.55,.5,'body','400;700',null,'editorial,cerimônia'],
+ ['Frank Ruhl Libre','g','serif-trans',.5,.6,.48,'both','300;400;500;700;900',null,'autoridade,editorial'],
+ ['Faustina','g','serif-trans',.52,.45,.5,'both','300;400;500;600;700',null,'cuidado,repouso'],
+ ['Neuton','g','serif-trans',.48,.45,.48,'body','300;400;700;800',null,'repouso,melancolia'],
+ ['IBM Plex Serif','g','serif-trans',.52,.4,.5,'both','300;400;500;600;700','plex','rigor,técnico,institucional'],
+ ['PT Serif','g','serif-trans',.52,.45,.5,'body','400;700','pt','institucional,confiança'],
+ ['Noto Serif','g','serif-trans',.53,.42,.5,'body','400;500;600;700','noto','institucional,repouso'],
+ ['Author','f','serif-trans',.52,.45,.5,'both','300;400;500;600;700',null,'editorial,confiança'],
+ ['Playfair Display','g','serif-mod',.55,.95,.5,'display','400;500;600;700;800;900',null,'elegante,cerimônia,desejo,autoridade'],
+ ['Bodoni Moda','g','serif-mod',.48,1,.48,'display','400;500;600;700;800;900',null,'autoridade,cerimônia,elegante'],
+ ['Prata','g','serif-mod',.5,.85,.5,'display','400',null,'elegante,cerimônia'],
+ ['DM Serif Display','g','serif-mod',.53,.8,.5,'display','400',null,'elegante,desejo,abundância'],
+ ['Abril Fatface','g','serif-mod',.55,.9,.56,'display','400',null,'energia,abundância,desejo'],
+ ['Instrument Serif','g','serif-mod',.48,.8,.46,'display','400',null,'editorial,elegante,mistério'],
+ ['Bespoke Serif','f','serif-mod',.5,.7,.5,'display','300;400;500;700',null,'elegante,editorial'],
+ ['Zodiak','f','serif-mod',.5,.75,.5,'display','300;400;500;700;900',null,'aspiração,elegante,mistério'],
+ ['Young Serif','g','display',.55,.35,.54,'display','400',null,'abundância,calor,informal'],
+ ['Fraunces','g','display',.52,.6,.52,'display','300;400;500;700;900',null,'calor,informal,alegria'],
+ ['Roboto Slab','g','serif-slab',.53,.2,.5,'both','300;400;500;700;900','roboto','rigor,institucional,técnico'],
+ ['Bitter','g','serif-slab',.53,.25,.5,'both','300;400;500;700',null,'rigor,confiança'],
+ ['Zilla Slab','g','serif-slab',.52,.2,.5,'both','300;400;500;600;700',null,'técnico,rigor'],
+ ['Arvo','g','serif-slab',.52,.15,.52,'display','400;700',null,'rigor,autoridade'],
+ ['Josefin Slab','g','serif-slab',.4,.3,.46,'display','300;400;600;700',null,'elegante,melancolia'],
+ ['Inter','g','sans-neo',.57,.12,.5,'both','300;400;500;600;700;800',null,'rigor,técnico,confiança'],
+ ['Roboto','g','sans-neo',.53,.12,.49,'both','300;400;500;700;900','roboto','institucional,rigor'],
+ ['Archivo','g','sans-neo',.53,.12,.5,'both','300;400;500;600;700;800','archivo','energia,confiança'],
+ ['Public Sans','g','sans-neo',.54,.12,.5,'both','300;400;500;600;700',null,'institucional,rigor'],
+ ['Libre Franklin','g','sans-neo',.52,.15,.5,'both','300;400;500;600;700;800',null,'confiança,institucional'],
+ ['Barlow','g','sans-neo',.52,.1,.47,'both','300;400;500;600;700',null,'energia,técnico'],
+ ['Switzer','f','sans-neo',.53,.1,.5,'both','300;400;500;600;700',null,'rigor,confiança'],
+ ['Noto Sans','g','sans-neo',.53,.12,.5,'body','400;500;600;700','noto','institucional,repouso'],
+ ['Space Grotesk','g','sans-grot',.53,.12,.5,'both','300;400;500;600;700',null,'técnico,mistério,aspiração'],
+ ['Chivo','g','sans-grot',.52,.12,.5,'both','300;400;700;900',null,'energia,confiança'],
+ ['Karla','g','sans-grot',.52,.1,.49,'both','300;400;500;600;700;800',null,'informal,alegria'],
+ ['Ranade','f','sans-grot',.52,.12,.49,'both','300;400;500;700',null,'informal,técnico'],
+ ['Oswald','g','sans-grot',.55,.1,.31,'display','300;400;500;600;700',null,'energia,autoridade,urgência'],
+ ['Archivo Narrow','g','sans-neo',.53,.12,.33,'display','400;500;600;700','archivo','energia,urgência'],
+ ['Anton','g','display',.56,.1,.33,'display','400',null,'energia,urgência,autoridade'],
+ ['Archivo Black','g','display',.54,.12,.6,'display','400',null,'autoridade,energia'],
+ ['Poppins','g','sans-geo',.52,.05,.52,'both','300;400;500;600;700;800',null,'alegria,informal,otimismo'],
+ ['Montserrat','g','sans-geo',.53,.08,.53,'both','300;400;500;600;700;800',null,'confiança,alegria'],
+ ['Jost','g','sans-geo',.48,.08,.48,'both','300;400;500;600;700',null,'rigor,elegante,repouso'],
+ ['Outfit','g','sans-geo',.52,.05,.5,'both','300;400;500;600;700;800',null,'alegria,otimismo'],
+ ['Lexend','g','sans-geo',.55,.08,.51,'body','300;400;500;600;700',null,'cuidado,repouso,alegria'],
+ ['Sora','g','sans-geo',.52,.1,.5,'display','300;400;500;600;700;800',null,'mistério,técnico,aspiração'],
+ ['Questrial','g','sans-geo',.5,.05,.5,'display','400',null,'repouso,elegante'],
+ ['Urbanist','g','sans-geo',.52,.05,.49,'both','300;400;500;600;700;800',null,'alegria,otimismo'],
+ ['Satoshi','f','sans-geo',.53,.07,.5,'both','300;400;500;700;900',null,'confiança,rigor,alegria'],
+ ['General Sans','f','sans-geo',.53,.07,.5,'both','300;400;500;600;700',null,'confiança,repouso'],
+ ['Chillax','f','sans-geo',.52,.05,.51,'display','300;400;500;600',null,'informal,alegria,cuidado'],
+ ['Open Sans','g','sans-hum',.54,.15,.5,'body','300;400;500;600;700;800',null,'confiança,repouso'],
+ ['Source Sans 3','g','sans-hum',.52,.15,.49,'both','300;400;500;600;700','source','institucional,confiança'],
+ ['Lato','g','sans-hum',.5,.12,.49,'both','300;400;700;900',null,'calor,confiança'],
+ ['PT Sans','g','sans-hum',.52,.15,.49,'body','400;700','pt','institucional,repouso'],
+ ['Nunito Sans','g','sans-hum',.53,.1,.5,'both','300;400;600;700;800',null,'cuidado,alegria'],
+ ['Rubik','g','sans-hum',.53,.08,.51,'both','300;400;500;600;700;800',null,'alegria,informal'],
+ ['Work Sans','g','sans-hum',.52,.1,.5,'both','300;400;500;600;700;800',null,'confiança,rigor'],
+ ['Mulish','g','sans-hum',.52,.08,.49,'body','300;400;500;600;700;800',null,'repouso,cuidado'],
+ ['Figtree','g','sans-hum',.53,.08,.5,'both','300;400;500;600;700;800',null,'alegria,otimismo'],
+ ['Cabin','g','sans-hum',.52,.12,.49,'body','400;500;600;700',null,'cuidado,calor'],
+ ['Asap','g','sans-hum',.53,.1,.5,'both','400;500;600;700',null,'informal,alegria'],
+ ['IBM Plex Sans','g','sans-hum',.52,.12,.5,'both','300;400;500;600;700','plex','técnico,rigor,confiança'],
+ ['Alegreya Sans','g','sans-hum',.5,.15,.48,'both','300;400;500;700;800','alegreya','calor,editorial'],
+ ['Fira Sans','g','sans-hum',.53,.12,.5,'both','300;400;500;600;700','fira','técnico,confiança'],
+ ['Syne','g','display',.52,.2,.52,'display','400;500;600;700;800',null,'aspiração,mistério,energia'],
+ ['Unbounded','g','display',.55,.15,.53,'display','300;400;500;600;700;800',null,'energia,abundância'],
+ ['Bricolage Grotesque','g','display',.55,.2,.5,'display','300;400;500;600;700;800',null,'informal,editorial,energia'],
+ ['Clash Display','f','display',.53,.15,.5,'display','400;500;600;700',null,'energia,autoridade,aspiração'],
+ ['Cabinet Grotesk','f','display',.53,.15,.5,'display','300;400;500;700;800',null,'editorial,autoridade'],
+ ['Panchang','f','display',.52,.2,.52,'display','300;400;500;600;700',null,'abundância,informal,energia'],
+ ['JetBrains Mono','g','mono',.55,.1,.5,'mono','300;400;500;700',null,'técnico,rigor'],
+ ['IBM Plex Mono','g','mono',.52,.1,.5,'mono','300;400;500;600;700','plex','técnico,rigor'],
+ ['Space Mono','g','mono',.53,.12,.5,'mono','400;700',null,'mistério,técnico'],
+ ['Roboto Mono','g','mono',.53,.1,.5,'mono','300;400;500;700','roboto','técnico,institucional'],
+ ['Fira Code','g','mono',.53,.1,.5,'mono','300;400;500;600;700','fira','técnico'],
+ ['DM Mono','g','mono',.52,.1,.5,'mono','300;400;500',null,'técnico,repouso'],
+ ['Source Code Pro','g','mono',.52,.1,.49,'mono','300;400;500;600;700','source','técnico,rigor']
+];
+const FONTS=FRAW.map(t=>({n:t[0],src:t[1]==='g'?'google':'fontshare',cls:t[2],x:t[3],ct:t[4],w:t[5],
+  role:t[6],wts:t[7],sf:t[8],moods:t[9].split(',')}));
+
+const SUPER={plex:'IBM Plex',source:'Source',roboto:'Roboto',pt:'PT',noto:'Noto',alegreya:'Alegreya',fira:'Fira',archivo:'Archivo'};
+
+const USES=[
+ {v:'none',n:'Nenhum — sem preferência'},
+ {v:'editorial',n:'Editorial e texto longo'},
+ {v:'ui',n:'Interface e produto digital'},
+ {v:'display',n:'Cartaz, capa e título grande'},
+ {v:'apres',n:'Apresentação e slide'},
+ {v:'doc',n:'Documento e relatório'},
+ {v:'site',n:'Site institucional'}
+];
+const STRATS=[
+ {v:'none',n:'Nenhuma — só respeitar os filtros'},
+ {v:'contraste',n:'Contraste de estrutura'},
+ {v:'super',n:'Superfamília'},
+ {v:'uma',n:'Uma só família'},
+ {v:'metrica',n:'Compatibilidade métrica'},
+ {v:'oposto',n:'Oposição máxima'}
+];
+const WIDTHS=[{v:'none',n:'Nenhuma'},{v:'cond',n:'Condensada'},{v:'norm',n:'Normal'},{v:'ext',n:'Larga'}];
+const CONTRS=[{v:'none',n:'Nenhum'},{v:'low',n:'Baixo — mecânico'},{v:'med',n:'Médio'},{v:'high',n:'Alto — didona'}];
+const BANKS=[
+ ['Google Fonts','O maior banco aberto, com API de entrega e download direto. Licenças SIL OFL e Apache na maioria.','woff2 pela API, ttf no download'],
+ ['Fontshare','Banco da Indian Type Foundry com famílias contemporâneas gratuitas para uso comercial.','woff2 e woff pela API, otf e ttf no download'],
+ ['Fontsource','Espelho das famílias do Google empacotado para npm e CDN, útil para hospedagem própria.','woff2 e woff por arquivo de peso'],
+ ['Bunny Fonts','Espelho do Google sem rastreamento, com a mesma sintaxe de URL.','woff2'],
+ ['Velvetyne','Fundição francesa livre, com desenhos experimentais e licenças abertas.','otf, ttf e woff2'],
+ ['The League of Moveable Type','Projeto veterano de fontes abertas, poucas famílias e muito cuidadas.','otf, ttf e woff'],
+ ['Uncut','Curadoria de famílias gratuitas contemporâneas de várias fundições.','varia por família'],
+ ['Open Foundry','Curadoria com ficha técnica e ensaio sobre cada família aberta.','otf e woff']
+];
+/* ═══════════ INSTRUMENTO DE COR ═══════════ */
+const S={n:5,colors:[],seed:.5,fmt:'css',sel:null,baseOver:null,cvd:'none'};
+const fillSel=(el,arr,key)=>el.innerHTML=arr.map((o,i)=>`<option value="${key?o[key]:i}">${esc(o.n)}</option>`).join('');
+fillSel($('emo'),EMO);fillSel($('mkt'),MKT);fillSel($('scheme'),SCH);
+fillSel($('lens'),LENS);fillSel($('cult'),CULT);fillSel($('mus'),MUS);fillSel($('cvd'),CVDLIST,'v');
+$('emo').value=1;$('mkt').value=3;$('scheme').value=2;$('lens').value=1;
+
+const cur=()=>({E:EMO[+$('emo').value],M:MKT[+$('mkt').value],SC:SCH[+$('scheme').value],
+  L:LENS[+$('lens').value],K:CULT[+$('cult').value],U:MUS[+$('mus').value]});
+
+function baseAngle(rnd){
+  if(S.baseOver!==null)return S.baseOver;
+  const{E,M,K}=cur(),t=+$('pos').value/100,jit=(rnd()-.5)*46;
+  let b;
+  if(E.a===null&&M.a===null) b=S.seed*360;
+  else if(E.a===null) b=M.a;
+  else if(M.a===null) b=E.a;
+  else b=M.a+wrapDeg(E.a-M.a)*t;
+  b=(b+jit+360)%360;
+  if(K.anc){let best=K.anc[0],bd=999;
+    K.anc.forEach(x=>{const d=Math.abs(wrapDeg(x-b));if(d<bd){bd=d;best=x}});
+    b=(b+wrapDeg(best-b)*K.pull+360)%360}
+  return b;
+}
+
+function build(keepLocks){
+  let rs=Math.floor(S.seed*233279)+1;
+  const rnd=()=>{rs=(rs*9301+49297)%233280;return rs/233280};
+  const{SC,L,K,U}=cur(),n=S.n,base=baseAngle(rnd);
+  const Cm=L.Cm*K.Cm*U.Cm, ct=U.ct;
+  const old=S.colors.slice();
+  const out=[];
+  for(let i=0;i<n;i++){
+    const prev=old[i];
+    if(keepLocks&&prev&&prev.lock){out.push(prev);continue}
+    let a;
+    if(SC.off===null) a=prev?prev.a:(base+i*(360/n))%360;
+    else a=i===0?base:(base+SC.off[(i-1)%SC.off.length]+360)%360;
+    // luminosidade vinda do método do estúdio, esticada pelo contraste do estilo musical
+    const jL=(rnd()-.5)*.11, jC=.80+rnd()*.46, jH=(rnd()-.5)*13;
+    if(SC.off!==null&&i>0)a=(a+jH+360)%360;
+    let Lt=L.Lp[i%L.Lp.length]+jL;
+    Lt=.5+(Lt-.5)*(1+ct*.42);
+    if(i===0&&L.dark)Lt=Math.max(.08,Lt+K.trevaD);
+    if(Lt>.9)Lt=Math.min(.995,Lt+K.luzD);
+    if(Lt<.25)Lt=Math.max(.05,Lt+K.trevaD);
+    const nat=atAngle(a);
+    let C=nat.C*Cm*jC*(SC.mono?(1-i*.14):1);
+    if(Lt>.9)C*=.22; else if(Lt<.22)C*=.5;
+    out.push({a,L:Math.max(.04,Math.min(.995,Lt)),C:Math.max(0,C),lock:prev?prev.lock:false});
+  }
+  S.colors=out;
+  if(S.sel!==null&&S.sel>=n)S.sel=null;
+  render();
+}
+const hexOf=c=>oklch2hex(c.L,c.C,atAngle(c.a).H);
+const shown=c=>simulate(hexOf(c),S.cvd);
+const palette=()=>S.colors.map(hexOf);
+
+/* ── proporção ── */
+function proportions(){
+  const{L,U}=cur(),w=S.colors.map((c,i)=>L.w[i%L.w.length]);
+  const ex=.6+U.sy*.9,tot=w.reduce((s,x)=>s+Math.pow(x,ex),0);
+  return w.map(x=>Math.pow(x,ex)/tot*100);
+}
+
+/* ── roda ── */
+function drawWheel(){
+  const cx=200,cy=200,R=168,seg=[];
+  for(let i=0;i<120;i++){const a0=i*3,a1=a0+3.3,h=hexAt(a0+1.6);
+    const p=(a,r)=>[cx+r*Math.cos((a-90)*Math.PI/180),cy+r*Math.sin((a-90)*Math.PI/180)];
+    seg.push(`<path d="M${cx},${cy} L${p(a0,R)} A${R},${R} 0 0 1 ${p(a1,R)} Z" fill="${simulate(h,S.cvd)}"/>`)}
+  seg.push(`<circle cx="${cx}" cy="${cy}" r="${R}" fill="none" stroke="var(--rule)"/>`);
+  seg.push(`<radialGradient id="fade"><stop offset="0%" stop-color="var(--ground)" stop-opacity=".95"/><stop offset="100%" stop-color="var(--ground)" stop-opacity="0"/></radialGradient>`);
+  seg.push(`<circle cx="${cx}" cy="${cy}" r="${R}" fill="url(#fade)"/>`);
+  $('disc').innerHTML=seg.join('');
+  $('ticks').innerHTML=ANCHORS.map(an=>{const r=188,x=cx+r*Math.cos((an.a-90)*Math.PI/180),y=cy+r*Math.sin((an.a-90)*Math.PI/180);
+    return `<text x="${x}" y="${y+4}" text-anchor="${an.a===0||an.a===180?'middle':an.a<180?'start':'end'}" fill="var(--soft)" font-family="IBM Plex Sans,sans-serif" font-size="11">${an.nome}</text>`}).join('');
+
+  const maxC=.33;
+  const pos=c=>{const r=Math.min(1,c.C/maxC)*150+14;
+    return[cx+r*Math.cos((c.a-90)*Math.PI/180),cy+r*Math.sin((c.a-90)*Math.PI/180)]};
+  const pts=S.colors.map(pos);
+  let g='';
+  if(cur().SC.off!==null&&pts.length>1){
+    g+=`<polygon points="${pts.map(p=>p.join(',')).join(' ')}" fill="none" stroke="var(--ink)" stroke-width="1" stroke-opacity=".45"/>`;
+  }
+  pts.forEach(p=>{g+=`<line x1="${cx}" y1="${cy}" x2="${p[0]}" y2="${p[1]}" stroke="var(--ink)" stroke-width=".5" stroke-opacity=".3"/>`});
+  $('geo').innerHTML=g;
+  $('balls').innerHTML=S.colors.map((c,i)=>{const p=pts[i],r=i===0?17:13;
+    return `<g class="ball${c.lock?' lk':''}" data-i="${i}"><circle cx="${p[0]}" cy="${p[1]}" r="${r}" fill="${shown(c)}" stroke="var(--ink)" stroke-width="${S.sel===i?2.6:1.4}"/>
+      ${c.lock?`<circle cx="${p[0]}" cy="${p[1]}" r="4" fill="${readable(hexOf(c))}"/>`:''}
+      <text x="${p[0]}" y="${p[1]-r-6}" text-anchor="middle" font-size="10" fill="var(--soft)" font-family="IBM Plex Sans,sans-serif">${i+1}</text></g>`}).join('');
+  const sc=cur().SC;
+  $('wheelcap').textContent = sc.off===null
+    ? 'Arraste cada bola livremente: o ângulo é o matiz, a distância do centro é o croma. Nenhuma geometria é imposta.'
+    : `${sc.n}. ${sc.d} Arraste qualquer bola e o conjunto gira junto, mantendo as distâncias.`;
+}
+
+/* arraste das bolas */
+(function(){
+  const wv=$('wheel');let dragI=null;
+  const polar=ev=>{const r=wv.getBoundingClientRect(),sx=(ev.clientX-r.left)/r.width*400-200,sy=(ev.clientY-r.top)/r.height*400-200;
+    return{a:(Math.atan2(sy,sx)*180/Math.PI+90+360)%360,r:Math.hypot(sx,sy)}};
+  function move(ev){
+    if(dragI===null)return;
+    const c=S.colors[dragI];if(c.lock)return;
+    const p=polar(ev),maxC=.33,C=Math.max(0,Math.min(maxC,(p.r-14)/150*maxC));
+    const d=wrapDeg(p.a-c.a);
+    if(cur().SC.off!==null)S.colors.forEach(x=>{if(!x.lock)x.a=(x.a+d+360)%360});
+    else c.a=p.a;
+    c.C=C;
+    if(dragI===0)S.baseOver=S.colors[0].a;
+    render();
+  }
+  wv.addEventListener('pointerdown',e=>{const g=e.target.closest('.ball');if(!g)return;
+    dragI=+g.dataset.i;S.sel=dragI;try{wv.setPointerCapture(e.pointerId)}catch(_){}
+    showDetail(dragI);move(e)});
+  wv.addEventListener('pointermove',move);
+  ['pointerup','pointercancel'].forEach(t=>wv.addEventListener(t,()=>{if(dragI!==null){dragI=null;pushH()}}));
+  wv.addEventListener('keydown',e=>{
+    const i=S.sel===null?0:S.sel,c=S.colors[i];if(!c)return;const st=e.shiftKey?12:3;
+    if(e.key==='ArrowRight'){e.preventDefault();c.a=(c.a+st)%360;if(i===0)S.baseOver=c.a;render()}
+    if(e.key==='ArrowLeft'){e.preventDefault();c.a=(c.a-st+360)%360;if(i===0)S.baseOver=c.a;render()}
+    if(e.key==='ArrowUp'){e.preventDefault();c.C=Math.min(.33,c.C+.015);render()}
+    if(e.key==='ArrowDown'){e.preventDefault();c.C=Math.max(0,c.C-.015);render()}
+  });
+})();
+
+/* ── tira ── */
+const VIEWS=[
+ {v:'faixas',n:'Faixas',d:'Arraste as células para reordenar. O cadeado congela a cor na hora de gerar. Toque numa cor para abrir todos os códigos e a escala de tons.'},
+ {v:'proporcao',n:'Proporção',d:'A largura de cada cor é a área que ela deve ocupar segundo o método de estúdio escolhido.'},
+ {v:'cartoes',n:'Cartões',d:'Cada cor com hex, rgb, hsl e cmyk visíveis de uma vez — bom para conferir antes de mandar para gráfica.'},
+ {v:'circulos',n:'Círculos',d:'O diâmetro acompanha a área. Útil para enxergar a dominância sem a distração da forma retangular.'},
+ {v:'aneis',n:'Anéis',d:'Cores encaixadas uma dentro da outra: mostra como cada uma se comporta cercada pela seguinte.'},
+ {v:'escalas',n:'Escalas de tom',d:'A rampa completa de cada cor, de 50 a 950. Toque em qualquer degrau para copiar aquele tom.'},
+ {v:'mosaico',n:'Mosaico',d:'Blocos de tamanhos diferentes, como uma superfície real seria composta.'},
+ {v:'interface',n:'Em interface',d:'A paleta aplicada a uma tela de exemplo, com a razão de contraste do par principal calculada.'},
+ {v:'poster',n:'Em pôster',d:'A paleta em composição impressa, com o fundo mais claro e o texto mais escuro da própria paleta.'},
+ {v:'degrade',n:'Degradê',d:'As cores derretidas umas nas outras, na ordem da tira. Mostra se a sequência tem buracos ou saltos.'}
+];
+S.view='faixas';
+$('viewbar').innerHTML=VIEWS.map(x=>`<button data-v="${x.v}" aria-pressed="${x.v==='faixas'}">${x.n}</button>`).join('');
+$('viewbar').querySelectorAll('button').forEach(b=>b.onclick=()=>{
+  S.view=b.dataset.v;$('viewbar').querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',x===b));render()});
+
+/* ── histórico ── */
+const HIST={s:[],i:-1};
+const snapStr=()=>JSON.stringify({c:S.colors,n:S.n,bo:S.baseOver,
+  e:$('emo').value,m:$('mkt').value,sc:$('scheme').value,l:$('lens').value,k:$('cult').value,u:$('mus').value,p:$('pos').value});
+function pushH(){const v=snapStr();if(HIST.s[HIST.i]===v)return;
+  HIST.s=HIST.s.slice(0,HIST.i+1);HIST.s.push(v);
+  if(HIST.s.length>80)HIST.s.shift();
+  HIST.i=HIST.s.length-1;updH()}
+function updH(){$('undo').disabled=HIST.i<=0;$('redo').disabled=HIST.i>=HIST.s.length-1;
+  $('undo').textContent=HIST.i>0?`← Voltar (${HIST.i})`:'← Voltar'}
+function applyH(k){const v=JSON.parse(HIST.s[k]);
+  S.colors=v.c;S.n=v.n;S.baseOver=v.bo;
+  $('emo').value=v.e;$('mkt').value=v.m;$('scheme').value=v.sc;$('lens').value=v.l;
+  $('cult').value=v.k;$('mus').value=v.u;$('pos').value=v.p;$('posval').textContent=v.p;
+  $('cntLbl').textContent=S.n;
+  $('cnt').querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',+x.dataset.n===S.n));
+  HIST.i=k;render();updH()}
+$('undo').onclick=()=>{if(HIST.i>0){applyH(HIST.i-1);toast('Um passo atrás')}};
+$('redo').onclick=()=>{if(HIST.i<HIST.s.length-1){applyH(HIST.i+1);toast('Um passo à frente')}};
+document.addEventListener('keydown',e=>{
+  if(!$('p-cores').classList.contains('on'))return;
+  const t=e.target.tagName;if(t==='INPUT'||t==='SELECT'||t==='TEXTAREA')return;
+  if((e.metaKey||e.ctrlKey)&&e.key.toLowerCase()==='z'){e.preventDefault();e.shiftKey?$('redo').click():$('undo').click()}});
+
+function drawStrip(){
+  const pr=proportions(),v=S.view;
+  const wrap=$('strip');wrap.className='vwrap';
+  const H=S.colors.map(hexOf),V=S.colors.map(shown);
+  const fg=i=>readable(V[i]);
+  let html='';
+
+  if(v==='faixas'){
+    wrap.className='strip';
+    html=S.colors.map((c,i)=>`<div class="cell" draggable="true" data-i="${i}" style="background:${V[i]};color:${fg(i)}">
+      <div class="top"><span class="rl">${i+1} · ${Math.round(pr[i])}%</span>
+        <span class="tools">
+          <button data-act="lock" title="Congelar">${c.lock?'●':'○'}</button>
+          <button data-act="left" title="Mover para trás">‹</button>
+          <button data-act="right" title="Mover para frente">›</button>
+          <button data-act="copy" title="Copiar">⧉</button>
+          <button data-act="info" title="Abrir códigos">⋯</button>
+        </span></div>
+      <div class="hexbig">${H[i]}</div>
+      <div class="nmx">${nameOf(c.a)}</div>
+      <div class="rgbx">rgb ${hex2rgb(H[i]).join(' · ')}</div>
+    </div>`).join('');
+  }
+  else if(v==='proporcao'){
+    wrap.className='vwrap v-prop';
+    html=S.colors.map((c,i)=>`<button class="pick" data-i="${i}" style="flex:${pr[i].toFixed(2)};background:${V[i]};color:${fg(i)}">
+      <span style="font-family:'Bodoni Moda',serif;font-size:18px">${H[i]}</span>
+      <span style="font-size:11px;opacity:.8">${Math.round(pr[i])}% · rgb ${hex2rgb(H[i]).join(' ')}</span></button>`).join('');
+  }
+  else if(v==='cartoes'){
+    wrap.className='vwrap v-cards';
+    html=S.colors.map((c,i)=>{const[r,g,b]=hex2rgb(H[i]),cm=rgb2cmyk(r,g,b),hs=rgb2hsl(r,g,b);
+      return `<button class="pick" data-i="${i}"><span class="sw" style="background:${V[i]}"></span>
+      <span class="meta"><b>${H[i]}</b>${nameOf(c.a)}<br>rgb ${r} ${g} ${b}<br>hsl ${hs.map(x=>Math.round(x)).join(' ')}<br>cmyk ${cm.map(x=>Math.round(x)).join(' ')}<br>${Math.round(pr[i])}% da área</span></button>`}).join('');
+  }
+  else if(v==='circulos'){
+    wrap.className='vwrap v-circles';
+    const mx=Math.max(...pr);
+    html=S.colors.map((c,i)=>{const d=Math.round(70+Math.sqrt(pr[i]/mx)*130);
+      return `<button class="pick" data-i="${i}" style="width:${d}px;height:${d}px;background:${V[i]};color:${fg(i)}">${d>96?H[i]:''}</button>`}).join('');
+  }
+  else if(v==='aneis'){
+    wrap.className='vwrap v-rings';
+    const n=S.colors.length,R=170;
+    html=`<svg viewBox="0 0 380 380" style="width:100%;max-width:380px;height:auto">`
+      +S.colors.map((c,i)=>{const r=R-(i*(R-26)/n);
+        return `<circle class="pick" data-i="${i}" cx="190" cy="190" r="${r}" fill="${V[i]}" style="cursor:pointer"/>`}).join('')
+      +S.colors.map((c,i)=>{const r=R-(i*(R-26)/n)-((R-26)/n)/2;
+        return `<text x="190" y="${190-r+18}" text-anchor="middle" font-size="12" font-family="IBM Plex Sans,sans-serif" fill="${fg(i)}" style="pointer-events:none">${H[i]}</text>`}).join('')
+      +`</svg>`;
+  }
+  else if(v==='escalas'){
+    wrap.className='vwrap v-ramps';
+    const steps=[50,100,200,300,400,500,600,700,800,900,950];
+    html=S.colors.map((c,i)=>{let row=`<div class="row"><span class="lab">${H[i]}</span>`;
+      for(let k=0;k<11;k++){const L=.97-k*.088,x=oklch2hex(L,c.C*(1-Math.abs(L-c.L)*.5),atAngle(c.a).H);
+        row+=`<button class="pick" data-i="${i}" data-h="${x}" style="background:${simulate(x,S.cvd)};color:${readable(x)}">${steps[k]}</button>`}
+      return row+'</div>'}).join('');
+  }
+  else if(v==='mosaico'){
+    wrap.className='vwrap v-mosaic';
+    html=S.colors.map((c,i)=>{const big=pr[i]>=Math.max(...pr)*.7;
+      return `<button class="pick" data-i="${i}" style="flex:${Math.max(6,pr[i]).toFixed(2)} 1 ${big?'55%':'26%'};background:${V[i]};color:${fg(i)}">${H[i]} · ${Math.round(pr[i])}%</button>`}).join('');
+  }
+  else if(v==='interface'){
+    wrap.className='vwrap';
+    const ls=H.map(lum),bg=H[ls.indexOf(Math.max(...ls))],ink=H[ls.indexOf(Math.min(...ls))];
+    const ac=H.find(x=>x!==bg&&x!==ink&&ratio(x,bg)>=3)||ink;
+    const soft=mixLch(bg,ink,.12);
+    html=`<div class="v-ui" style="background:${bg};color:${ink}">
+      <div class="side" style="background:${soft}">
+        ${['Painel','Coleções','Histórico','Ajustes'].map((t,k)=>
+          `<span class="it" style="${k===0?`background:${ac};color:${readable(ac)}`:''}">${t}</span>`).join('')}
+      </div>
+      <div class="main">
+        <div class="hero" style="background:${ink};color:${readable(ink)}"><h4>Um título dentro de uma interface</h4>
+          <span style="font-size:13px;opacity:.85">O contraste aqui é ${ratio(ink,readable(ink)).toFixed(1)} para 1.</span></div>
+        <div class="tiles">${H.map((x,i)=>`<button class="pick tile" data-i="${i}" style="background:${V[i]};color:${fg(i)}">
+          <span>${nameOf(S.colors[i].a)}</span><span style="font-size:14px">${x}</span></button>`).join('')}</div>
+        <div style="display:flex;gap:9px;flex-wrap:wrap">
+          <span style="background:${ac};color:${readable(ac)};padding:9px 16px;border-radius:2px;font-size:13px">Ação principal</span>
+          <span style="border:1px solid ${ink};padding:9px 16px;border-radius:2px;font-size:13px">Secundária</span>
+        </div>
+      </div></div>`;
+  }
+  else if(v==='poster'){
+    wrap.className='vwrap v-poster';
+    const ls=H.map(lum),bg=H[ls.indexOf(Math.max(...ls))],ink=H[ls.indexOf(Math.min(...ls))];
+    const{E,M}=cur();
+    html=`<div class="inner" style="background:${bg};color:${ink}">
+      <div style="font-size:12px;opacity:.7">${esc(cur().SC.n)}</div>
+      <div class="big">${esc(E.a!==null?E.n:(M.a!==null?M.n:'Paleta'))}</div>
+      <div class="marks">${H.map((x,i)=>`<button class="pick" data-i="${i}" style="background:${V[i]}" title="${x}"></button>`).join('')}</div>
+      <div style="font-size:12px;opacity:.75;display:flex;gap:14px;flex-wrap:wrap">${H.map(x=>`<span>${x}</span>`).join('')}</div>
+    </div>`;
+  }
+  else { /* degradê */
+    wrap.className='vwrap';
+    const stops=H.map((x,i)=>`${V[i]} ${Math.round(i/(H.length-1||1)*100)}%`);
+    html=`<div class="v-blend" style="background:linear-gradient(90deg,${stops.join(',')})">
+      ${H.map((x,i)=>`<button class="pick hit" data-i="${i}" title="${x}" style="left:${i/(H.length||1)*100}%;width:${100/(H.length||1)}%;background:transparent"></button>`).join('')}
+    </div>`;
+  }
+  wrap.innerHTML=html;
+
+  wrap.querySelectorAll('.pick').forEach(el=>{
+    el.onclick=()=>{if(el.dataset.h)return copy(el.dataset.h,el.dataset.h+' copiado');openDetail(+el.dataset.i)}});
+  wrap.querySelectorAll('.cell').forEach(el=>{
+    const i=+el.dataset.i;
+    el.onclick=ev=>{if(ev.target.closest('button'))return;openDetail(i)};
+    el.querySelectorAll('button').forEach(b=>b.onclick=ev=>{ev.stopPropagation();
+      const a=b.dataset.act;
+      if(a==='lock')S.colors[i].lock=!S.colors[i].lock;
+      if(a==='copy')return copy(hexOf(S.colors[i]),hexOf(S.colors[i])+' copiado');
+      if(a==='info')return openDetail(i);
+      if(a==='left'&&i>0){const t=S.colors[i-1];S.colors[i-1]=S.colors[i];S.colors[i]=t}
+      if(a==='right'&&i<S.colors.length-1){const t=S.colors[i+1];S.colors[i+1]=S.colors[i];S.colors[i]=t}
+      render();pushH()});
+    el.ondragstart=ev=>{ev.dataTransfer.setData('text/plain',i);el.classList.add('drag')};
+    el.ondragend=()=>el.classList.remove('drag');
+    el.ondragover=ev=>ev.preventDefault();
+    el.ondrop=ev=>{ev.preventDefault();const from=+ev.dataTransfer.getData('text/plain');
+      if(isNaN(from)||from===i)return;const it=S.colors.splice(from,1)[0];S.colors.splice(i,0,it);render();pushH()};
+  });
+
+  $('viewhint').textContent=VIEWS.find(x=>x.v===S.view).d;
+  $('prop').innerHTML=S.colors.map((c,i)=>
+    `<div style="flex:${pr[i].toFixed(2)};background:${V[i]};color:${fg(i)}">${pr[i]>=9?Math.round(pr[i])+'%':''}</div>`).join('');
+  const{L,U}=cur(),top=pr.indexOf(Math.max(...pr));
+  $('propnote').textContent=`Área segundo o método de ${L.n.split(' — ')[0]}`
+    +(U.Cm!==1||U.sy!==.5?`, reescrita pela dinâmica de ${U.n.toLowerCase()}`:'')
+    +`. A cor ${top+1} domina com ${Math.round(pr[top])}% — é a ordem, mais que os números, que decide se o conjunto é lido como contido ou como declarado.`;
+}
+
+/* ── detalhe de uma cor ── */
+function openDetail(i){
+  showDetail(i);render();
+  const el=$('detail');
+  try{el.scrollIntoView({behavior:'smooth',block:'start'})}catch(_){}
+  el.classList.remove('flash');void el.offsetWidth;el.classList.add('flash');
+}
+function showDetail(i){
+  const c=S.colors[i];if(!c)return;S.sel=i;
+  const h=hexOf(c);
+  $('detail').style.display='block';
+  $('dHead').setAttribute('style',`background:${shown(c)};color:${readable(shown(c))}`);
+  $('dHead').textContent=`${h} · ${nameOf(c.a)} · ${Math.round(proportions()[i])}% da área`;
+  $('dTitle').textContent=`Cor ${i+1} — ${nameOf(c.a)}`;
+  $('dCodes').innerHTML=allCodes(h).map(([k,v])=>
+    `<button class="code" data-v="${esc(v)}"><b>${k}</b><span>${esc(v)}</span></button>`).join('')
+    +`<div class="code"><b>Matiz no círculo</b><span>${Math.round(c.a)}°</span></div>`;
+  $('dCodes').querySelectorAll('button').forEach(b=>b.onclick=()=>copy(b.dataset.v,'Copiado'));
+  const steps=[50,100,200,300,400,500,600,700,800,900,950],ramp=[];
+  for(let k=0;k<11;k++){const L=.97-k*.088;
+    ramp.push(oklch2hex(L,c.C*(1-Math.abs(L-c.L)*.5),atAngle(c.a).H))}
+  $('dRamp').innerHTML=ramp.map((x,k)=>`<button class="cell" style="background:${simulate(x,S.cvd)};color:${readable(x)};flex:1;min-width:62px;min-height:74px;border:0;cursor:pointer;font:inherit" data-h="${x}">
+     <div class="rgbx" style="opacity:.85">${steps[k]}</div><div style="font-size:11px">${x}</div></button>`).join('');
+  $('dRamp').querySelectorAll('button').forEach(b=>b.onclick=()=>copy(b.dataset.h,b.dataset.h+' copiado'));
+}
+$('dClose').onclick=()=>{$('detail').style.display='none';S.sel=null;render()};
+
+/* ── leituras ── */
+function drawReads(){
+  const{E,M,SC,L,K,U}=cur(),a=S.colors[0]?S.colors[0].a:0,pct=Math.round(+$('pos').value);
+  const post=S.baseOver!==null?'posicionada à mão no anel':E.a===null||M.a===null?'sem tensão entre intenção e campo':
+    pct<25?'quase inteiramente dentro da convenção do campo':pct<50?'ancorada na convenção, com desvio perceptível':
+    pct<75?'mais próxima da intenção do que da categoria':'deliberadamente fora do que o campo faz';
+  const lado=a>=30&&a<=150?'Está no lado positivo — o lado que Goethe descreve como ativo, quente e que se aproxima de quem olha.'
+    :a>=210&&a<=330?'Está no lado negativo — passivo, frio, que segundo ele afasta o olho em vez de atraí-lo.'
+    :'Está no ponto em que os dois lados do círculo se encontram, onde a intensificação chega ao purpúreo.';
+  $('goetheRead').innerHTML=`<p class="lede">${E.g}</p><p class="lede" style="margin-top:10px">A primeira cor caiu em <b style="color:var(--ink)">${nameOf(a).toLowerCase()}</b> (${Math.round(a)}° no círculo), ${post}. ${lado}</p>`;
+  $('verdict').innerHTML=`<b>${SC.n}.</b> ${SC.d}`;
+  let h=`<p class="lede"><b style="color:var(--ink)">${M.n}.</b> A convenção é ${M.c}. ${M.d}</p>`;
+  h+=`<p class="lede" style="margin-top:10px"><b style="color:var(--ink)">${L.n}.</b> ${L.m}</p>`;
+  if(K.m)h+=`<p class="lede" style="margin-top:10px"><b style="color:var(--ink)">${K.n}.</b> ${K.m}</p>`;
+  if(U.m)h+=`<p class="lede" style="margin-top:10px"><b style="color:var(--ink)">${U.n}.</b> ${U.m}</p>`;
+  $('marketRead').innerHTML=h;
+  $('caution').innerHTML=K.anc
+    ? `<b>Sobre a referência cultural.</b> O que entra aqui é lógica de pigmento e de valor — de onde vinha a cor, o que ela custava, em que proporção aparecia. Grafismo é outra coisa: moko, kusiwa e padrões de tecelagem são taonga e propriedade cultural, não repertório disponível. Se o projeto for para um público ou território dessa cultura, a paleta é ponto de partida de uma conversa com quem pertence a ela, e não substituto dela.`
+    : `<b>Sem referência cultural.</b> A paleta vem só do círculo, do campo e da lente. Ao escolher uma referência, o matiz é puxado na direção dos pigmentos historicamente disponíveis àquela cultura — e vem com uma nota sobre o limite do que se pode tomar emprestado.`;
+  $('palTitle').textContent=`${S.n} cores`;
+  $('palSub').textContent=[E.a!==null?E.n.toLowerCase():null,M.a!==null?('em '+M.n.toLowerCase()):null,
+    L.Cm!==1||L.n!=='Nenhuma'?('sob a lente '+L.n.split(' — ')[0]):null,
+    K.anc?('inflectida por '+K.n.split(' — ')[0]):null,
+    U.m?('em dinâmica de '+U.n.toLowerCase()):null].filter(Boolean).join(', ')+'.';
+}
+
+S.ctTarget=4.5;S.ctPair=null;
+const LVL=r=>r>=7?'AAA':r>=4.5?'AA':r>=3?'AA grande':'baixo';
+function fixFor(txt,bg,target){
+  const t=hex2lch(txt),cands=[];
+  [1,-1].forEach(dir=>{
+    for(let k=1;k<=110;k++){const L=t.L+dir*k*.01;
+      if(L<0||L>1)break;
+      const h=oklch2hex(L,t.C,t.H);
+      if(ratio(h,bg)>=target){cands.push({h,L,d:Math.abs(L-t.L)});break}}});
+  if(!cands.length)return null;
+  cands.sort((a,b)=>a.d-b.d);return cands[0];
+}
+function drawContrast(){
+  const hs=palette(),n=hs.length,T=S.ctTarget;
+  $('ctLegend').innerHTML=`Exigência atual: <b style="color:var(--ink)">${T.toFixed(1).replace('.',',')} para 1</b>. `
+    +(T===4.5?'É o mínimo do WCAG 2.1 para texto de leitura, do tamanho de um parágrafo. Serve como régua padrão.'
+     :T===3?'Basta para título grande, texto em negrito acima de 18 pontos, ícones, bordas de campo e outros elementos de interface.'
+     :'O nível mais alto do WCAG, pensado para quem tem baixa visão ou lê em condições ruins de luz. Exigir isso encolhe muito a paleta utilizável.')
+    +` <span style="opacity:.85">Cada célula mostra o nível que o par alcança — AAA a partir de 7, AA a partir de 4,5, AA grande a partir de 3, e baixo abaixo disso. As que não chegam à exigência aparecem riscadas e com contorno.</span>`;
+  const head='<tr><th class="rh">fundo &#8595; &nbsp; texto &#8594;</th>'
+    +hs.map((h,j)=>`<th>${j+1}</th>`).join('')+'</tr>';
+  const body=hs.map((bg,i)=>`<tr><th class="rh">${i+1} · ${bg}</th>`
+    +hs.map((tx,j)=>{
+      if(i===j)return `<td><button class="diag" disabled>—</button></td>`;
+      const r=ratio(tx,bg),ok=r>=T;
+      return `<td><button data-i="${i}" data-j="${j}" class="${ok?'':'fail'}${S.ctPair&&S.ctPair[0]===i&&S.ctPair[1]===j?' sel':''}" style="background:${bg};color:${tx}">
+        <span class="num">${r.toFixed(1).replace('.',',')}</span><span class="lvl">${LVL(r)}</span></button></td>`}).join('')
+    +'</tr>').join('');
+  $('ctGrid').innerHTML=head+body;
+  $('ctGrid').querySelectorAll('button[data-i]').forEach(b=>b.onclick=()=>{
+    S.ctPair=[+b.dataset.i,+b.dataset.j];drawContrast()});
+
+  // par escolhido, em tamanho real
+  if(S.ctPair&&S.ctPair[0]<n&&S.ctPair[1]<n){
+    const[i,j]=S.ctPair,bg=hs[i],tx=hs[j],r=ratio(tx,bg),ok=r>=T;
+    const fx=ok?null:fixFor(tx,bg,T);
+    $('ctPair').innerHTML=`<div class="ctpair">
+      <div class="demo" style="background:${bg};color:${tx}">
+        <p class="t">Um título nesta combinação</p>
+        <p class="p">E um parágrafo do tamanho que você realmente vai usar, com linhas suficientes para perceber se o olho cansa antes do fim. É aqui que se descobre se a razão de contraste era só um número.</p>
+        <p class="s">Cor ${j+1} ${tx} sobre cor ${i+1} ${bg} · ${r.toFixed(2).replace('.',',')} para 1 · ${LVL(r)}</p>
+      </div>
+      <div class="foot">${ok
+        ? `Este par passa na exigência atual. Pode usar como texto sobre fundo.`
+        : `Este par fica abaixo de ${T.toFixed(1).replace('.',',')}. `+(fx
+            ? `Mantendo o mesmo matiz e croma e mexendo só na luminosidade, a cor ${j+1} chegaria lá em <b style="color:var(--ink)">${fx.h}</b>.`
+            : `Não existe luminosidade que resolva sem mudar o matiz — troque uma das duas cores.`)}
+        <div class="btnrow" style="margin-top:10px">
+          ${!ok&&fx?`<button class="mini" id="ctApply">Corrigir a cor ${j+1} para ${fx.h}</button>`:''}
+          <button class="mini" id="ctSwap">Inverter fundo e texto</button>
+          <button class="mini" id="ctCopy">Copiar o par</button>
+          <button class="mini" id="ctClear">Fechar</button>
+        </div>
+      </div></div>`;
+    if(!ok&&fx)$('ctApply').onclick=()=>{S.colors[j].L=fx.L;render();pushH();toast(`Cor ${j+1} ajustada para ${fx.h}`)};
+    $('ctSwap').onclick=()=>{S.ctPair=[j,i];drawContrast()};
+    $('ctCopy').onclick=()=>copy(`fundo ${bg} · texto ${tx} · ${r.toFixed(2)}:1 · ${LVL(r)}`,'Par copiado');
+    $('ctClear').onclick=()=>{S.ctPair=null;drawContrast()};
+  } else $('ctPair').innerHTML='';
+
+  // melhores pares
+  const pairs=[];
+  hs.forEach((bg,i)=>hs.forEach((tx,j)=>{if(i!==j){const r=ratio(tx,bg);if(r>=T)pairs.push({i,j,bg,tx,r})}}));
+  pairs.sort((a,b)=>b.r-a.r);
+  const seen=new Set(),best=[];
+  pairs.forEach(x=>{const k=[x.i,x.j].sort().join('-');if(seen.has(k))return;seen.add(k);if(best.length<6)best.push(x)});
+  if(!best.length){
+    $('ctBest').innerHTML='';$('ctNone').style.display='block';
+    $('ctNone').textContent=`Nenhum par desta paleta alcança ${T.toFixed(1).replace('.',',')} para 1. `
+      +`Isso não invalida a paleta: quer dizer que ela é de superfície, não de texto — e que o texto vai precisar de um preto ou um branco vindo de fora dela.`;
+  } else {
+    $('ctNone').style.display='none';
+    $('ctBest').innerHTML=best.map(x=>`<button class="b" data-i="${x.i}" data-j="${x.j}" style="background:${x.bg};color:${x.tx}">
+      <span class="l">Texto da cor ${x.j+1} sobre a cor ${x.i+1}</span>
+      <span class="m">${x.tx} sobre ${x.bg} · ${x.r.toFixed(2).replace('.',',')} para 1 · ${LVL(x.r)}</span></button>`).join('');
+    $('ctBest').querySelectorAll('button').forEach(b=>b.onclick=()=>{
+      S.ctPair=[+b.dataset.i,+b.dataset.j];drawContrast();
+      try{$('ctPair').scrollIntoView({behavior:'smooth',block:'center'})}catch(_){}});
+  }
+}
+$('ctMode').querySelectorAll('button').forEach(b=>b.onclick=()=>{
+  S.ctTarget=+b.dataset.t;
+  $('ctMode').querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',x===b));
+  drawContrast()});
+
+function render(){drawWheel();drawStrip();drawReads();drawContrast();drawOut();
+  if($('detail').style.display==='block'&&S.sel!==null)showDetail(S.sel);
+  if($('scale').classList.contains('on'))scaleFill();
+  if(typeof renderSpec==='function')renderSpec();}
+
+/* ── controles ── */
+['emo','mkt','scheme','lens','cult','mus'].forEach(id=>$(id).onchange=()=>{S.baseOver=null;build(true);pushH()});
+$('cvd').onchange=()=>{S.cvd=$('cvd').value;render()};
+$('pos').oninput=()=>{$('posval').textContent=$('pos').value;S.baseOver=null;build(true)};
+$('pos').onchange=pushH;
+$('cnt').querySelectorAll('button').forEach(b=>b.onclick=()=>{
+  S.n=+b.dataset.n;$('cntLbl').textContent=S.n;
+  $('cnt').querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',x===b));build(true);pushH()});
+$('gen').onclick=()=>{S.seed=Math.random();S.baseOver=null;build(true);pushH();
+  toast('Nova combinação — use Voltar para recuperar a anterior')};
+document.addEventListener('keydown',e=>{
+  if(e.code!=='Space')return;
+  const t=e.target.tagName;
+  if(t==='INPUT'||t==='SELECT'||t==='TEXTAREA'||t==='BUTTON')return;
+  if(!$('p-cores').classList.contains('on'))return;
+  e.preventDefault();$('gen').click()});
+
+/* ── em escala ── */
+function scaleFill(){
+  const el=$('scale');[...el.querySelectorAll('.band')].forEach(b=>b.remove());
+  const pr=proportions();
+  S.colors.forEach((c,i)=>{const h=hexOf(c),v=shown(c),d=document.createElement('div');
+    d.className='band';d.style.flex=pr[i].toFixed(2);d.style.background=v;d.style.color=readable(v);
+    d.innerHTML=`<span>${h} · ${Math.round(pr[i])}%</span>`;d.onclick=()=>copy(h,h+' copiado');el.appendChild(d)});
+  const{E,M,L}=cur();
+  $('scaleBig').textContent=E.a!==null?E.n:(M.a!==null?M.n:'Paleta');
+  $('scaleSm').textContent=[M.a!==null?M.n:null,L.n.split(' — ')[0],cur().SC.n].filter(Boolean).join(' · ');
+}
+$('scaleBtn').onclick=()=>{scaleFill();$('scale').classList.add('on');document.body.style.overflow='hidden'};
+$('scaleX').onclick=()=>{$('scale').classList.remove('on');document.body.style.overflow=''};
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&$('scale').classList.contains('on'))$('scaleX').click()});
+/* ═══════════ EXPORTAÇÃO ═══════════ */
+function palName(){const{E,M,L}=cur();
+  return [E.a!==null?E.n:null,M.a!==null?M.n:null,L.n!=='Nenhuma'?L.n.split(' — ')[0]:null].filter(Boolean).join(' · ')||'Paleta'}
+
+function svgPalette(w,h){
+  const hs=palette(),pr=proportions(),n=hs.length;
+  w=w||1200;h=h||600;const barH=h-150;let x=0,out='';
+  hs.forEach((c,i)=>{const cw=w*pr[i]/100;
+    out+=`<rect x="${x.toFixed(2)}" y="0" width="${cw.toFixed(2)}" height="${barH}" fill="${c}"/>`;x+=cw});
+  const cw=w/n;
+  hs.forEach((c,i)=>{const cx=i*cw;
+    out+=`<rect x="${cx.toFixed(2)}" y="${barH}" width="${cw.toFixed(2)}" height="150" fill="${c}"/>`
+      +`<text x="${(cx+16).toFixed(2)}" y="${barH+52}" font-family="Helvetica,Arial,sans-serif" font-size="22" fill="${readable(c)}">${c}</text>`
+      +`<text x="${(cx+16).toFixed(2)}" y="${barH+82}" font-family="Helvetica,Arial,sans-serif" font-size="14" fill="${readable(c)}" opacity=".78">rgb ${hex2rgb(c).join(' ')}</text>`
+      +`<text x="${(cx+16).toFixed(2)}" y="${barH+104}" font-family="Helvetica,Arial,sans-serif" font-size="14" fill="${readable(c)}" opacity=".78">cmyk ${rgb2cmyk(...hex2rgb(c)).map(v=>Math.round(v)).join(' ')}</text>`
+      +`<text x="${(cx+16).toFixed(2)}" y="${barH+128}" font-family="Helvetica,Arial,sans-serif" font-size="13" fill="${readable(c)}" opacity=".6">${Math.round(pr[i])}% da área</text>`});
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}"><title>${esc(palName())}</title>${out}</svg>`;
+}
+function rasterBlob(kind){
+  return new Promise((res,rej)=>{
+    const w=1600,h=800,cv=$('cv'),ctx=cv.getContext('2d');cv.width=w;cv.height=h;
+    const img=new Image(),svg=svgPalette(w,h);
+    img.onload=()=>{if(kind==='jpg'){ctx.fillStyle='#fff';ctx.fillRect(0,0,w,h)}
+      ctx.drawImage(img,0,0,w,h);
+      cv.toBlob(b=>b?res(b):rej(0),kind==='jpg'?'image/jpeg':'image/png',.92)};
+    img.onerror=()=>rej(0);
+    img.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(svg)})}
+function rasterize(kind){rasterBlob(kind)
+  .then(b=>download(slug(palName())+'.'+(kind==='jpg'?'jpg':'png'),b))
+  .catch(()=>toast('Não foi possível rasterizar aqui — baixe o SVG'))}
+function aseFile(){
+  const hs=palette(),names=hs.map((h,i)=>`${slug(palName())}-${i+1}`);
+  let size=12;names.forEach((nm,i)=>{size+=6+(2+(nm.length+1)*2+4+12+2)});
+  const buf=new ArrayBuffer(size),dv=new DataView(buf);let o=0;
+  'ASEF'.split('').forEach(c=>dv.setUint8(o++,c.charCodeAt(0)));
+  dv.setUint16(o,1);o+=2;dv.setUint16(o,0);o+=2;dv.setUint32(o,hs.length);o+=4;
+  hs.forEach((hex,i)=>{
+    const nm=names[i],bodyLen=2+(nm.length+1)*2+4+12+2;
+    dv.setUint16(o,0x0001);o+=2;dv.setUint32(o,bodyLen);o+=4;
+    dv.setUint16(o,nm.length+1);o+=2;
+    for(let k=0;k<nm.length;k++){dv.setUint16(o,nm.charCodeAt(k));o+=2}
+    dv.setUint16(o,0);o+=2;
+    'RGB '.split('').forEach(c=>dv.setUint8(o++,c.charCodeAt(0)));
+    const [r,g,b]=hex2rgb(hex);
+    dv.setFloat32(o,r/255);o+=4;dv.setFloat32(o,g/255);o+=4;dv.setFloat32(o,b/255);o+=4;
+    dv.setUint16(o,2);o+=2;
+  });
+  return new Blob([buf],{type:'application/octet-stream'});
+}
+function gplFile(){
+  const hs=palette();
+  return `GIMP Palette\nName: ${palName()}\nColumns: ${hs.length}\n#\n`
+    +hs.map((h,i)=>{const[r,g,b]=hex2rgb(h);
+      return `${String(r).padStart(3)} ${String(g).padStart(3)} ${String(b).padStart(3)}\t${slug(palName())}-${i+1} ${h}`}).join('\n')+'\n';
+}
+function txtFile(){
+  return palette().map((h,i)=>{const[r,g,b]=hex2rgb(h),c=rgb2cmyk(r,g,b),l=hex2lch(h);
+    return `Cor ${i+1} — ${nameOf(S.colors[i].a)}\n  HEX ${h}\n  RGB ${r}, ${g}, ${b}\n  HSL ${rgb2hsl(r,g,b).map(v=>Math.round(v)).join(', ')}\n  CMYK ${c.map(v=>Math.round(v)).join(', ')}\n  OKLCH ${Math.round(l.L*100)}% ${r3(l.C)} ${Math.round(l.H)}\n  Área ${Math.round(proportions()[i])}%`}).join('\n\n');
+}
+function csvFile(){
+  const hs=palette(),pr=proportions();
+  return 'indice,nome,hex,r,g,b,h,s,l,c,m,y,k,oklch_l,oklch_c,oklch_h,area_pct\n'
+   +hs.map((h,i)=>{const[r,g,b]=hex2rgb(h),hl=rgb2hsl(r,g,b),cm=rgb2cmyk(r,g,b),o=hex2lch(h);
+     return [i+1,'"'+nameOf(S.colors[i].a)+'"',h,r,g,b,...hl.map(x=>x.toFixed(1)),...cm.map(x=>x.toFixed(1)),
+       (o.L*100).toFixed(1),o.C.toFixed(4),o.H.toFixed(1),pr[i].toFixed(1)].join(',')}).join('\n');
+}
+function posterBlob(){return new Promise(res=>{posterDraw();$('cv').toBlob(b=>res(b),'image/png')})}
+function posterPng(){posterBlob().then(b=>download(slug(palName())+'-poster.png',b))}
+function posterDraw(){
+  const w=2000,h=2500,cv=$('cv'),ctx=cv.getContext('2d');cv.width=w;cv.height=h;
+  const hs=palette(),ls=hs.map(lum),bg=hs[ls.indexOf(Math.max(...ls))],ink=hs[ls.indexOf(Math.min(...ls))],pr=proportions();
+  ctx.fillStyle=bg;ctx.fillRect(0,0,w,h);
+  let x=0;hs.forEach((c,i)=>{const cw=w*pr[i]/100;ctx.fillStyle=c;ctx.fillRect(x,760,cw,900);x+=cw});
+  ctx.fillStyle=ink;ctx.font='500 130px Georgia, serif';
+  const{E,M}=cur();ctx.fillText(String(E.a!==null?E.n:(M.a!==null?M.n:'Paleta')).slice(0,26),120,320);
+  ctx.font='40px Helvetica, Arial, sans-serif';ctx.globalAlpha=.75;
+  ctx.fillText(cur().SC.n+' · '+cur().L.n.split(' — ')[0],120,400);ctx.globalAlpha=1;
+  const cw=w/hs.length;
+  hs.forEach((c,i)=>{ctx.fillStyle=c;ctx.fillRect(i*cw,1760,cw,420);
+    ctx.fillStyle=readable(c);ctx.font='44px Helvetica, Arial, sans-serif';
+    ctx.fillText(c,i*cw+34,1860);
+    ctx.font='30px Helvetica, Arial, sans-serif';ctx.globalAlpha=.8;
+    ctx.fillText('rgb '+hex2rgb(c).join(' '),i*cw+34,1912);
+    ctx.fillText('cmyk '+rgb2cmyk(...hex2rgb(c)).map(v=>Math.round(v)).join(' '),i*cw+34,1958);
+    ctx.fillText(Math.round(pr[i])+'% da área',i*cw+34,2004);ctx.globalAlpha=1});
+  ctx.fillStyle=ink;ctx.globalAlpha=.6;ctx.font='34px Helvetica, Arial, sans-serif';
+  ctx.fillText('Derivada do círculo cromático de Goethe',120,2350);ctx.globalAlpha=1;
+}
+function allText(){
+  return ['css','scss','json','tw','swift','android','flutter','hex']
+    .map(f=>`/* ══ ${f.toUpperCase()} ══ */\n`+codeOut(f)).join('\n\n')
+    +'\n\n/* ══ CSV ══ */\n'+csvFile()+'\n\n/* ══ TODOS OS CÓDIGOS ══ */\n'+txtFile();
+}
+function doExport(k){
+  const base=slug(palName());
+  if(k==='svg')download(base+'.svg',svgPalette(),'image/svg+xml');
+  else if(k==='png'||k==='jpg')rasterize(k);
+  else if(k==='poster')posterPng();
+  else if(k==='ase')download(base+'.ase',aseFile());
+  else if(k==='gpl')download(base+'.gpl',gplFile(),'text/plain');
+  else if(k==='csv')download(base+'.csv',csvFile(),'text/csv');
+  else if(k==='md')download(base+'.md',mdPalette(),'text/markdown');
+  else if(k==='all')download(base+'-tudo.txt',allText(),'text/plain');
+  else download(base+'.txt',txtFile(),'text/plain');
+}
+document.querySelectorAll('[data-ex]').forEach(b=>b.onclick=()=>doExport(b.dataset.ex));
+
+/* ── empacotamento em .zip, sem biblioteca ── */
+const CRCT=(()=>{const t=new Uint32Array(256);
+  for(let n=0;n<256;n++){let c=n;for(let k=0;k<8;k++)c=c&1?0xEDB88320^(c>>>1):c>>>1;t[n]=c>>>0}return t})();
+function crc32(u8){let c=0xFFFFFFFF;for(let i=0;i<u8.length;i++)c=CRCT[(c^u8[i])&255]^(c>>>8);return(c^0xFFFFFFFF)>>>0}
+function makeZip(files){
+  const te=new TextEncoder(),parts=[],cd=[];let off=0;
+  const d=new Date(),dt=((d.getFullYear()-1980)<<9)|((d.getMonth()+1)<<5)|d.getDate(),
+        tm=(d.getHours()<<11)|(d.getMinutes()<<5)|(d.getSeconds()>>1);
+  files.forEach(f=>{
+    const nm=te.encode(f.name),crc=crc32(f.data),sz=f.data.length;
+    const lh=new Uint8Array(30+nm.length),v=new DataView(lh.buffer);
+    v.setUint32(0,0x04034b50,true);v.setUint16(4,20,true);v.setUint16(6,0x0800,true);
+    v.setUint16(10,tm,true);v.setUint16(12,dt,true);v.setUint32(14,crc,true);
+    v.setUint32(18,sz,true);v.setUint32(22,sz,true);v.setUint16(26,nm.length,true);
+    lh.set(nm,30);parts.push(lh,f.data);
+    const ch=new Uint8Array(46+nm.length),w=new DataView(ch.buffer);
+    w.setUint32(0,0x02014b50,true);w.setUint16(4,20,true);w.setUint16(6,20,true);
+    w.setUint16(8,0x0800,true);w.setUint16(12,tm,true);w.setUint16(14,dt,true);
+    w.setUint32(16,crc,true);w.setUint32(20,sz,true);w.setUint32(24,sz,true);
+    w.setUint16(28,nm.length,true);w.setUint32(42,off,true);
+    ch.set(nm,46);cd.push(ch);off+=lh.length+sz;
+  });
+  const cdSize=cd.reduce((a,x)=>a+x.length,0);
+  const eo=new Uint8Array(22),e=new DataView(eo.buffer);
+  e.setUint32(0,0x06054b50,true);e.setUint16(8,files.length,true);e.setUint16(10,files.length,true);
+  e.setUint32(12,cdSize,true);e.setUint32(16,off,true);
+  return new Blob(parts.concat(cd,[eo]),{type:'application/zip'});
+}
+const ZIPFMTS=[
+ {k:'svg',n:'SVG da paleta'},{k:'png',n:'PNG da paleta'},{k:'jpg',n:'JPG da paleta'},
+ {k:'poster',n:'Pôster PNG'},{k:'ase',n:'ASE da Adobe'},{k:'gpl',n:'GPL do GIMP'},
+ {k:'csv',n:'CSV'},{k:'txt',n:'Todos os códigos em txt'},{k:'grad',n:'SVG do gradiente'},
+ {k:'md',n:'Markdown para o Claude'},
+ {k:'css',n:'CSS'},{k:'scss',n:'SCSS'},{k:'json',n:'JSON'},{k:'tw',n:'Tailwind'},
+ {k:'swift',n:'SwiftUI'},{k:'android',n:'Android XML'},{k:'flutter',n:'Flutter'},{k:'hex',n:'Hex puro'},
+ {k:'tipocss',n:'CSS da tipografia'},{k:'tipohtml',n:'HTML com o texto'},{k:'amostra',n:'PNG da amostra'}
+];
+const ZIPON=new Set(['svg','png','ase','css','json','md']);
+$('expZip').innerHTML=ZIPFMTS.map(f=>
+  `<label><input type="checkbox" data-z="${f.k}" ${ZIPON.has(f.k)?'checked':''}>${f.n}</label>`).join('');
+$('zipAll').onclick=()=>$('expZip').querySelectorAll('input').forEach(i=>i.checked=true);
+$('zipNone').onclick=()=>$('expZip').querySelectorAll('input').forEach(i=>i.checked=false);
+function gradSvgString(){
+  const N=20,st=Array.from({length:N+1},(_,i)=>`<stop offset="${(i/N*100).toFixed(1)}%" stop-color="${gradSample(easeT(i/N))}"/>`).join('');
+  const ang=+$('gAngle').value,rad=(ang-90)*Math.PI/180;
+  const x2=(.5+Math.cos(rad)*.5).toFixed(3),y2=(.5+Math.sin(rad)*.5).toFixed(3),
+        x1=(.5-Math.cos(rad)*.5).toFixed(3),y1=(.5-Math.sin(rad)*.5).toFixed(3);
+  const def=$('gType').value==='radial'?`<radialGradient id="g">${st}</radialGradient>`
+    :`<linearGradient id="g" x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}">${st}</linearGradient>`;
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900"><defs>${def}</defs><rect width="1600" height="900" fill="url(#g)"/></svg>`;
+}
+function tipoOut(fmt){
+  if(!window.T||!T.fams||!T.fams.length)return '';
+  const o=T.fmt;T.fmt=fmt;drawTOut();const t=$('tOut').textContent;T.fmt=o;drawTOut();return t}
+async function bytesOf(b){return new Uint8Array(await b.arrayBuffer())}
+async function fileFor(k){
+  const te=new TextEncoder(),base=slug(palName());
+  if(k==='svg')return{name:base+'.svg',data:te.encode(svgPalette())};
+  if(k==='png')return{name:base+'.png',data:await bytesOf(await rasterBlob('png'))};
+  if(k==='jpg')return{name:base+'.jpg',data:await bytesOf(await rasterBlob('jpg'))};
+  if(k==='poster')return{name:base+'-poster.png',data:await bytesOf(await posterBlob())};
+  if(k==='ase')return{name:base+'.ase',data:await bytesOf(aseFile())};
+  if(k==='gpl')return{name:base+'.gpl',data:te.encode(gplFile())};
+  if(k==='csv')return{name:base+'.csv',data:te.encode(csvFile())};
+  if(k==='txt')return{name:base+'-codigos.txt',data:te.encode(txtFile())};
+  if(k==='grad')return{name:'gradiente.svg',data:te.encode(gradSvgString())};
+  if(k==='md')return{name:base+'.md',data:te.encode(mdPalette())};
+  if(k==='tipocss'){const t=tipoOut('css');return t?{name:'tipografia.css',data:te.encode(t)}:null}
+  if(k==='tipohtml'){const t=tipoOut('html');return t?{name:'amostra.html',data:te.encode(t)}:null}
+  if(k==='amostra'){if(!window.T||!T.fams||!T.fams.length)return null;
+    return{name:'amostra.png',data:await bytesOf(await specBlob())}}
+  return{name:base+'.'+EXT[k],data:te.encode(codeOut(k))};
+}
+$('zipGo').onclick=async()=>{
+  const ks=[...$('expZip').querySelectorAll('input')].filter(i=>i.checked).map(i=>i.dataset.z);
+  if(!ks.length)return toast('Marque ao menos um formato');
+  const btn=$('zipGo'),lbl=btn.textContent;btn.textContent='Montando…';btn.disabled=true;
+  const files=[];
+  for(const k of ks){try{const f=await fileFor(k);if(f)files.push(f)}catch(_){}}
+  btn.textContent=lbl;btn.disabled=false;
+  if(!files.length)return toast('Nenhum formato pôde ser gerado');
+  files.push({name:'leiame.txt',data:new TextEncoder().encode(
+    `${palName()}\n\nEsquema: ${cur().SC.n}\nCores: ${palette().join('  ')}\n`
+    +`Área: ${proportions().map((v,i)=>'cor '+(i+1)+' '+Math.round(v)+'%').join(' · ')}\n\n`
+    +`Derivada do círculo cromático de Goethe. Conversões em OKLab, croma ajustado ao gamut sRGB.\n`
+    +`Gerado em ${new Date().toLocaleString('pt-BR')}.\n`)});
+  download(slug(palName())+'.zip',makeZip(files));
+  toast(files.length+' arquivos no pacote');
+};
+const EXT={css:'css',scss:'scss',json:'json',tw:'js',swift:'swift',android:'xml',flutter:'dart',hex:'txt'};
+$('expCode').innerHTML=Object.keys(EXT).map(f=>`<button class="mini" data-cf="${f}">${f==='tw'?'Tailwind':f==='hex'?'Hex puro':f.toUpperCase()}</button>`).join('');
+$('expCode').querySelectorAll('button').forEach(b=>b.onclick=()=>{
+  const f=b.dataset.cf;download(slug(palName())+'.'+EXT[f],codeOut(f),'text/plain')});
+$('expBtn').onclick=()=>{$('expName').textContent=palName()+' — '+palette().join('  ');
+  $('exp').classList.add('on');document.body.style.overflow='hidden'};
+$('expClose').onclick=()=>{$('exp').classList.remove('on');document.body.style.overflow=''};
+$('exp').onclick=e=>{if(e.target.id==='exp')$('expClose').click()};
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&$('exp').classList.contains('on'))$('expClose').click()});
+
+/* ── código ── */
+function codeOut(f){
+  const hs=palette(),pr=proportions(),nm=palName(),
+        names=hs.map((h,i)=>`cor-${i+1}`);
+  const head=`${nm} — esquema ${cur().SC.n.toLowerCase()}`;
+  if(f==='css')return `/* ${head} */\n:root{\n`+hs.map((h,i)=>`  --${names[i]}: ${h};`).join('\n')
+    +'\n}\n\n/* área sugerida */\n'+pr.map((p,i)=>`/* ${names[i]}: ${Math.round(p)}% */`).join('\n');
+  if(f==='scss')return `// ${head}\n`+hs.map((h,i)=>`$${names[i]}: ${h};`).join('\n')
+    +`\n$paleta: (${hs.map((h,i)=>`"${names[i]}": ${h}`).join(', ')});`;
+  if(f==='json')return JSON.stringify({nome:nm,esquema:cur().SC.n,
+    cores:hs.map((h,i)=>{const[r,g,b]=hex2rgb(h),l=hex2lch(h);
+      return{nome:names[i],hex:h,rgb:[r,g,b],hsl:rgb2hsl(r,g,b).map(v=>+v.toFixed(1)),
+        cmyk:rgb2cmyk(r,g,b).map(v=>+v.toFixed(1)),oklch:[+(l.L*100).toFixed(1),+l.C.toFixed(4),+l.H.toFixed(1)],
+        area:+pr[i].toFixed(1)}})},null,2);
+  if(f==='tw')return `// tailwind.config.js — ${head}\nmodule.exports={theme:{extend:{colors:{\n`
+    +hs.map((h,i)=>`  "${names[i]}": "${h}",`).join('\n')+'\n}}}}';
+  if(f==='swift')return `// ${head}\nimport SwiftUI\nextension Color{\n`
+    +hs.map((h,i)=>{const[r,g,b]=hex2rgb(h);
+      return `  static let ${names[i].replace(/-/g,'')} = Color(red: ${r3(r/255)}, green: ${r3(g/255)}, blue: ${r3(b/255)})`}).join('\n')+'\n}';
+  if(f==='android')return `<!-- ${head} -->\n<resources>\n`
+    +hs.map((h,i)=>`  <color name="${names[i].replace(/-/g,'_')}">#FF${h.slice(1)}</color>`).join('\n')+'\n</resources>';
+  if(f==='flutter')return `// ${head}\nclass Paleta{\n`
+    +hs.map((h,i)=>`  static const ${names[i].replace(/-/g,'')} = Color(0xFF${h.slice(1)});`).join('\n')+'\n}';
+  return hs.join('\n');
+}
+function drawOut(){$('out').textContent=codeOut(S.fmt)}
+$('codeTabs').querySelectorAll('button').forEach(b=>b.onclick=()=>{
+  S.fmt=b.dataset.f;$('codeTabs').querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',x===b));drawOut()});
+$('copy').onclick=()=>copy($('out').textContent,'Código copiado');
+$('dlTxt').onclick=()=>{const ext={css:'css',scss:'scss',json:'json',tw:'js',swift:'swift',android:'xml',flutter:'dart',hex:'txt'}[S.fmt];
+  download(slug(palName())+'.'+ext,$('out').textContent,'text/plain')};
+
+/* ═══════════ GRADIENTES ═══════════ */
+const G={stops:[{t:0,hex:'#22409B'},{t:1,hex:'#F2CC00'}],sel:0};
+function easeT(t){const m=$('gEase').value;
+  if(m==='ease')return t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2;
+  if(m==='in')return t*t;if(m==='out')return 1-(1-t)*(1-t);return t}
+function gradSample(t){
+  const st=[...G.stops].sort((a,b)=>a.t-b.t);
+  if(t<=st[0].t)return st[0].hex;
+  if(t>=st[st.length-1].t)return st[st.length-1].hex;
+  for(let i=0;i<st.length-1;i++){
+    if(t>=st[i].t&&t<=st[i+1].t){
+      const f=(t-st[i].t)/((st[i+1].t-st[i].t)||1),sp=$('gSpace').value;
+      const A=st[i].hex,B=st[i+1].hex;
+      if(sp==='srgb'){const a=hex2rgb(A),b=hex2rgb(B);
+        return rgb2hex(a[0]+(b[0]-a[0])*f,a[1]+(b[1]-a[1])*f,a[2]+(b[2]-a[2])*f)}
+      if(sp==='hsl'){const a=rgb2hsl(...hex2rgb(A)),b=rgb2hsl(...hex2rgb(B));
+        const h=(a[0]+wrapDeg(b[0]-a[0])*f+360)%360,s=a[1]+(b[1]-a[1])*f,l=a[2]+(b[2]-a[2])*f;
+        return hslHex(h,s,l)}
+      if(sp==='oklch')return mixLch(A,B,f);
+      const oa=rgb2oklab(...hex2rgb(A)),ob=rgb2oklab(...hex2rgb(B));
+      const L=oa.L+(ob.L-oa.L)*f,aa=oa.a+(ob.a-oa.a)*f,bb=oa.b+(ob.b-oa.b)*f;
+      return oklch2hex(L,Math.hypot(aa,bb),(Math.atan2(bb,aa)*180/Math.PI+360)%360);
+    }}
+  return st[0].hex;
+}
+function hslHex(h,s,l){s/=100;l/=100;const c=(1-Math.abs(2*l-1))*s,x=c*(1-Math.abs((h/60)%2-1)),m=l-c/2;
+  let r,g,b;const k=Math.floor(h/60)%6;
+  [[c,x,0],[x,c,0],[0,c,x],[0,x,c],[x,0,c],[c,0,x]].forEach((v,i)=>{if(i===k){r=v[0];g=v[1];b=v[2]}});
+  return rgb2hex((r+m)*255,(g+m)*255,(b+m)*255)}
+function gradCssString(){
+  const N=20,stops=[];
+  for(let i=0;i<=N;i++){const t=i/N;stops.push(`${simulate(gradSample(easeT(t)),S.cvd)} ${Math.round(t*100)}%`)}
+  const ty=$('gType').value,ang=$('gAngle').value;
+  if(ty==='radial')return `radial-gradient(circle at 50% 50%, ${stops.join(', ')})`;
+  if(ty==='conic')return `conic-gradient(from ${ang}deg at 50% 50%, ${stops.join(', ')})`;
+  return `linear-gradient(${ang}deg, ${stops.join(', ')})`;
+}
+function drawGrad(){
+  const css=gradCssString();
+  $('gradPrev').style.background=css;
+  $('gradBar').style.background=`linear-gradient(90deg, ${Array.from({length:21},(_,i)=>`${simulate(gradSample(easeT(i/20)),S.cvd)} ${i*5}%`).join(', ')})`;
+  $('gradBar').innerHTML=G.stops.map((s,i)=>
+    `<div class="stop${G.sel===i?' sel':''}" data-i="${i}" style="left:${s.t*100}%"><i style="background:${s.hex}"></i></div>`).join('');
+  $('gradBar').querySelectorAll('.stop').forEach(el=>{
+    const i=+el.dataset.i;
+    el.addEventListener('pointerdown',e=>{e.stopPropagation();G.sel=i;el.setPointerCapture(e.pointerId);
+      const mv=ev=>{const r=$('gradBar').getBoundingClientRect();
+        G.stops[i].t=Math.max(0,Math.min(1,(ev.clientX-r.left)/r.width));drawGrad()};
+      const up=()=>{el.removeEventListener('pointermove',mv);el.removeEventListener('pointerup',up)};
+      el.addEventListener('pointermove',mv);el.addEventListener('pointerup',up);drawGrad()});
+  });
+  $('gAngleV').textContent=$('gAngle').value+'°';
+  $('gradCss').textContent='background: '+css+';\n\n/* paradas */\n'
+    +[...G.stops].sort((a,b)=>a.t-b.t).map(s=>`/* ${s.hex} em ${Math.round(s.t*100)}% */`).join('\n');
+}
+$('gAdd').onclick=()=>{const t=G.stops.length?Math.min(1,Math.max(...G.stops.map(s=>s.t))-.25):.5;
+  G.stops.push({t:Math.max(0,t),hex:gradSample(Math.max(0,t))});G.sel=G.stops.length-1;drawGrad()};
+$('gDel').onclick=()=>{if(G.stops.length<=2)return toast('Um gradiente precisa de ao menos duas paradas');
+  G.stops.splice(G.sel,1);G.sel=0;drawGrad()};
+$('gRev').onclick=()=>{G.stops.forEach(s=>s.t=1-s.t);drawGrad()};
+$('gFromPal').onclick=()=>{const hs=palette();
+  G.stops=hs.map((h,i)=>({t:hs.length===1?0:i/(hs.length-1),hex:h}));G.sel=0;drawGrad();toast('Paradas puxadas da paleta')};
+['gType','gSpace','gEase'].forEach(id=>$(id).onchange=drawGrad);
+$('gAngle').oninput=drawGrad;
+$('gCopy').onclick=()=>copy('background: '+gradCssString()+';','CSS do gradiente copiado');
+$('gSvg').onclick=()=>{
+  const N=20,st=Array.from({length:N+1},(_,i)=>`<stop offset="${(i/N*100).toFixed(1)}%" stop-color="${gradSample(easeT(i/N))}"/>`).join('');
+  const ang=+$('gAngle').value,rad=(ang-90)*Math.PI/180;
+  const x2=(.5+Math.cos(rad)*.5).toFixed(3),y2=(.5+Math.sin(rad)*.5).toFixed(3),
+        x1=(.5-Math.cos(rad)*.5).toFixed(3),y1=(.5-Math.sin(rad)*.5).toFixed(3);
+  const def=$('gType').value==='radial'
+    ? `<radialGradient id="g">${st}</radialGradient>`
+    : `<linearGradient id="g" x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}">${st}</linearGradient>`;
+  download('gradiente.svg',`<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900"><defs>${def}</defs><rect width="1600" height="900" fill="url(#g)"/></svg>`,'image/svg+xml')};
+$('gPng').onclick=()=>{const w=1600,h=900,cv=$('cv'),ctx=cv.getContext('2d');cv.width=w;cv.height=h;
+  const ang=(+$('gAngle').value-90)*Math.PI/180;
+  const gr=$('gType').value==='radial'
+    ? ctx.createRadialGradient(w/2,h/2,0,w/2,h/2,Math.hypot(w,h)/2)
+    : ctx.createLinearGradient(w/2-Math.cos(ang)*w/2,h/2-Math.sin(ang)*h/2,w/2+Math.cos(ang)*w/2,h/2+Math.sin(ang)*h/2);
+  for(let i=0;i<=40;i++)gr.addColorStop(i/40,gradSample(easeT(i/40)));
+  ctx.fillStyle=gr;ctx.fillRect(0,0,w,h);cv.toBlob(b=>download('gradiente.png',b),'image/png')};
+
+/* ── paletas salvas ── */
+const MEM={};
+const store={
+  async list(pre){if(window.storage&&window.storage.list)try{return await window.storage.list(pre)}catch(_){}
+    return{keys:Object.keys(MEM).filter(k=>k.startsWith(pre))}},
+  async get(k){if(window.storage&&window.storage.get)try{const r=await window.storage.get(k);if(r)return r}catch(_){}
+    return MEM[k]?{key:k,value:MEM[k]}:null},
+  async set(k,v){let ok=false;
+    if(window.storage&&window.storage.set)try{ok=!!await window.storage.set(k,v)}catch(_){}
+    MEM[k]=v;return ok}
+};
+async function listSaved(){
+  try{const r=await store.list('pal:'),keys=(r&&r.keys)||[];
+    if(!keys.length){$('savedEmpty').style.display='block';$('saved').innerHTML='';$('savedInline').innerHTML='';return}
+    $('savedEmpty').style.display='none';const items=[];
+    for(const k of keys.slice(-16)){try{const g=await store.get(k);if(g)items.push({k,v:JSON.parse(g.value)})}catch(_){}}
+    const mk=({k,v})=>`<button class="mini" data-k="${k}" style="display:flex;align-items:center;gap:7px">
+      <span style="display:flex">${v.hex.map(c=>`<i style="display:block;width:9px;height:14px;background:${c}"></i>`).join('')}</span>${esc(v.nome)}</button>`;
+    $('saved').innerHTML=items.map(mk).join('');
+    $('savedInline').innerHTML=items.slice(-6).map(mk).join('');
+    [...$('saved').querySelectorAll('button'),...$('savedInline').querySelectorAll('button')].forEach(b=>b.onclick=async()=>{
+      const g=await store.get(b.dataset.k),v=JSON.parse(g.value);
+      $('emo').value=v.e;$('mkt').value=v.m;$('scheme').value=v.s;$('lens').value=v.l;$('cult').value=v.k;$('mus').value=v.u;
+      $('pos').value=v.pos;$('posval').textContent=v.pos;S.n=v.c.length;$('cntLbl').textContent=S.n;
+      $('cnt').querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',+x.dataset.n===S.n));
+      S.colors=v.c;S.baseOver=v.c[0]?v.c[0].a:null;render();pushH();toast('Paleta recarregada');
+      try{window.scrollTo({top:0,behavior:'smooth'})}catch(_){}});
+  }catch(_){$('savedEmpty').textContent='Não foi possível ler as paletas salvas neste ambiente.'}
+}
+$('save').onclick=async()=>{
+  const rec={nome:palName().slice(0,48),hex:palette(),c:S.colors.map(c=>({a:c.a,L:c.L,C:c.C,lock:false})),
+    e:$('emo').value,m:$('mkt').value,s:$('scheme').value,l:$('lens').value,k:$('cult').value,u:$('mus').value,pos:$('pos').value};
+  const ok=await store.set('pal:'+Date.now(),JSON.stringify(rec));
+  await listSaved();
+  toast(ok?'Paleta salva — aparece logo abaixo dos botões':'Salva só nesta sessão: este navegador não guardou');
+};
+/* ═══════════ INSTRUMENTO DE TIPOGRAFIA ═══════════ */
+const T={disp:null,body:null,mono:null,seed:.3,fmt:'css'};
+const clsOpts=[{v:'none',n:'Nenhuma'}].concat(Object.keys(CLS).map(k=>({v:k,n:CLS[k].n})));
+const bankOpts=[{v:'none',n:'Nenhum — todos'},{v:'google',n:'Google Fonts'},{v:'fontshare',n:'Fontshare'}];
+fillSel($('tEmo'),EMO);fillSel($('tUse'),USES,'v');fillSel($('tStrat'),STRATS,'v');
+fillSel($('tClsD'),clsOpts,'v');fillSel($('tClsB'),clsOpts,'v');fillSel($('tBank'),bankOpts,'v');
+fillSel($('tWidth'),WIDTHS,'v');fillSel($('tContr'),CONTRS,'v');
+$('tStrat').value='contraste';
+$('banks').innerHTML=BANKS.map(b=>`<tr><td>${esc(b[0])}</td><td class="sm" style="color:var(--soft)">${esc(b[1])}</td><td class="sm" style="color:var(--soft)">${esc(b[2])}</td></tr>`).join('');
+
+const isSerif=c=>c.startsWith('serif');
+const fam=f=>`"${f.n}", ${f.cls==='mono'?'ui-monospace, monospace':isSerif(f.cls)?'Georgia, serif':'system-ui, sans-serif'}`;
+function describe(f){
+  const p=[CLS[f.cls].n.toLowerCase()];
+  p.push(f.x>=.54?'altura de x alta':f.x<=.45?'altura de x baixa':'altura de x média');
+  p.push(f.ct>=.7?'contraste de traço alto':f.ct<=.15?'contraste quase nulo':'contraste moderado');
+  if(f.w<=.36)p.push('condensada');else if(f.w>=.56)p.push('larga');
+  p.push(f.role==='display'?'feita para corpo grande':f.role==='body'?'feita para texto corrido':f.role==='mono'?'monoespaçada':'serve a título e a texto');
+  return p.join(', ')+'.';
+}
+const widthBand=w=>w<=.36?'cond':w>=.56?'ext':'norm';
+const contrBand=c=>c<=.2?'low':c>=.65?'high':'med';
+
+function candidates(slot){
+  const bank=$('tBank').value,wf=$('tWidth').value,cf=$('tContr').value,
+        cls=slot==='disp'?$('tClsD').value:$('tClsB').value,use=$('tUse').value;
+  return FONTS.filter(f=>{
+    if(f.cls==='mono'&&slot!=='mono')return false;
+    if(slot==='mono'&&f.cls!=='mono')return false;
+    if(bank!=='none'&&f.src!==bank)return false;
+    if(cls!=='none'&&f.cls!==cls)return false;
+    if(wf!=='none'&&widthBand(f.w)!==wf)return false;
+    if(cf!=='none'&&contrBand(f.ct)!==cf)return false;
+    if(slot==='disp'&&f.role==='body'&&use==='display')return false;
+    if(slot==='body'&&f.role==='display')return false;
+    if(slot==='body'&&use==='editorial'&&f.cls==='sans-geo')return false;
+    if(slot==='body'&&use==='ui'&&f.ct>=.7)return false;
+    return true});
+}
+function moodScore(f){const e=EMO[+$('tEmo').value];if(e.a===null)return 0;
+  const key=e.n.split(' ')[0].toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+  return f.moods.some(m=>m.normalize('NFD').replace(/[\u0300-\u036f]/g,'').startsWith(key.slice(0,5)))?26:0}
+function pairScore(d,b){
+  const st=$('tStrat').value;let s=moodScore(d)*1.1+moodScore(b);
+  const sameSuper=d.sf&&d.sf===b.sf,sameFam=d.n===b.n;
+  const classDiff=isSerif(d.cls)!==isSerif(b.cls)?1:d.cls!==b.cls?.5:0;
+  const ctDiff=Math.abs(d.ct-b.ct),xDiff=Math.abs(d.x-b.x),wDiff=Math.abs(d.w-b.w);
+  if(st==='super')s+=sameFam?-35:(sameSuper?60:-45);
+  else if(st==='uma')s+=sameFam?70:-60;
+  else if(st==='contraste'){s+=classDiff*34+ctDiff*40-xDiff*70-wDiff*40;if(sameFam)s-=60}
+  else if(st==='metrica'){s+=(1-xDiff*4)*40+(1-wDiff*4)*26+classDiff*12;if(sameFam)s-=40}
+  else if(st==='oposto'){s+=classDiff*40+ctDiff*60+wDiff*40;if(sameFam)s-=80}
+  else {s+=classDiff*10-xDiff*20;if(sameFam)s-=25}
+  if(b.role==='display')s-=25;
+  if(d.role==='body')s-=10;
+  return s;
+}
+function pickPair(){
+  const D=candidates('disp'),B=candidates('body');
+  if(!D.length||!B.length)return null;
+  let rs=Math.floor(T.seed*233279)+1;
+  const rnd=()=>{rs=(rs*9301+49297)%233280;return rs/233280};
+  const pairs=[];
+  D.forEach(d=>B.forEach(b=>pairs.push({d,b,s:pairScore(d,b)+rnd()*24})));
+  pairs.sort((x,y)=>y.s-x.s);
+  const pool=pairs.slice(0,Math.max(1,Math.min(8,pairs.length)));
+  return pool[Math.floor(rnd()*pool.length)];
+}
+
+/* ── carregamento das famílias ── */
+const loaded=new Set();
+function loadFont(f){
+  if(!f||loaded.has(f.n))return;loaded.add(f.n);
+  const l=document.createElement('link');l.rel='stylesheet';
+  l.href=f.src==='google'
+    ? `https://fonts.googleapis.com/css2?family=${f.n.replace(/ /g,'+')}:wght@${f.wts}&display=swap`
+    : `https://api.fontshare.com/v2/css?f[]=${slug(f.n)}@${f.wts.replace(/;/g,',')}&display=swap`;
+  document.head.appendChild(l);
+}
+
+/* ── níveis da hierarquia ── */
+const ROLES=[
+ {k:'rotulo',    n:'Rótulo',     step:-1,wt:'mid', lh:1.4, tr:.05, it:false,cs:'none',slot:'aux'},
+ {k:'titulo',    n:'Título',     step:4, wt:'max', lh:1.0, tr:-.02,it:false,cs:'none',slot:'disp'},
+ {k:'subtitulo', n:'Subtítulo',  step:2, wt:'mid', lh:1.18,tr:-.01,it:false,cs:'none',slot:'disp'},
+ {k:'paragrafo', n:'Parágrafo',  step:0, wt:'reg', lh:1.6, tr:0,   it:false,cs:'none',slot:'body'},
+ {k:'destaque',  n:'Destaque',   step:1, wt:'bold',lh:1.38,tr:0,   it:false,cs:'none',slot:'accent'},
+ {k:'citacao',   n:'Citação',    step:2, wt:'reg', lh:1.3, tr:-.01,it:true, cs:'none',slot:'quote'},
+ {k:'referencia',n:'Referência', step:-1,wt:'reg', lh:1.5, tr:.01, it:false,cs:'none',slot:'aux'},
+ {k:'botao',     n:'Botão',      step:0, wt:'mid', lh:1,   tr:.01, it:false,cs:'none',slot:'accent'}
+];
+const CASES=[{v:'none',n:'Nenhuma — como está'},{v:'upper',n:'Maiúsculas'},{v:'lower',n:'Minúsculas'},{v:'cap',n:'Iniciais maiúsculas'}];
+const STEPS=[-2,-1,0,1,2,3,4,5,6];
+T.fams=[];T.nFam=2;T.role='titulo';T.ov={};T.off={};
+
+function slotIndex(slot,n){
+  if(n<=1)return 0;
+  if(n===2)return{disp:0,quote:0,body:1,aux:1,accent:1}[slot];
+  if(n===3)return{disp:0,quote:0,body:1,aux:2,accent:1}[slot];
+  if(n===4)return{disp:0,quote:3,body:1,aux:2,accent:1}[slot];
+  return{disp:0,quote:3,body:1,aux:2,accent:4}[slot];
+}
+function weightOf(f,kind){
+  const ws=f.wts.split(';').map(Number).sort((a,b)=>a-b);
+  if(kind==='max')return ws[ws.length-1];
+  if(kind==='bold')return ws.reduce((p,c)=>Math.abs(c-700)<Math.abs(p-700)?c:p,ws[0]);
+  if(kind==='mid')return ws.reduce((p,c)=>Math.abs(c-550)<Math.abs(p-550)?c:p,ws[0]);
+  return ws.reduce((p,c)=>Math.abs(c-400)<Math.abs(p-400)?c:p,ws[0]);
+}
+function roleDef(k){return ROLES.find(r=>r.k===k)}
+function roleCfg(k){
+  const d=roleDef(k),o=T.ov[k]||{},n=T.fams.length;
+  const fi=o.fam!==undefined?Math.min(o.fam,n-1):slotIndex(d.slot,n);
+  const f=T.fams[fi]||T.fams[0];
+  return{f,fi,wt:o.wt!==undefined?o.wt:weightOf(f,d.wt),
+    step:o.step!==undefined?o.step:d.step,
+    lh:o.lh!==undefined?o.lh:d.lh,
+    tr:o.tr!==undefined?o.tr:d.tr,
+    it:o.it!==undefined?o.it:d.it,
+    cs:o.cs!==undefined?o.cs:d.cs,
+    col:o.col!==undefined?o.col:'auto'};
+}
+function roleColors(){
+  const mode=$('tPal').value,hs=palette(),ls=hs.map(lum);
+  if(mode==='none')return{bg:'#FFFFFF',fg:'#111111',ac:'#111111',mut:'#6B6B6B',pal:hs};
+  let bg=hs[ls.indexOf(Math.max(...ls))],fg=hs[ls.indexOf(Math.min(...ls))];
+  if(mode==='inv'){const t=bg;bg=fg;fg=t}
+  const ac=hs.find(h=>h!==bg&&h!==fg&&ratio(h,bg)>=3)||fg;
+  return{bg,fg,ac,mut:mixLch(fg,bg,.42),pal:hs};
+}
+function autoColor(k,C){
+  return{rotulo:C.mut,titulo:C.fg,subtitulo:C.mut,paragrafo:C.fg,
+   destaque:ratio(C.ac,C.bg)>=4.5?C.ac:C.fg,citacao:C.ac,referencia:C.mut,botao:C.bg}[k]||C.fg}
+function roleCss(k){
+  const c=roleCfg(k),C=roleColors(),base=+$('tBase').value,rt=+$('tRatio').value;
+  const size=Math.round(base*Math.pow(rt,c.step)*10)/10;
+  const col=c.col==='auto'?autoColor(k,C):C.pal[+c.col]||C.fg;
+  const lhAdj=k==='paragrafo'?+$('tLh').value/100:c.lh;
+  const trAdj=k==='titulo'?+$('tTrack').value/1000:c.tr;
+  return{size,col,lh:lhAdj,tr:trAdj,c,
+    style:`font-family:${fam(c.f)};font-weight:${c.wt};font-size:${size}px;line-height:${lhAdj};`
+      +`letter-spacing:${trAdj}em;color:${col};font-style:${c.it?'italic':'normal'};`
+      +`text-transform:${c.cs==='upper'?'uppercase':c.cs==='lower'?'lowercase':c.cs==='cap'?'capitalize':'none'};`};
+}
+
+/* ── texto do usuário ── */
+const SAMPLE_TXT=`### Instrumento cromático
+# A cor nasce no limite entre a luz e a treva
+## Goethe recusou a explicação puramente física e colocou o olho no centro do problema
+O que vemos depende do objeto, da iluminação e de quem olha. Dessa recusa nasce um círculo de seis matizes, com um lado que se aproxima e outro que se afasta, e uma intensificação que leva os dois extremos a se encontrarem no purpúreo.
+! A mesma lógica vale para a escolha de uma família tipográfica: a forma não é neutra.
+> No verde, olho e alma descansam. Não se quer ir além, e não se pode.
+A escolha entre duas famílias raramente é de gosto. É de estrutura: altura de x, contraste de traço, largura e ritmo decidem se o parágrafo parece uniforme ou manchado.
+[Ver a paleta completa]
+-- Zur Farbenlehre, 1810. Tradução livre.`;
+function parseText(t){
+  return t.split('\n').map(l=>{const s=l.trim();if(!s)return null;
+    if(s.startsWith('### '))return{r:'rotulo',t:s.slice(4)};
+    if(s.startsWith('## '))return{r:'subtitulo',t:s.slice(3)};
+    if(s.startsWith('# '))return{r:'titulo',t:s.slice(2)};
+    if(s.startsWith('> '))return{r:'citacao',t:s.slice(2)};
+    if(s.startsWith('! '))return{r:'destaque',t:s.slice(2)};
+    if(s.startsWith('-- '))return{r:'referencia',t:s.slice(3)};
+    if(/^\[.+\]$/.test(s))return{r:'botao',t:s.slice(1,-1)};
+    return{r:'paragrafo',t:s}}).filter(Boolean)
+    .filter(b=>!T.off[b.r]);
+}
+
+/* ── painel de hierarquia ── */
+function drawRoleBar(){
+  $('tRoleBar').innerHTML=ROLES.map(r=>
+    `<button data-k="${r.k}" class="${T.off[r.k]?'off':''}" aria-pressed="${T.role===r.k}">${r.n}</button>`).join('')
+    +`<button data-all="1" style="margin-left:8px">Ligar e desligar níveis</button>`;
+  $('tRoleBar').querySelectorAll('button').forEach(b=>{
+    if(b.dataset.all){b.onclick=()=>{T.pick=!T.pick;
+      toast(T.pick?'Agora um toque no nível liga ou desliga':'De volta a ajustar níveis');drawRoleBar()};
+      b.setAttribute('aria-pressed',!!T.pick);return}
+    b.onclick=()=>{if(T.pick){T.off[b.dataset.k]=!T.off[b.dataset.k]}else T.role=b.dataset.k;renderSpec()}});
+}
+function drawRoleCtl(){
+  const k=T.role,c=roleCfg(k),d=roleDef(k),C=roleColors();
+  const opt=(arr,val,lbl)=>arr.map(o=>`<option value="${o.v}" ${String(o.v)===String(val)?'selected':''}>${esc(lbl?lbl(o):o.n)}</option>`).join('');
+  $('tRoleCtl').innerHTML=`
+   <div class="ctl"><label for="rFam">Família de ${d.n.toLowerCase()}</label><select id="rFam">
+     ${T.fams.map((f,i)=>`<option value="${i}" ${i===c.fi?'selected':''}>${esc(f.n)}</option>`).join('')}</select></div>
+   <div class="ctl"><label for="rWt">Peso</label><select id="rWt">
+     ${c.f.wts.split(';').map(x=>`<option value="${x}" ${+x===c.wt?'selected':''}>${x}</option>`).join('')}</select></div>
+   <div class="ctl"><label for="rStep">Degrau da escala</label><select id="rStep">
+     ${STEPS.map(x=>`<option value="${x}" ${x===c.step?'selected':''}>${x>0?'+'+x:x} · ${Math.round(+$('tBase').value*Math.pow(+$('tRatio').value,x)*10)/10}px</option>`).join('')}</select></div>
+   <div class="ctl"><label for="rLh">Entrelinha <b>${c.lh.toFixed(2).replace('.',',')}</b></label>
+     <input type="range" id="rLh" min="90" max="220" value="${Math.round(c.lh*100)}"></div>
+   <div class="ctl"><label for="rTr">Entreletra <b>${c.tr.toFixed(3).replace('.',',')}em</b></label>
+     <input type="range" id="rTr" min="-60" max="80" value="${Math.round(c.tr*1000)}"></div>
+   <div class="ctl"><label for="rCs">Caixa</label><select id="rCs">${opt(CASES,c.cs)}</select></div>
+   <div class="ctl"><label for="rCol">Cor</label><select id="rCol">
+     <option value="auto" ${c.col==='auto'?'selected':''}>Automática pela paleta</option>
+     ${C.pal.map((h,i)=>`<option value="${i}" ${String(c.col)===String(i)?'selected':''}>Cor ${i+1} — ${h}</option>`).join('')}</select></div>
+   <div class="ctl"><label for="rIt">Itálico</label><select id="rIt">
+     <option value="0" ${!c.it?'selected':''}>Nenhum</option><option value="1" ${c.it?'selected':''}>Itálico</option></select></div>`;
+  const set=(key,val)=>{T.ov[k]=T.ov[k]||{};T.ov[k][key]=val;renderSpec()};
+  $('rFam').onchange=e=>{T.ov[k]=T.ov[k]||{};delete T.ov[k].wt;set('fam',+e.target.value)};
+  $('rWt').onchange=e=>set('wt',+e.target.value);
+  $('rStep').onchange=e=>set('step',+e.target.value);
+  $('rLh').oninput=e=>set('lh',+e.target.value/100);
+  $('rTr').oninput=e=>set('tr',+e.target.value/1000);
+  $('rCs').onchange=e=>set('cs',e.target.value);
+  $('rCol').onchange=e=>set('col',e.target.value);
+  $('rIt').onchange=e=>set('it',e.target.value==='1');
+}
+function drawRoleRows(){
+  $('tRoleRows').innerHTML=ROLES.map(r=>{const c=roleCfg(r.k),s=roleCss(r.k);
+    return `<tr style="${T.off[r.k]?'opacity:.4':''}"><td>${r.n}${T.off[r.k]?' · desligado':''}</td>
+      <td>${esc(c.f.n)}</td><td class="r">${s.size}px</td><td class="r">${c.wt}</td>
+      <td class="r">${s.lh.toFixed(2).replace('.',',')}</td>
+      <td><span style="display:inline-block;width:11px;height:11px;background:${s.col};vertical-align:-1px;margin-right:5px"></span>${s.col}</td></tr>`}).join('');
+}
+
+/* ── amostra ── */
+function renderSpec(){
+  if(!T.fams.length)return;
+  const C=roleColors(),base=+$('tBase').value,rt=+$('tRatio').value,meas=+$('tMeasure').value;
+  $('tBaseV').textContent=base+'px';$('tMeasureV').textContent=meas+' caracteres';
+  $('tLhV').textContent=(+$('tLh').value/100).toFixed(2).replace('.',',');
+  $('tTrackV').textContent=(+$('tTrack').value/1000).toFixed(3).replace('.',',')+'em';
+  drawRoleBar();drawRoleCtl();drawRoleRows();
+  const blocks=parseText($('tText').value||SAMPLE_TXT);
+  $('spec').setAttribute('style',`background:${C.bg};color:${C.fg}`);
+  $('spec').innerHTML=blocks.map(b=>{
+    const s=roleCss(b.r),mw=['titulo','subtitulo'].includes(b.r)?'20ch':meas+'ch';
+    if(b.r==='botao')return `<p style="margin:0 0 16px"><span style="${s.style}background:${C.ac};color:${readable(C.ac)};display:inline-block;padding:.7em 1.3em;border-radius:2px">${esc(b.t)}</span></p>`;
+    if(b.r==='citacao')return `<blockquote style="${s.style}margin:0 0 18px;padding-left:18px;border-left:2px solid ${s.col};max-width:${meas}ch">${esc(b.t)}</blockquote>`;
+    if(b.r==='titulo')return `<h1 style="${s.style}margin:0 0 14px;max-width:${mw}">${esc(b.t)}</h1>`;
+    if(b.r==='subtitulo')return `<h2 style="${s.style}margin:0 0 16px;max-width:${meas}ch">${esc(b.t)}</h2>`;
+    if(b.r==='rotulo')return `<p style="${s.style}margin:0 0 10px">${esc(b.t)}</p>`;
+    if(b.r==='destaque')return `<p style="${s.style}margin:0 0 16px;max-width:${meas}ch">${esc(b.t)}</p>`;
+    if(b.r==='referencia')return `<p style="${s.style}margin:14px 0 0;max-width:${meas}ch">${esc(b.t)}</p>`;
+    return `<p style="${s.style}margin:0 0 13px;max-width:${meas}ch">${esc(b.t)}</p>`}).join('');
+  const labels=[['Referência','referencia'],['Parágrafo','paragrafo'],['Destaque','destaque'],['Citação','citacao'],['Subtítulo','subtitulo'],['Título','titulo']];
+  $('ratioList').innerHTML=labels.map(([lb,k])=>{const s=roleCss(k),c=roleCfg(k);
+    return `<div><span>${s.size}px</span><span style="font-family:${fam(c.f)};font-weight:${c.wt};font-size:${Math.min(s.size,54)}px;line-height:1.1;font-style:${c.it?'italic':'normal'}">${lb}</span></div>`}).join('');
+  drawCards();drawTOut();
+}
+function drawCards(){
+  const roleOf=f=>ROLES.filter(r=>!T.off[r.k]&&roleCfg(r.k).f===f).map(r=>r.n).join(', ')||'sem nível atribuído';
+  $('tCards').innerHTML=T.fams.map((f,i)=>`<div class="fontcard">
+    <div class="big" style="font-family:${fam(f)}">${esc(f.n)}</div>
+    <div class="meta">${roleOf(f)}</div>
+    <div class="meta">${f.src==='google'?'Google Fonts':'Fontshare'} · pesos ${f.wts.replace(/;/g,', ')}</div>
+    <div class="meta">${describe(f)}</div>
+    <div class="pills">${f.moods.map(m=>`<span class="pill">${m}</span>`).join('')}</div>
+  </div>`).join('');
+  const d=T.fams[0],b=T.fams[1]||T.fams[0];
+  const xd=Math.abs(d.x-b.x),ctd=Math.abs(d.ct-b.ct);
+  const met=xd<=.03?'muito próximas':xd<=.07?'compatíveis':'distantes';
+  $('tScore').innerHTML=`<b>Por que este conjunto funciona.</b> `
+    +(T.fams.length===1?'Uma família só: toda a hierarquia terá de vir de peso, corpo, largura e caixa. É a saída mais difícil de errar e a que mais depende de disciplina de espaçamento. ':
+      isSerif(d.cls)!==isSerif(b.cls)?'Uma serifada contra uma sem serifa: a diferença de estrutura é clara o bastante para que nenhuma pareça erro. ':
+      d.sf&&d.sf===b.sf?'São parentes da mesma superfamília, desenhadas para conviver — a harmonia é garantida e o contraste vem do peso e do tamanho. ':
+      'Mesma classificação em papéis diferentes: o contraste terá de vir do peso e do corpo, não da forma. ')
+    +(T.fams.length===1?'':`As alturas de x das duas primeiras são ${met} (${(d.x*100).toFixed(0)} contra ${(b.x*100).toFixed(0)} da altura de maiúscula), e a diferença de contraste de traço é ${ctd>=.4?'grande, o que separa bem título de texto':ctd>=.2?'moderada':'pequena, então use peso e corpo para separar'}.`)
+    +(T.fams.length>=3?` A terceira entra em rótulo e referência, onde a diferença de forma vira sinal de função.`:'')
+    +(T.fams.length>=4?` A quarta carrega a citação, que é o único lugar onde uma voz diferente não atrapalha a leitura.`:'')
+    +(T.fams.length>=5?` A quinta fica em destaque e botão — cinco vozes é o limite antes de o sistema virar ruído.`:'');
+}
+
+const specColors=roleColors;
+
+function specDraw(){
+  const C=roleColors(),blocks=parseText($('tText').value||SAMPLE_TXT);
+  const W=1600,PAD=110,cv=$('cv'),ctx=cv.getContext('2d');
+  const lines=[];let y=0;const wrapAt=W-PAD*2;
+  blocks.forEach(bk=>{const st=roleCss(bk.r),c=st.c;
+    const ff=`${c.it?'italic ':''}${c.wt} ${st.size}px "${c.f.n}", ${isSerif(c.f.cls)?'Georgia, serif':'Helvetica, Arial, sans-serif'}`;
+    ctx.font=ff;
+    const raw=c.cs==='upper'?bk.t.toUpperCase():c.cs==='lower'?bk.t.toLowerCase():bk.t;
+    const maxW=bk.r==='titulo'?wrapAt*.84:wrapAt;
+    let line='';
+    const push=t=>{lines.push({t,ff,col:st.col,lh:st.size*st.lh,r:bk.r,size:st.size});y+=st.size*st.lh};
+    raw.split(' ').forEach(wd=>{const test=line?line+' '+wd:wd;
+      if(ctx.measureText(test).width>maxW&&line){push(line);line=wd}else line=test});
+    if(line)push(line);
+    lines.push({gap:st.size*.62});y+=st.size*.62});
+  const H=Math.ceil(y+PAD*2+60);
+  cv.width=W;cv.height=H;
+  ctx.fillStyle=C.bg;ctx.fillRect(0,0,W,H);
+  let cy=PAD;
+  lines.forEach(l=>{if(l.gap){cy+=l.gap;return}
+    ctx.font=l.ff;
+    if(l.r==='botao'){const wd=ctx.measureText(l.t).width;
+      ctx.fillStyle=C.ac;ctx.fillRect(PAD,cy-l.size*.85,wd+l.size*2.4,l.size*1.95);
+      ctx.fillStyle=readable(C.ac);ctx.fillText(l.t,PAD+l.size*1.2,cy+l.size*.38);cy+=l.lh+l.size*.7;return}
+    if(l.r==='citacao'){ctx.fillStyle=l.col;ctx.fillRect(PAD,cy-l.size*.82,3,l.lh)}
+    ctx.fillStyle=l.col;ctx.fillText(l.t,l.r==='citacao'?PAD+26:PAD,cy+l.size*.32);cy+=l.lh});
+  ctx.fillStyle=C.mut;ctx.font='24px Helvetica, Arial, sans-serif';
+  ctx.fillText(T.fams.map(f=>f.n).join('  ·  ')+'   |   '+palette().join('  '),PAD,H-46);
+}
+function specBlob(){return new Promise(res=>{specDraw();$('cv').toBlob(b=>res(b),'image/png')})}
+function specPng(){specBlob().then(b=>download('amostra-'+slug(T.fams[0].n)+'.png',b))}
+
+/* ── códigos ── */
+function cdnLink(f){
+  return f.src==='google'
+    ? `https://fonts.googleapis.com/css2?family=${f.n.replace(/ /g,'+')}:wght@${f.wts}&display=swap`
+    : `https://api.fontshare.com/v2/css?f[]=${slug(f.n)}@${f.wts.replace(/;/g,',')}&display=swap`;
+}
+function dlLink(f){
+  return f.src==='google'?`https://fonts.google.com/specimen/${f.n.replace(/ /g,'+')}`
+    :`https://www.fontshare.com/fonts/${slug(f.n)}`;
+}
+function fontsourceUrl(f,fmt){
+  const s=slug(f.n);
+  if(fmt==='var')return `https://cdn.jsdelivr.net/fontsource/fonts/${s}:vf@latest/latin-wght-normal.woff2`;
+  return `https://cdn.jsdelivr.net/fontsource/fonts/${s}@latest/latin-400-normal.${fmt==='woff'?'woff':'woff2'}`;
+}
+function drawTOut(){
+  const f=T.fmt,list=[T.disp,T.body,T.mono].filter(Boolean),fmt=$('tFmt').value,
+        base=+$('tBase').value,rt=+$('tRatio').value,lh=+$('tLh').value/100,meas=+$('tMeasure').value;
+  let s='';
+  if(f==='css'){
+    const C=roleColors(),sel={rotulo:'.rotulo',titulo:'h1, .titulo',subtitulo:'h2, .subtitulo',
+      paragrafo:'p, .paragrafo',destaque:'.destaque',citacao:'blockquote, .citacao',
+      referencia:'figcaption, .referencia',botao:'.botao'};
+    s=`/* ${list.map(x=>x.n).join(' · ')} */\n:root{\n`
+     +T.fams.map((x,i)=>`  --fonte-${i+1}: ${fam(x)};`).join('\n')+'\n'
+     +`  --corpo: ${base}px;\n  --escala: ${rt};\n  --medida: ${meas}ch;\n`
+     +`  --fundo: ${C.bg};\n  --tinta: ${C.fg};\n  --acento: ${C.ac};\n  --apagado: ${C.mut};\n}\n\n`
+     +`body{background:var(--fundo);color:var(--tinta);font-family:${fam(roleCfg('paragrafo').f)};font-size:var(--corpo);line-height:${lh}}\n`
+     +`p{max-width:var(--medida)}\n\n/* níveis da hierarquia */\n`
+     +ROLES.filter(r=>!T.off[r.k]).map(r=>{const st=roleCss(r.k),c=st.c;
+        return `${sel[r.k]}{\n  font-family:${fam(c.f)};\n  font-weight:${c.wt};\n  font-size:${st.size}px;\n`
+         +`  line-height:${st.lh};\n  letter-spacing:${st.tr}em;\n  color:${st.col};\n`
+         +(c.it?'  font-style:italic;\n':'')
+         +(c.cs!=='none'?`  text-transform:${c.cs==='upper'?'uppercase':c.cs==='lower'?'lowercase':'capitalize'};\n`:'')
+         +(r.k==='botao'?`  background:${C.ac};\n  color:${readable(C.ac)};\n  display:inline-block;\n  padding:.7em 1.3em;\n`:'')
+         +(r.k==='citacao'?`  border-left:2px solid ${st.col};\n  padding-left:18px;\n`:'')
+         +'}'}).join('\n');
+  } else if(f==='face'){
+    if(fmt==='none')s='Nenhum arquivo escolhido — use a aba do link da CDN.';
+    else s=list.map(x=>{
+      const ff=fmt==='ttf'?'truetype':fmt==='otf'?'opentype':fmt==='woff'?'woff':'woff2';
+      const ex=fmt==='var'?'woff2':fmt;
+      return `/* ${x.n} — baixe em ${dlLink(x)} */\n@font-face{\n  font-family:"${x.n}";\n  src:url("/fonts/${slug(x.n)}-400.${ex}") format("${ff}"${fmt==='var'?' supports variations':''});\n  font-weight:${fmt==='var'?'300 900':'400'};\n  font-style:normal;\n  font-display:swap;\n}`}).join('\n\n')
+      +'\n\n/* mesma família pela CDN do Fontsource, sem hospedar nada */\n'
+      +list.filter(x=>x.src==='google').map(x=>`/* ${x.n}: ${fontsourceUrl(x,fmt)} */`).join('\n');
+  } else if(f==='link'){
+    s=list.map(x=>`<link rel="stylesheet" href="${cdnLink(x)}">`).join('\n')
+     +'\n\n<!-- pré-conexão, acelera a primeira renderização -->\n<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>';
+  } else if(f==='tw'){
+    s=`// tailwind.config.js\nmodule.exports={theme:{extend:{fontFamily:{\n`
+     +`  titulo:[${fam(T.disp).split(', ').map(x=>`'${x.replace(/"/g,'')}'`).join(',')}],\n`
+     +`  texto:[${fam(T.body).split(', ').map(x=>`'${x.replace(/"/g,'')}'`).join(',')}],\n`
+     +(T.mono?`  mono:[${fam(T.mono).split(', ').map(x=>`'${x.replace(/"/g,'')}'`).join(',')}],\n`:'')
+     +`},fontSize:{\n`+[0,1,2,3,4].map(k=>`  't${k}':'${Math.round(base*Math.pow(rt,k)*10)/10}px',`).join('\n')+`\n}}}}`;
+  } else if(f==='html'){
+    const c=specColors();
+    s=`<!DOCTYPE html>\n<html lang="pt-BR">\n<head>\n<meta charset="utf-8">\n<meta name="viewport" content="width=device-width,initial-scale=1">\n`
+     +list.map(x=>`<link rel="stylesheet" href="${cdnLink(x)}">`).join('\n')
+     +`\n<style>\nbody{background:${c.bg};color:${c.fg};font-family:${fam(T.body)};font-size:${base}px;line-height:${lh};margin:0;padding:6vw}\n`
+     +ROLES.filter(r=>!T.off[r.k]).map(r=>{const st=roleCss(r.k),cc=st.c,
+        sel={rotulo:'.rotulo',titulo:'h1',subtitulo:'h2',paragrafo:'p',destaque:'.destaque',citacao:'blockquote',referencia:'.referencia',botao:'.botao'}[r.k];
+        return `${sel}{font-family:${fam(cc.f)};font-weight:${cc.wt};font-size:${st.size}px;line-height:${st.lh};letter-spacing:${st.tr}em;color:${st.col}`
+         +(cc.it?';font-style:italic':'')
+         +(r.k==='paragrafo'?`;max-width:${meas}ch`:'')
+         +(r.k==='botao'?`;background:${c.ac};color:${readable(c.ac)};display:inline-block;padding:.7em 1.3em;text-decoration:none`:'')
+         +(r.k==='citacao'?`;border-left:2px solid ${st.col};padding-left:18px;margin:0 0 18px`:'')+'}'}).join('\n')
+     +`\n</style>\n</head>\n<body>\n`
+     +parseText($('tText').value||SAMPLE_TXT).map(bk=>{
+        const tg={rotulo:'p class="rotulo"',titulo:'h1',subtitulo:'h2',paragrafo:'p',destaque:'p class="destaque"',
+          citacao:'blockquote',referencia:'p class="referencia"',botao:'a class="botao" href="#"'}[bk.r];
+        return `<${tg}>${esc(bk.t)}</${tg.split(' ')[0]}>`}).join('\n')
+     +`\n</body>\n</html>`;
+  } else {
+    s=list.map(x=>`${x.n}\n  Banco: ${x.src==='google'?'Google Fonts':'Fontshare'}\n  Página: ${dlLink(x)}\n`
+      +(x.src==='google'?`  Arquivo ${fmt==='none'?'woff2':fmt} pela CDN do Fontsource: ${fontsourceUrl(x,fmt==='none'?'woff2':fmt)}\n`:`  Baixe otf e ttf direto na página do Fontshare\n`)
+      +`  Licença: confira na própria página antes de redistribuir`).join('\n\n')
+      +`\n\nEspelho sem rastreamento das famílias do Google:\n  https://fonts.bunny.net`;
+  }
+  $('tOut').textContent=s;
+}
+$('tTabs').querySelectorAll('button').forEach(b=>b.onclick=()=>{
+  T.fmt=b.dataset.f;$('tTabs').querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',x===b));drawTOut()});
+$('tCopy').onclick=()=>copy($('tOut').textContent,'Copiado');
+$('tDl').onclick=()=>{const ext={css:'css',face:'css',link:'html',tw:'js',html:'html',dl:'txt'}[T.fmt];
+  download('tipografia-'+slug(T.disp.n)+'-'+slug(T.body.n)+'.'+ext,$('tOut').textContent,'text/plain')};
+
+/* ── ações ── */
+function pickSet(n){
+  const p=pickPair();if(!p)return null;
+  const out=[];
+  if(n===1)out.push(p.b.role==='both'?p.b:(p.d.role==='both'?p.d:p.b));
+  else out.push(p.d,p.b);
+  if(n>=3){const ms=candidates('mono');
+    out.push(ms.find(m=>m.sf&&(m.sf===p.d.sf||m.sf===p.b.sf))||ms[Math.floor(Math.random()*ms.length)]||p.b)}
+  if(n>=4){const qs=FONTS.filter(f=>f.cls!=='mono'&&out.indexOf(f)<0&&f.role!=='body'&&isSerif(f.cls)!==isSerif(p.b.cls));
+    out.push(qs[Math.floor(Math.random()*qs.length)]||FONTS.find(f=>out.indexOf(f)<0))}
+  if(n>=5){const as=FONTS.filter(f=>f.cls!=='mono'&&out.indexOf(f)<0&&Math.abs(f.x-p.b.x)<=.06);
+    out.push(as[Math.floor(Math.random()*as.length)]||FONTS.find(f=>out.indexOf(f)<0))}
+  return out.filter(Boolean).slice(0,n);
+}
+function newPair(){
+  const set=pickSet(T.nFam);
+  if(!set||!set.length){$('tWhy').textContent='Nenhuma família atende a todos os filtros ao mesmo tempo. Solte um deles — ou volte algum para Nenhuma.';
+    $('tCards').innerHTML='';$('tScore').innerHTML='';return}
+  T.fams=set;set.forEach(loadFont);
+  T.disp=set[0];T.body=set[1]||set[0];T.mono=set.find(f=>f.cls==='mono')||null;
+  const E=EMO[+$('tEmo').value],st=STRATS.find(x=>x.v===$('tStrat').value);
+  $('tWhy').textContent=(set.length===1?`${set[0].n} sozinha, carregando a hierarquia inteira`
+    :`${set[0].n} no título, ${set[1].n} no texto`+(set.length>2?`, mais ${set.slice(2).map(f=>f.n).join(' e ')}`:''))
+    +(E.a!==null?`, para provocar ${E.n.toLowerCase()}`:'')
+    +(st.v!=='none'&&set.length>1?`, pela estratégia de ${st.n.toLowerCase()}`:'')+'.';
+  setTimeout(renderSpec,80);renderSpec();
+}
+function setFamN(n){T.nFam=n;$('tFamLbl').textContent=n;
+  $('tFamN').querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',+x.dataset.n===n));
+  T.ov={};newPair()}
+$('tGen').onclick=()=>{T.seed=Math.random();newPair()};
+$('tSwap').onclick=()=>{if(T.fams.length<2)return toast('Com uma família só não há o que trocar');
+  const t=T.fams[0];T.fams[0]=T.fams[1];T.fams[1]=t;T.disp=T.fams[0];T.body=T.fams[1];
+  $('tWhy').textContent=`${T.fams[0].n} no título, ${T.fams[1].n} no texto — invertido à mão.`;renderSpec()};
+$('tMono').onclick=()=>{
+  if(T.nFam<3){setFamN(3);return toast('Terceira família acrescentada, em rótulo e referência')}
+  const ms=candidates('mono');if(!ms.length)return toast('Nenhuma monoespaçada passa nos filtros');
+  const other=ms.filter(m=>T.fams.indexOf(m)<0);
+  const pick=other.length?other[Math.floor(Math.random()*other.length)]:ms[0];
+  const at=T.fams.findIndex(f=>f.cls==='mono');
+  if(at>=0)T.fams[at]=pick;else T.fams[2]=pick;
+  T.mono=pick;loadFont(pick);setTimeout(renderSpec,80);renderSpec()};
+$('tFamN').querySelectorAll('button').forEach(b=>b.onclick=()=>setFamN(+b.dataset.n));
+$('tRoleReset').onclick=()=>{delete T.ov[T.role];renderSpec();toast('Nível devolvido ao padrão')};
+$('tRoleResetAll').onclick=()=>{T.ov={};T.off={};renderSpec();toast('Hierarquia inteira devolvida ao padrão')};
+$('tText').value=SAMPLE_TXT;
+$('tText').oninput=renderSpec;
+$('tSample').onclick=()=>{$('tText').value=SAMPLE_TXT;renderSpec()};
+$('tClear').onclick=()=>{$('tText').value='';$('tText').focus();renderSpec()};
+$('tSpecPng').onclick=()=>specPng();
+['tEmo','tUse','tStrat','tClsD','tClsB','tBank','tWidth','tContr'].forEach(id=>$(id).onchange=newPair);
+['tFmt','tRatio','tPal'].forEach(id=>$(id).onchange=renderSpec);
+['tBase','tMeasure','tLh','tTrack'].forEach(id=>$(id).oninput=renderSpec);
+
+/* ── combinações salvas ── */
+async function listTSaved(){
+  try{const r=await store.list('tipo:'),keys=(r&&r.keys)||[];
+    if(!keys.length){$('tSavedEmpty').style.display='block';$('tSaved').innerHTML='';return}
+    $('tSavedEmpty').style.display='none';const items=[];
+    for(const k of keys.slice(-16)){try{const g=await store.get(k);if(g)items.push({k,v:JSON.parse(g.value)})}catch(_){}}
+    $('tSaved').innerHTML=items.map(({k,v})=>`<button class="mini" data-k="${k}">${esc(v.d)} + ${esc(v.b)}</button>`).join('');
+    $('tSaved').querySelectorAll('button').forEach(b=>b.onclick=async()=>{
+      const g=await store.get(b.dataset.k),v=JSON.parse(g.value);
+      T.disp=FONTS.find(f=>f.n===v.d)||T.disp;T.body=FONTS.find(f=>f.n===v.b)||T.body;
+      T.mono=v.m?FONTS.find(f=>f.n===v.m):null;
+      [T.disp,T.body,T.mono].forEach(loadFont);
+      $('tWhy').textContent=`${T.disp.n} no título, ${T.body.n} no texto — combinação recarregada.`;
+      setTimeout(renderSpec,60);renderSpec();toast('Combinação recarregada')});
+  }catch(_){$('tSavedEmpty').textContent='Não foi possível ler as combinações salvas neste ambiente.'}
+}
+$('tSave').onclick=async()=>{
+  if(!T.disp)return;
+  const ok=await store.set('tipo:'+Date.now(),JSON.stringify({d:T.disp.n,b:T.body.n,m:T.mono?T.mono.n:null}));
+  await listTSaved();
+  toast(ok?'Combinação salva — aparece no fim da página':'Salva só nesta sessão: este navegador não guardou');};
+/* ═══════════ CRIAÇÃO ═══════════ */
+const PIECES=[
+ {v:'none',n:'Nenhum — sem definir',mock:'editorial'},
+ {v:'site',n:'Site ou página',mock:'ui'},
+ {v:'app',n:'Aplicativo ou produto digital',mock:'ui'},
+ {v:'identidade',n:'Identidade visual',mock:'ident'},
+ {v:'cartaz',n:'Cartaz ou capa',mock:'poster'},
+ {v:'apres',n:'Apresentação ou slide',mock:'slide'},
+ {v:'relatorio',n:'Relatório ou documento',mock:'editorial'},
+ {v:'ebook',n:'Livro, e-book ou revista',mock:'editorial'},
+ {v:'news',n:'Newsletter ou e-mail',mock:'editorial'},
+ {v:'embalagem',n:'Embalagem ou rótulo',mock:'pack'},
+ {v:'painel',n:'Painel de dados',mock:'ui'},
+ {v:'social',n:'Peça para redes',mock:'poster'},
+ {v:'sinal',n:'Sinalização ou ambiente',mock:'poster'}
+];
+const SUPS=[
+ {v:'none',n:'Nenhum — sem definir'},
+ {v:'tela',n:'Tela'},
+ {v:'impresso',n:'Impresso'},
+ {v:'ambos',n:'Tela e impresso'},
+ {v:'ambiente',n:'Ambiente e grande formato'}
+];
+/* léxico: palavras da descrição que deslocam as escolhas */
+const LEX=[
+ {w:['sério','seria','sobrio','sóbrio','formal','institucional','corporativo','banco','governo'],emo:'Autoridade',lens:'Landor',dpos:-.22,dc:-.18},
+ {w:['confiança','confiavel','confiável','seguro','solidez','estável'],emo:'Confiança',dpos:-.15},
+ {w:['alegre','alegria','leve','divertido','otimista','colorido','festa'],emo:'Alegria',dc:.2,dpos:.1},
+ {w:['urgente','urgência','promoção','liquidação','agora','rápido','ação'],emo:'Energia',mus:'Punk',dc:.25,dpos:.2},
+ {w:['luxo','sofisticado','premium','exclusivo','elegante','alta joalheria','requinte'],emo:'Cerimônia',mkt:'Luxo',lens:'Pearlfisher',dc:-.2},
+ {w:['calor','quente','acolhedor','afetivo','humano','próximo','proximo','carinho'],emo:'Intimidade',dc:.1},
+ {w:['calma','calmo','sereno','tranquilo','descanso','pausa','silêncio','silencio'],emo:'Repouso',mus:'Ambient',dc:-.3},
+ {w:['natureza','floresta','regeneração','regenerativo','clima','sustentável','sustentavel','ambiental'],emo:'Cuidado',mkt:'Clima'},
+ {w:['café','cafe','cacau','agro','agricultura','fazenda','cooperativa','roça'],mkt:'Bioeconomia',emo:'Abundância'},
+ {w:['amazônia','amazonia','indígena','indigena','floresta em pé','ribeirinho','kayapó','urucum','jenipapo'],cult:'Amazônia',mkt:'Bioeconomia'},
+ {w:['maori','māori','aotearoa','nova zelândia','nova zelandia','iwi','tangata'],cult:'Aotearoa'},
+ {w:['japão','japao','japonês','japones','zen','wabi','minimalista japonês'],cult:'Japão',dc:-.25},
+ {w:['méxico','mexico','barragán','barragan','latino'],cult:'México',dc:.2},
+ {w:['índia','india','indiano','sari','holi'],cult:'Índia',dc:.2},
+ {w:['áfrica','africa','africano','kente','adire','afrobeat'],cult:'África',mus:'Afrobeats',dc:.18},
+ {w:['andes','andino','peru','bolívia','bolivia','quéchua','quechua'],cult:'Andes'},
+ {w:['mediterrâneo','mediterraneo','grécia','grecia','ibiza','cal'],cult:'Mediterrâneo'},
+ {w:['nórdico','nordico','escandinavo','suécia','suecia','dinamarca','noruega'],cult:'Nórdico',dc:-.3},
+ {w:['bauhaus','modernista','suíço','suico','grid','grade'],cult:'Bauhaus',lens:'Mucho'},
+ {w:['tecnologia','software','saas','startup','plataforma','digital','api'],mkt:'Tecnologia',lens:'Koto'},
+ {w:['saúde','saude','clínica','clinica','hospital','paciente','médico','medico'],mkt:'Saúde',emo:'Cuidado',dc:-.15},
+ {w:['educação','educacao','escola','curso','aprender','ensino','universidade'],mkt:'Educação',emo:'Alegria'},
+ {w:['viagem','turismo','roteiro','expedição','expedicao','retiro','hospedagem'],mkt:'Turismo'},
+ {w:['comida','alimento','restaurante','bebida','gastronomia','chef','cardápio','cardapio'],mkt:'Alimentos',emo:'Desejo',dc:.2},
+ {w:['moda','roupa','coleção','colecao','desfile','vestuário','vestuario'],mkt:'Moda',lens:'PORTO ROCHA'},
+ {w:['arte','museu','galeria','exposição','exposicao','curadoria','editorial'],mkt:'Arte',lens:'Experimental Jetset'},
+ {w:['finanças','financas','investidor','fundo','capital','banco','crédito','credito'],mkt:'Finanças',emo:'Confiança'},
+ {w:['ong','social','comunidade','impacto','doação','doacao','voluntário','voluntario'],mkt:'Setor público',emo:'Cuidado'},
+ {w:['ousado','ousada','radical','provocativo','disruptivo','barulhento','forte'],lens:'Ragged Edge',dpos:.3,dc:.25},
+ {w:['discreto','contido','sutil','silencioso','minimalista','limpo','sóbrio visual'],lens:'Pentagram',dc:-.25,dpos:-.15},
+ {w:['máximo','maximo','exuberante','farto','abundante','festivo','vibrante'],lens:'COLLINS',dc:.3},
+ {w:['noturno','escuro','noite','fundo preto','dark'],lens:'Studio Dumbar'},
+ {w:['movimento','animação','animacao','vídeo','video','motion'],lens:'DixonBaxi'},
+ {w:['gôndola','gondola','prateleira','supermercado','varejo','embalagem'],lens:'Jones Knowles',mkt:'Varejo',dc:.25},
+ {w:['melancolia','saudade','nostalgia','memória','memoria','luto'],emo:'Melancolia',mus:'Fado',dc:-.25},
+ {w:['mistério','misterio','oculto','ritual','espiritual','sagrado','iniciação'],emo:'Mistério',dc:-.1},
+ {w:['técnico','tecnico','dado','dados','pesquisa','científico','cientifico','engenharia'],emo:'Rigor',mus:'Techno',dc:-.2},
+ {w:['brasil','brasileiro','samba','carnaval','tropical'],mus:'Samba',dc:.22},
+ {w:['bossa','jazz','suave','sofisticação sonora'],mus:'Bossa'},
+ {w:['jovem','juventude','adolescente','gen z','tiktok'],dpos:.25,dc:.2},
+ {w:['infantil','criança','crianca','brinquedo','lúdico','ludico'],emo:'Alegria',dc:.3},
+ {w:['idoso','longevidade','sênior','senior','envelhecer'],mkt:'Bem-estar',dc:-.1}
+];
+const norm=t=>t.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+function readBrief(){
+  const t=norm($('cBrief').value||'');
+  const hits=[],out={dpos:0,dc:0,words:[]};
+  LEX.forEach(e=>{const m=e.w.find(w=>t.includes(norm(w)));
+    if(!m)return;hits.push(m);
+    ['emo','mkt','cult','mus','lens'].forEach(k=>{if(e[k]&&!out[k])out[k]=e[k]});
+    out.dpos+=e.dpos||0;out.dc+=e.dc||0});
+  out.words=hits;return out;
+}
+const findIdx=(arr,frag)=>{if(!frag)return -1;
+  const f=norm(frag);return arr.findIndex(x=>norm(x.n).indexOf(f)===0||norm(x.n).includes(f))};
+
+/* ── paleta calculada fora do DOM ── */
+function genPalette(o){
+  const SCx=SCH[o.sc],Lx=LENS[o.l],Kx=CULT[o.k],Ux=MUS[o.u],E=EMO[o.e],M=MKT[o.m];
+  let rs=Math.floor(o.seed*233279)+1;const rnd=()=>{rs=(rs*9301+49297)%233280;return rs/233280};
+  let b;
+  if(E.a===null&&M.a===null)b=o.seed*360;
+  else if(E.a===null)b=M.a;else if(M.a===null)b=E.a;
+  else b=M.a+wrapDeg(E.a-M.a)*o.t;
+  b=(b+(rnd()-.5)*40+360)%360;
+  if(Kx.anc){let best=Kx.anc[0],bd=999;
+    Kx.anc.forEach(x=>{const d=Math.abs(wrapDeg(x-b));if(d<bd){bd=d;best=x}});
+    b=(b+wrapDeg(best-b)*Kx.pull+360)%360}
+  const Cm=Lx.Cm*Kx.Cm*Ux.Cm*(o.dc||1),ct=Ux.ct,out=[];
+  for(let i=0;i<o.n;i++){
+    let a=SCx.off===null?(b+i*(360/o.n))%360:(i===0?b:(b+SCx.off[(i-1)%SCx.off.length]+360)%360);
+    const jL=(rnd()-.5)*.11,jC=.80+rnd()*.46,jH=(rnd()-.5)*13;
+    if(SCx.off!==null&&i>0)a=(a+jH+360)%360;
+    let Lt=Lx.Lp[i%Lx.Lp.length]+jL;Lt=.5+(Lt-.5)*(1+ct*.42);
+    if(i===0&&Lx.dark)Lt=Math.max(.08,Lt+Kx.trevaD);
+    if(Lt>.9)Lt=Math.min(.995,Lt+Kx.luzD);
+    if(Lt<.25)Lt=Math.max(.05,Lt+Kx.trevaD);
+    const nat=atAngle(a);let C=nat.C*Cm*jC*(SCx.mono?(1-i*.14):1);
+    if(Lt>.9)C*=.22;else if(Lt<.22)C*=.5;
+    out.push({a,L:Math.max(.04,Math.min(.995,Lt)),C:Math.max(0,C)});
+  }
+  return out;
+}
+function genProps(l,n,sy){
+  const w=Array.from({length:n},(_,i)=>LENS[l].w[i%LENS[l].w.length]);
+  const ex=.6+sy*.9,tot=w.reduce((s,x)=>s+Math.pow(x,ex),0);
+  return w.map(x=>Math.pow(x,ex)/tot*100);
+}
+/* ── famílias calculadas fora do DOM ── */
+function genFonts(o){
+  const editorial=o.use==='relatorio'||o.use==='ebook'||o.use==='news';
+  const D=FONTS.filter(f=>f.cls!=='mono'&&f.role!=='body');
+  const B=FONTS.filter(f=>f.cls!=='mono'&&f.role!=='display'&&!(editorial&&f.cls==='sans-geo'));
+  let rs=Math.floor(o.seed*233279)+7;const rnd=()=>{rs=(rs*9301+49297)%233280;return rs/233280};
+  const E=EMO[o.e],key=E.a===null?null:norm(E.n.split(' ')[0]).slice(0,5);
+  const mood=f=>key&&f.moods.some(m=>norm(m).startsWith(key))?26:0;
+  const pairs=[];
+  D.forEach(d=>B.forEach(b=>{
+    let s=mood(d)*1.1+mood(b);
+    const sameSuper=d.sf&&d.sf===b.sf,sameFam=d.n===b.n;
+    const cd=isSerif(d.cls)!==isSerif(b.cls)?1:d.cls!==b.cls?.5:0;
+    const ctd=Math.abs(d.ct-b.ct),xd=Math.abs(d.x-b.x),wd=Math.abs(d.w-b.w);
+    if(o.strat==='super')s+=sameFam?-35:(sameSuper?60:-45);
+    else if(o.strat==='uma')s+=sameFam?70:-60;
+    else if(o.strat==='oposto')s+=cd*40+ctd*60+wd*40+(sameFam?-80:0);
+    else if(o.strat==='metrica')s+=(1-xd*4)*40+(1-wd*4)*26+cd*12+(sameFam?-40:0);
+    else s+=cd*34+ctd*40-xd*70-wd*40+(sameFam?-60:0);
+    if(editorial&&b.role==='both')s+=8;
+    pairs.push({d,b,s:s+rnd()*24})}));
+  pairs.sort((x,y)=>y.s-x.s);
+  const pool=pairs.slice(0,8),p=pool[Math.floor(rnd()*pool.length)];
+  const out=o.nf===1?[p.b.role==='both'?p.b:p.d]:[p.d,p.b];
+  if(o.nf>=3){const ms=FONTS.filter(f=>f.cls==='mono');
+    out.push(ms.find(m=>m.sf&&(m.sf===p.d.sf||m.sf===p.b.sf))||ms[Math.floor(rnd()*ms.length)])}
+  if(o.nf>=4){const qs=FONTS.filter(f=>f.cls!=='mono'&&out.indexOf(f)<0&&f.role!=='body'&&isSerif(f.cls)!==isSerif(p.b.cls));
+    out.push(qs[Math.floor(rnd()*qs.length)])}
+  return out.filter(Boolean);
+}
+
+/* ── as três leituras ── */
+const ANGLES=[
+ {k:'convencao',n:'A leitura direta',dpos:-.28,lens:['Pentagram — Londres e Nova York','Landor — rede global','Interbrand e Siegel+Gale — rede global','Mucho — Barcelona e São Francisco'],
+  sch:['Goethe — característica','Análogo','Monocromático'],strat:'contraste',
+  why:'Fica dentro do que o campo já reconhece e gasta a diferença em precisão, não em volume. É a proposta que não precisa ser defendida numa reunião.'},
+ {k:'ruptura',n:'A leitura de contraste',dpos:.34,lens:['Wolff Olins — Londres e Nova York','Ragged Edge — Londres','Jones Knowles Ritchie — Londres e Nova York','&Walsh — Nova York'],
+  sch:['Complementar','Goethe — harmônica','Tríade'],strat:'oposto',
+  why:'Vai contra a convenção de propósito: o objetivo é ser percebido como diferente antes de ser compreendido. Custa mais para sustentar e rende mais quando sustentada.'},
+ {k:'lateral',n:'A leitura lateral',dpos:.05,lens:['COLLINS — Nova York e São Francisco','Experimental Jetset — Amsterdã','PORTO ROCHA — Nova York e Londres','Studio Dumbar — Roterdã','Pearlfisher — Londres e Nova York'],
+  sch:['Complementar dividido','Tetrádico','Quadrado','Goethe — sem caráter'],strat:'super',
+  why:'Entra por um caminho que ninguém pediu: troca o eixo do problema, seja pela referência cultural, pela dinâmica ou pela quantidade de cor. É a que costuma abrir a conversa.'}
+];
+const CR={props:[],seed:.4};
+
+function buildBrief(){
+  const lx=readBrief();
+  const pick=(sel,arr,frag)=>{const dom=+$(sel).value;if(dom>0)return dom;
+    const i=findIdx(arr,frag);return i>0?i:0};
+  return{
+    piece:$('cPiece').value,sup:$('cSup').value,
+    e:pick('cEmo',EMO,lx.emo),m:pick('cMkt',MKT,lx.mkt),
+    k:pick('cCult',CULT,lx.cult),u:pick('cMus',MUS,lx.mus),
+    lensFrag:lx.lens,n:CR.n||5,nf:+$('cFam').value,
+    t:Math.max(0,Math.min(1,+$('cPos').value/100+lx.dpos)),
+    dc:Math.max(.45,Math.min(1.6,1+lx.dc)),words:lx.words
+  };
+}
+function makeProposal(ang,br,seed){
+  const lensName=(br.lensFrag&&ang.k==='convencao')?br.lensFrag:ang.lens[Math.floor(seed*ang.lens.length)%ang.lens.length];
+  let li=findIdx(LENS,lensName);if(li<0)li=findIdx(LENS,ang.lens[0]);if(li<0)li=1;
+  let si=findIdx(SCH,ang.sch[Math.floor(seed*97*ang.sch.length)%ang.sch.length]);if(si<0)si=2;
+  const t=Math.max(0,Math.min(1,br.t+ang.dpos));
+  const nf=br.nf||(ang.k==='lateral'?3:2);
+  // a leitura lateral troca o eixo: se nada foi pedido, ela traz uma dinâmica musical própria
+  let u=br.u,k=br.k;
+  if(ang.k==='lateral'&&u===0)u=1+Math.floor(seed*631)%(MUS.length-1);
+  if(ang.k==='ruptura'&&u===0&&br.t>.6)u=6;
+  const cols=genPalette({e:br.e,m:br.m,sc:si,l:li,k,u,t,n:br.n,dc:br.dc,seed});
+  const fonts=genFonts({e:br.e,strat:ang.strat,use:br.piece,nf,seed});
+  const areas=genProps(li,br.n,MUS[u].sy);
+  fonts.forEach(loadFont);
+  return{ang,br,li,si,t,u,k,cols,fonts,areas,seed,
+    hs:cols.map(c=>oklch2hex(c.L,c.C,atAngle(c.a).H))};
+}
+function roleOf(p){
+  const ls=p.hs.map(lum),bg=p.hs[ls.indexOf(Math.max(...ls))],ink=p.hs[ls.indexOf(Math.min(...ls))];
+  const ac=p.hs.find(h=>h!==bg&&h!==ink&&ratio(h,bg)>=3)||ink;
+  return{bg,ink,ac,mut:mixLch(ink,bg,.4)};
+}
+function titleFor(br){
+  const E=EMO[br.e],M=MKT[br.m],P=PIECES.find(x=>x.v===br.piece);
+  if(E.a!==null&&M.a!==null)return `${E.n} em ${M.n.toLowerCase()}`;
+  if(E.a!==null)return E.n;
+  if(M.a!==null)return M.n;
+  return P&&P.v!=='none'?P.n:'Proposta';
+}
+
+/* ── maquetes ── */
+function mock(p){
+  const c=roleOf(p),f=p.fonts,d=f[0],b=f[1]||f[0],aux=f[2]||b;
+  const kind=(PIECES.find(x=>x.v===p.br.piece)||PIECES[0]).mock;
+  const T=titleFor(p.br);
+  const F=x=>fam(x),ac=c.ac,ackr=readable(ac);
+  if(kind==='ui')return `<div class="mk" style="background:${c.bg};color:${c.ink}">
+    <div class="mk-top" style="border-bottom:1px solid ${c.mut}">
+      <span style="font-family:${F(d)};font-size:19px">${esc(T)}</span>
+      <span style="font-family:${F(aux)};font-size:12px;color:${c.mut}">painel · coleções · ajustes</span></div>
+    <div class="mk-hero" style="background:${c.ink};color:${readable(c.ink)}">
+      <div style="font-family:${F(d)};font-size:clamp(22px,4vw,34px);line-height:1.02">${esc(T)}</div>
+      <div style="font-family:${F(b)};font-size:14px;opacity:.85;margin-top:8px">Uma linha de apoio que explica o que está acontecendo nesta tela.</div></div>
+    <div class="mk-tiles">${p.hs.slice(0,4).map((h,i)=>`<div style="background:${h};color:${readable(h)};font-family:${F(aux)};font-size:11px">${h}</div>`).join('')}</div>
+    <div style="margin-top:12px"><span style="background:${ac};color:${ackr};font-family:${F(b)};font-size:14px;padding:9px 16px;display:inline-block">Ação principal</span></div></div>`;
+  if(kind==='poster')return `<div class="mk mk-poster" style="background:${c.bg};color:${c.ink}">
+    <div style="font-family:${F(aux)};font-size:12px;color:${c.mut}">${esc(MKT[p.br.m].n)}</div>
+    <div style="font-family:${F(d)};font-size:clamp(30px,7vw,58px);line-height:.95;margin:auto 0">${esc(T)}</div>
+    <div style="display:flex;gap:6px">${p.hs.map(h=>`<span style="flex:1;height:30px;background:${h}"></span>`).join('')}</div>
+    <div style="font-family:${F(b)};font-size:13px;color:${c.mut}">${p.fonts.map(x=>x.n).join(' · ')}</div></div>`;
+  if(kind==='slide')return `<div class="mk mk-slide" style="background:${c.bg};color:${c.ink}">
+    <div style="width:46px;height:6px;background:${ac}"></div>
+    <div style="font-family:${F(d)};font-size:clamp(22px,4.4vw,38px);line-height:1.04;margin:14px 0 10px">${esc(T)}</div>
+    <div style="font-family:${F(b)};font-size:15px;max-width:46ch;color:${c.mut}">Três linhas de argumento, na ordem em que o público consegue segui-las.</div>
+    <div class="mk-tiles" style="margin-top:auto">${p.hs.slice(0,3).map((h,i)=>`<div style="background:${h};color:${readable(h)};font-family:${F(b)};font-size:12px">Ponto ${i+1}</div>`).join('')}</div></div>`;
+  if(kind==='ident')return `<div class="mk" style="background:${c.bg};color:${c.ink}">
+    <div style="font-family:${F(d)};font-size:clamp(26px,6vw,50px);line-height:1;letter-spacing:-.02em">${esc(T)}</div>
+    <div style="display:flex;gap:8px;margin:18px 0;flex-wrap:wrap">
+      ${p.hs.map(h=>`<span style="width:58px;height:58px;border-radius:50%;background:${h};display:block"></span>`).join('')}</div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px">
+      ${['Aa Bb Cc','0123','— · —'].map((x,i)=>`<div style="border:1px solid ${c.mut};padding:14px;font-family:${F(p.fonts[i]||b)};font-size:22px">${x}</div>`).join('')}</div></div>`;
+  if(kind==='pack')return `<div class="mk" style="background:${c.mut}22">
+    <div style="max-width:300px;margin:0 auto;background:${c.bg};color:${c.ink};padding:26px 20px;border:1px solid ${c.mut}">
+      <div style="font-family:${F(aux)};font-size:11px;color:${c.mut}">${esc(MKT[p.br.m].n)}</div>
+      <div style="font-family:${F(d)};font-size:30px;line-height:1;margin:10px 0 6px">${esc(T)}</div>
+      <div style="height:5px;background:${ac};margin:12px 0"></div>
+      <div style="font-family:${F(b)};font-size:13px;color:${c.mut}">Descrição curta do conteúdo, peso líquido e o resto do que a norma exige.</div>
+      <div style="display:flex;gap:4px;margin-top:16px">${p.hs.map(h=>`<span style="flex:1;height:16px;background:${h}"></span>`).join('')}</div>
+    </div></div>`;
+  return `<div class="mk" style="background:${c.bg};color:${c.ink}">
+    <div style="font-family:${F(aux)};font-size:12px;color:${c.mut};margin-bottom:10px">${esc(MKT[p.br.m].n)}</div>
+    <div style="font-family:${F(d)};font-size:clamp(24px,5vw,40px);line-height:1.02;max-width:18ch">${esc(T)}</div>
+    <div style="font-family:${F(b)};font-size:16px;line-height:1.6;max-width:60ch;margin-top:14px">
+      Um parágrafo do tamanho que você vai usar de verdade, com linhas suficientes para perceber se o olho cansa antes do fim. É aqui que a paleta deixa de ser amostra e vira leitura.</div>
+    <blockquote style="font-family:${F(d)};font-size:20px;font-style:italic;border-left:2px solid ${ac};padding-left:16px;margin:18px 0 0;color:${c.mut}">Uma citação destacada do próprio texto.</blockquote>
+    <div style="display:flex;gap:5px;margin-top:20px">${p.hs.map((h,i)=>`<span style="flex:${p.areas[i].toFixed(1)};height:22px;background:${h}"></span>`).join('')}</div></div>`;
+}
+
+/* ── raciocínio ── */
+function why(p){
+  const E=EMO[p.br.e],M=MKT[p.br.m],L=LENS[p.li],SCx=SCH[p.si],K=CULT[p.k],U=MUS[p.u];
+  const d=p.fonts[0],b=p.fonts[1]||p.fonts[0];
+  const pares=[];p.hs.forEach((bg,i)=>p.hs.forEach((tx,j)=>{if(i!==j&&ratio(tx,bg)>=4.5)pares.push(1)}));
+  let s=`<p class="lede">${p.ang.why}</p>`;
+  s+=`<p class="lede" style="margin-top:10px"><b style="color:var(--ink)">Cor.</b> `
+   +(E.a!==null?`${E.g.split('.')[0]}. `:'')
+   +`O esquema é ${SCx.n.toLowerCase()} — ${SCx.d.toLowerCase()} `
+   +`A área vem do método de ${L.n.split(' — ')[0]}: ${L.m.split('.')[0].toLowerCase()}.`
+   +(K.anc?` A referência ${K.n.split(' — ')[0]} puxa o matiz para os pigmentos que aquela cultura tinha à mão.`:'')
+   +(U.m?` A dinâmica de ${U.n.toLowerCase()} reescreve a proporção entre as cores.`:'')+`</p>`;
+  s+=`<p class="lede" style="margin-top:10px"><b style="color:var(--ink)">Tipografia.</b> `
+   +(p.fonts.length===1?`${d.n} sozinha: a hierarquia inteira terá de vir de peso, corpo e caixa.`
+     :isSerif(d.cls)!==isSerif(b.cls)?`${d.n} contra ${b.n} — uma serifada e uma sem serifa, diferença de estrutura clara o bastante para que nenhuma pareça erro.`
+     :d.sf&&d.sf===b.sf?`${d.n} e ${b.n} são da mesma superfamília, desenhadas para conviver: harmonia garantida, contraste vindo do peso.`
+     :`${d.n} e ${b.n} compartilham a classificação, então o contraste terá de vir do peso e do corpo.`)
+   +` ${describe(d)} Do lado do texto: ${describe(b).toLowerCase()}`+`</p>`;
+  s+=`<p class="lede" style="margin-top:10px"><b style="color:var(--ink)">Riscos.</b> `
+   +(pares?`${pares} pares desta paleta passam em 4,5 para 1, então há por onde escrever.`
+     :`Nenhum par desta paleta chega a 4,5 para 1 — ela é de superfície, e o texto vai precisar de um preto ou branco de fora.`)
+   +(p.br.sup==='impresso'||p.br.sup==='ambos'?` Como vai para papel, confira o CMYK: matizes muito saturados não existem em tinta de escala.`:'')
+   +(p.br.sup==='ambiente'?` Em grande formato, a distância de leitura perdoa menos o contraste baixo do que a tela.`:'')+`</p>`;
+  return s;
+}
+
+/* ── Markdown ── */
+function mdBlock(name,hs,areas,fonts,extra){
+  let s=`# ${name}\n\n`;
+  if(extra)s+=extra+'\n\n';
+  s+=`## Paleta\n\n| # | HEX | RGB | HSL | CMYK | OKLCH | Área |\n|---|---|---|---|---|---|---|\n`;
+  hs.forEach((h,i)=>{const[r,g,b]=hex2rgb(h),hl=rgb2hsl(r,g,b),cm=rgb2cmyk(r,g,b),o=hex2lch(h);
+    s+=`| ${i+1} | \`${h}\` | ${r}, ${g}, ${b} | ${hl.map(x=>Math.round(x)).join(', ')} | ${cm.map(x=>Math.round(x)).join(', ')} | ${Math.round(o.L*100)}% ${o.C.toFixed(3)} ${Math.round(o.H)} | ${areas?Math.round(areas[i])+'%':'—'} |\n`});
+  const ls=hs.map(lum),bg=hs[ls.indexOf(Math.max(...ls))],ink=hs[ls.indexOf(Math.min(...ls))];
+  s+=`\nFundo sugerido \`${bg}\`, texto \`${ink}\`, contraste ${ratio(ink,bg).toFixed(2)} para 1.\n`;
+  const ok=[];hs.forEach((b2,i)=>hs.forEach((t,j)=>{if(i!==j&&ratio(t,b2)>=4.5)ok.push(`\`${t}\` sobre \`${b2}\` (${ratio(t,b2).toFixed(2)})`)}));
+  s+=`\n### Pares legíveis a 4,5 para 1\n\n`+(ok.length?ok.slice(0,8).map(x=>'- '+x).join('\n'):'- Nenhum. Use preto ou branco de fora da paleta para texto.')+'\n';
+  if(fonts&&fonts.length){
+    s+=`\n## Tipografia\n\n| Papel | Família | Banco | Pesos | Característica |\n|---|---|---|---|---|\n`;
+    const papel=['Título','Texto','Apoio','Citação','Acento'];
+    fonts.forEach((f,i)=>s+=`| ${papel[i]||'Extra'} | ${f.n} | ${f.src==='google'?'Google Fonts':'Fontshare'} | ${f.wts.replace(/;/g,', ')} | ${describe(f)} |\n`);
+    s+=`\n\`\`\`html\n`+fonts.map(f=>`<link rel="stylesheet" href="${cdnLink(f)}">`).join('\n')+`\n\`\`\`\n`;
+  }
+  s+=`\n## Variáveis CSS\n\n\`\`\`css\n:root{\n`
+   +hs.map((h,i)=>`  --cor-${i+1}: ${h};`).join('\n')+'\n'
+   +`  --fundo: ${bg};\n  --tinta: ${ink};\n`
+   +(fonts&&fonts.length?fonts.map((f,i)=>`  --fonte-${i+1}: ${fam(f)};`).join('\n')+'\n':'')
+   +`}\n\`\`\`\n`;
+  s+=`\n---\n\nDerivada do círculo cromático de Goethe (*Zur Farbenlehre*, 1810). Conversões em OKLab, croma ajustado ao gamut sRGB. Razões de contraste segundo WCAG 2.1. Gerado em ${new Date().toLocaleString('pt-BR')}.\n`;
+  return s;
+}
+function mdPalette(){
+  const{E,M,SC,L,K,U}=cur();
+  const ctx=[`**Intenção:** ${E.n}`,`**Campo:** ${M.n}`,`**Esquema:** ${SC.n}`,
+    `**Lente de estúdio:** ${L.n}`,`**Referência cultural:** ${K.n}`,`**Estilo musical:** ${U.n}`,
+    `**Postura:** ${$('pos').value} de 100 entre pertencer e romper`].join('  \n');
+  const fonts=(window.T&&T.fams&&T.fams.length)?T.fams:null;
+  return mdBlock(palName(),palette(),proportions(),fonts,ctx);
+}
+function mdProposal(p){
+  const br=p.br,ctx=[`**Leitura:** ${p.ang.n}`,
+    `**Peça:** ${(PIECES.find(x=>x.v===br.piece)||{n:'—'}).n}`,
+    `**Suporte:** ${(SUPS.find(x=>x.v===br.sup)||{n:'—'}).n}`,
+    `**Intenção:** ${EMO[br.e].n}`,`**Campo:** ${MKT[br.m].n}`,
+    `**Esquema:** ${SCH[p.si].n}`,`**Lente de estúdio:** ${LENS[p.li].n}`,
+    `**Referência cultural:** ${CULT[p.k].n}`,`**Estilo musical:** ${MUS[p.u].n}`,
+    `**Postura:** ${Math.round(p.t*100)} de 100`,
+    br.words.length?`**Palavras reconhecidas na descrição:** ${br.words.join(', ')}`:null,
+    $('cBrief').value.trim()?`\n> ${$('cBrief').value.trim()}`:null,
+    `\n${p.ang.why}`].filter(Boolean).join('  \n');
+  return mdBlock(`${titleFor(br)} — ${p.ang.n}`,p.hs,p.areas,p.fonts,ctx);
+}
+
+/* ── montagem da página ── */
+fillSel($('cPiece'),PIECES,'v');fillSel($('cSup'),SUPS,'v');
+fillSel($('cEmo'),EMO);fillSel($('cMkt'),MKT);fillSel($('cCult'),CULT);fillSel($('cMus'),MUS);
+CR.n=5;
+$('cN').querySelectorAll('button').forEach(b=>b.onclick=()=>{CR.n=+b.dataset.n;$('cNLbl').textContent=CR.n;
+  $('cN').querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',x===b))});
+$('cPos').oninput=()=>$('cPosV').textContent=$('cPos').value;
+$('cBrief').oninput=()=>{const lx=readBrief();
+  $('cWords').innerHTML=lx.words.length
+    ? `Reconheci na descrição: <b style="color:var(--ink)">${lx.words.join('</b>, <b style="color:var(--ink)">')}</b>. Essas palavras deslocam intenção, campo, referência e postura — o que você escolher nos campos acima tem prioridade.`
+    : 'Ainda não reconheci nenhuma palavra do léxico. Escreva à vontade: os campos acima já bastam para gerar.'};
+
+function drawProposals(){
+  $('cOut').innerHTML=CR.props.map((p,i)=>{
+    const c=roleOf(p);
+    return `<section class="prop" data-p="${i}">
+      <div class="prophead">
+        <div><h2 style="margin:0">${esc(p.ang.n)}</h2>
+          <p class="sm" style="margin:4px 0 0">${esc(titleFor(p.br))} · ${esc(SCH[p.si].n)} · ${esc(LENS[p.li].n.split(' — ')[0])}${p.u!==p.br.u?' · dinâmica de '+esc(MUS[p.u].n.toLowerCase()):''} · ${p.fonts.map(f=>esc(f.n)).join(' + ')}</p></div>
+        <div class="propstrip">${p.hs.map((h,j)=>`<button data-h="${h}" style="background:${h};color:${readable(h)}" title="${h}">${Math.round(p.areas[j])}%</button>`).join('')}</div>
+      </div>
+      ${mock(p)}
+      <div class="grid2" style="margin-top:18px">
+        <div>${why(p)}</div>
+        <div>
+          <table class="roletable"><thead><tr><th>Cor</th><th>HEX</th><th>RGB</th><th>CMYK</th><th>Área</th></tr></thead><tbody>
+          ${p.hs.map((h,j)=>{const[r,g,b]=hex2rgb(h);
+            return `<tr><td><span style="display:inline-block;width:13px;height:13px;background:${h};vertical-align:-2px;margin-right:6px"></span>${j+1}</td>
+            <td>${h}</td><td>${r} ${g} ${b}</td><td>${rgb2cmyk(r,g,b).map(x=>Math.round(x)).join(' ')}</td><td>${Math.round(p.areas[j])}%</td></tr>`}).join('')}
+          </tbody></table>
+          <div class="btnrow">
+            <button class="act" data-act="md">Baixar em Markdown</button>
+            <button class="mini" data-act="zip">Baixar .zip</button>
+            <button class="mini" data-act="cores">Levar para Cores</button>
+            <button class="mini" data-act="tipo">Levar para Tipografia</button>
+            <button class="mini" data-act="copy">Copiar os hex</button>
+          </div>
+        </div>
+      </div>
+    </section>`}).join('');
+  $('cOut').querySelectorAll('.prop').forEach(sec=>{
+    const p=CR.props[+sec.dataset.p];
+    sec.querySelectorAll('.propstrip button').forEach(b=>b.onclick=()=>copy(b.dataset.h,b.dataset.h+' copiado'));
+    sec.querySelectorAll('[data-act]').forEach(b=>b.onclick=()=>{
+      const a=b.dataset.act,nm=slug(titleFor(p.br)+'-'+p.ang.n);
+      if(a==='md')return download(nm+'.md',mdProposal(p),'text/markdown');
+      if(a==='copy')return copy(p.hs.join('\n'),'Hex copiados');
+      if(a==='zip')return zipProposal(p,nm);
+      if(a==='cores'){
+        $('emo').value=p.br.e;$('mkt').value=p.br.m;$('scheme').value=p.si;$('lens').value=p.li;
+        $('cult').value=p.k;$('mus').value=p.u;$('pos').value=Math.round(p.t*100);$('posval').textContent=Math.round(p.t*100);
+        S.n=p.hs.length;$('cntLbl').textContent=S.n;
+        $('cnt').querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',+x.dataset.n===S.n));
+        S.colors=p.cols.map(c=>({a:c.a,L:c.L,C:c.C,lock:false}));S.baseOver=p.cols[0].a;
+        render();pushH();goto('cores');toast('Paleta carregada no instrumento de cor')}
+      if(a==='tipo'){T.fams=p.fonts.slice();T.nFam=p.fonts.length;$('tFamLbl').textContent=T.nFam;
+        $('tFamN').querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',+x.dataset.n===T.nFam));
+        T.disp=p.fonts[0];T.body=p.fonts[1]||p.fonts[0];T.mono=p.fonts.find(f=>f.cls==='mono')||null;T.ov={};
+        $('tWhy').textContent=`${p.fonts.map(f=>f.n).join(' + ')} — vindo da proposta ${p.ang.n.toLowerCase()}.`;
+        renderSpec();goto('tipo');toast('Combinação carregada no instrumento de tipografia')}
+    });
+  });
+}
+async function zipProposal(p,nm){
+  const te=new TextEncoder(),files=[
+    {name:nm+'.md',data:te.encode(mdProposal(p))},
+    {name:nm+'.css',data:te.encode(`:root{\n`+p.hs.map((h,i)=>`  --cor-${i+1}: ${h};`).join('\n')+'\n'
+      +p.fonts.map((f,i)=>`  --fonte-${i+1}: ${fam(f)};`).join('\n')+'\n}')},
+    {name:nm+'.json',data:te.encode(JSON.stringify({leitura:p.ang.n,cores:p.hs,
+      areas:p.areas.map(x=>+x.toFixed(1)),fontes:p.fonts.map(f=>({nome:f.n,banco:f.src,pesos:f.wts}))},null,2))},
+    {name:nm+'.svg',data:te.encode(`<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="300">`
+      +p.hs.map((h,i)=>{let x=0;for(let k=0;k<i;k++)x+=1200*p.areas[k]/100;
+        return `<rect x="${x.toFixed(1)}" y="0" width="${(1200*p.areas[i]/100).toFixed(1)}" height="300" fill="${h}"/>`}).join('')+`</svg>`)}
+  ];
+  download(nm+'.zip',makeZip(files));
+}
+$('cGo').onclick=()=>{
+  CR.seed=Math.random();const br=buildBrief();
+  CR.props=ANGLES.map((a,i)=>makeProposal(a,br,(CR.seed*(i+1)*7.13)%1));
+  $('cRead').style.display='block';
+  $('cRead').innerHTML=`<b>O que eu li do seu pedido.</b> `
+    +`Peça: ${(PIECES.find(x=>x.v===br.piece)||{n:'não definida'}).n.toLowerCase()}. `
+    +`Suporte: ${(SUPS.find(x=>x.v===br.sup)||{n:'não definido'}).n.toLowerCase()}. `
+    +`Intenção: ${EMO[br.e].n.toLowerCase()}. Campo: ${MKT[br.m].n.toLowerCase()}. `
+    +(CULT[br.k].anc?`Referência: ${CULT[br.k].n.split(' — ')[0]}. `:'')
+    +(MUS[br.u].m?`Dinâmica: ${MUS[br.u].n.toLowerCase()}. `:'')
+    +`Postura de partida: ${Math.round(br.t*100)} de 100.`
+    +(br.words.length?` Da descrição, pesaram: ${br.words.join(', ')}.`:' A descrição não trouxe palavras do léxico — as três propostas vêm só dos campos.');
+  setTimeout(drawProposals,60);drawProposals();
+  setTimeout(()=>{try{$('cOut').scrollIntoView({behavior:'smooth',block:'start'})}catch(_){}},120);
+};
+$('cAgain').onclick=()=>$('cGo').click();
+$('cClear').onclick=()=>{['cPiece','cSup','cEmo','cMkt','cCult','cMus'].forEach(id=>$(id).value=0);
+  $('cPiece').value='none';$('cSup').value='none';$('cFam').value='2';
+  $('cPos').value=50;$('cPosV').textContent='50';$('cBrief').value='';$('cWords').textContent='';
+  $('cOut').innerHTML='';$('cRead').style.display='none';CR.props=[];toast('Campos limpos')};
+/* ═══════════ TENDÊNCIAS ═══════════
+   Uma entrada por trimestre. Para acrescentar uma edição, insira um objeto
+   no começo desta lista. Tudo o mais se monta a partir daqui.
+   hex = aproximação em sRGB da cor descrita pela fonte, nunca o código oficial. */
+const TREND=[
+{id:'2026 · T3',per:'Julho a setembro de 2026',
+ tese:'O ciclo se parte em dois. De um lado, a cor volta a ser evento depois de um ano de branco estrutural; de outro, a tipografia e a identidade recusam a neutralidade que a produção automatizada tornou barata.',
+ cor:{
+  tese:'Azul de cobalto como âncora, calor terroso como contrapeso',
+  pal:[{n:'Luminous Blue',hex:'#2340C8',obs:'Cor do Ano 2027 de WGSN e Coloro, código Coloro 125-28-38'},
+       {n:'Energy Orange',hex:'#F2600C',obs:'Cor-chave S/S 27, código Coloro 018-57-34'},
+       {n:'Pop Pink',hex:'#F25BA0',obs:'Cor-chave S/S 27, código Coloro 151-73-22'},
+       {n:'Meadowland Green',hex:'#6F8F4A',obs:'Cor-chave S/S 27, código Coloro 050-61-19'},
+       {n:'Clay',hex:'#B6795A',obs:'Cor-chave S/S 27, código Coloro 014-60-13'}],
+  corpo:['WGSN e Coloro nomearam Luminous Blue como Cor do Ano de 2027 e descreveram o tema que governa a escolha das cinco cores-chave de primavera e verão de 2027: interconexão entre polaridades — claro e escuro, natureza e tecnologia, antigo e contemporâneo, racionalidade e espiritualidade.',
+   'As três primeiras cores-chave são declaradamente animadas, pensadas para sustentar as pessoas diante da pressão; as duas últimas, Meadowland Green e Clay, vêm da busca por propósito e por vínculo com comunidade e natureza. É a mesma tensão que Goethe descreve entre o lado ativo e o lado passivo do círculo, com o purpúreo ausente e o azul ocupando o papel de gravidade.',
+   'Para o instrumento de cor, a leitura prática é esta: um azul frio de croma alto como primária, com laranja e barro entrando como contraparte característica em área pequena — não como complementar em área igual, que é o erro previsível dessa combinação.'],
+  fontes:[{n:'WGSN e Coloro, comunicado de 29 de abril de 2025',u:'https://www.wgsn.com/en/wgsn/press/press-releases/wgsn-and-coloro-reveal-colour-year-2027-luminous-blue-and-s-s-27-key'},
+          {n:'Coloro, página das cores-chave',u:'https://coloro.com/key-colors'},
+          {n:'WWD, cobertura de 29 de abril de 2025',u:'https://wwd.com/fashion-news/fashion-features/color-of-the-year-wgsn-coloro-single-out-luminous-blue-1237109361/'}]},
+ tipo:{
+  tese:'A fonte variável virou infraestrutura, e a neutralidade virou defeito',
+  fam:['Inter','Bricolage Grotesque','Fraunces','Instrument Serif','JetBrains Mono'],
+  corpo:['O padrão de fonte variável, publicado pelo W3C em 2017, deixou de ser diferencial e virou expectativa: navegadores, sistemas operacionais e ferramentas de design lidam com ele sem atrito, e uma família inteira chega num arquivo só, cobrindo peso, tamanho óptico, largura e eixos experimentais.',
+   'O movimento estético anda no sentido contrário da economia de arquivo. As grotescas limpas ficaram tão onipresentes em produto que passaram a ser lidas como ausência de escolha, e o trabalho mais interessante migrou para o que é mais macio, mais quente, mais expressivo ou simplesmente mais peculiar. A saturação de conteúdo gerado automaticamente transformou traço com marca de mão em sinal de autoria.',
+   'Há também um retorno do dinheiro ao tipo: depois de uma década de disciplina orçamentária apoiada só em bancos abertos, estúdios voltaram a encomendar e licenciar desenhos próprios. Os bancos livres continuam excelentes — a diferença é que deixaram de ser o único caminho aceitável.'],
+  fontes:[{n:'Font Trends 2026, levantamento de mercado e lançamentos de fundição',u:'https://madegooddesigns.com/font-trends-2026/'},
+          {n:'Typography Trends 2026, fontes variáveis e tipo cinético',u:'https://designflea.com/typography-trends-2026/'},
+          {n:'Monotype, relatório anual Type Trends',u:'https://www.monotype.com/type-trends'}]},
+ comb:{
+  tese:'Paleta flexível no lugar de paleta fixa',
+  corpo:['A recomendação que se repete nos relatórios de identidade é abandonar a paleta congelada em favor de um tema cromático que se desloca conforme contexto e plataforma: reconhecível por atmosfera, não por um conjunto exato de valores.',
+   'Isso muda o que um sistema de cor precisa entregar. Não bastam cinco hex: é preciso uma regra de deslocamento — quanto o matiz pode girar, quanto o croma pode subir, qual a faixa de luminosidade que ainda pertence ao sistema. É exatamente o que um círculo com geometria preservada resolve e uma lista de amostras não resolve.',
+   'A contrapartida é o risco de dissolução. Sem uma âncora de valor — um escuro e um claro que não se mexem — a identidade flexível vira identidade indistinguível.'],
+  fontes:[{n:'The Branding Journal, tendências de branding e design 2026',u:'https://www.thebrandingjournal.com/2026/01/top-branding-design-trends-2026/'},
+          {n:'It’s Nice That, tendências gráficas 2026',u:'https://www.itsnicethat.com/features/forward-thinking-graphic-trends-2026-graphic-design-120126'}]},
+ apl:{
+  tese:'Movimento antes de forma, textura antes de acabamento',
+  corpo:['Identidade pensada primeiro em movimento deixou de ser especialidade de estúdio de motion e virou requisito de entrega, porque a tela passou a ser o primeiro ponto de contato e não o último.',
+   'Junto vem uma preferência por superfície: translúcido, ceroso, vítreo, com granulação e imperfeição visíveis. A leitura corrente é que isso funciona como assinatura de autoria humana num ambiente saturado de produção automática.',
+   'Para quem trabalha com cor, a consequência é técnica: uma paleta que só foi testada em superfície chapada quebra quando entra em transparência e sobreposição. Vale testar cada par em camada antes de fechar.'],
+  fontes:[{n:'Three Rooms, oito tendências de identidade para 2026',u:'https://www.threerooms.com/blog/8-design-trends-shaping-brand-identity-in-2026'},
+          {n:'It’s Nice That, tendências gráficas 2026',u:'https://www.itsnicethat.com/features/forward-thinking-graphic-trends-2026-graphic-design-120126'}]}},
+
+{id:'2026 · T2',per:'Abril a junho de 2026',
+ tese:'O relatório de comportamento do trimestre desloca o eixo de novidade para estabilidade, e a consequência visual é uma preferência por continuidade legível em vez de ruptura anual.',
+ cor:{tese:'Prêmio de estabilidade: cor que não precisa ser trocada todo ano',
+  pal:[{n:'Azul de instituição',hex:'#2F4A7A',obs:'aproximação do azul de continuidade descrito nos relatórios'},
+       {n:'Verde de campo',hex:'#5E7A4B',obs:'aproximação'},
+       {n:'Areia',hex:'#D9CDBA',obs:'aproximação'},
+       {n:'Tinta',hex:'#1B1A18',obs:'aproximação'}],
+  corpo:['O relatório de tendências de vida da Accenture para 2026 organiza o ano em cinco movimentos, e o primeiro deles é o prêmio de estabilidade: previsibilidade de preço e de qualidade vira conforto num contexto instável, e rituais domésticos viram âncora.',
+   'A tradução cromática que aparece nos materiais de identidade é a de legado dinâmico — preservar o que já é reconhecido e modernizar por dentro, em vez de recomeçar. Na prática, isso favorece esquemas análogos e monocromáticos sobre complementares, e croma médio sobre croma alto.'],
+  fontes:[{n:'Accenture Life Trends 2026',u:'https://www.accenture.com/us-en/insights/song/accenture-life-trends'}]},
+ tipo:{tese:'Tipo como ativo de continuidade',fam:['Source Serif 4','Public Sans','IBM Plex Sans'],
+  corpo:['Quando a estratégia é continuidade, a tipografia deixa de ser onde se busca novidade e passa a ser onde se busca durabilidade: classes transicionais e humanistas, alturas de x compatíveis, famílias com faixa de peso larga o bastante para carregar hierarquia sem trocar de desenho.'],
+  fontes:[{n:'Accenture Life Trends 2026',u:'https://www.accenture.com/us-en/insights/song/accenture-life-trends'}]},
+ comb:{tese:'Legado dinâmico em vez de recomeço',
+  corpo:['A recomendação estratégica do trimestre é preservar o patrimônio visual acumulado e evoluir por dentro. Para um sistema de cor, isso significa desvio pequeno e deliberado em relação ao que já existe — a mesma disciplina que as redes de consultoria aplicam em programas multimercado.'],
+  fontes:[{n:'Accenture Life Trends 2026',u:'https://www.accenture.com/us-en/insights/song/accenture-life-trends'}]},
+ apl:{tese:'Ritual como ponto de contato',
+  corpo:['Se o comportamento se ancora em rotina, a aplicação que mais importa deixa de ser a campanha e passa a ser a peça recorrente: a embalagem que reaparece, a tela que se abre todo dia, o documento que chega todo mês. São superfícies que perdoam menos contraste ruim, porque são vistas muitas vezes.'],
+  fontes:[{n:'Accenture Life Trends 2026',u:'https://www.accenture.com/us-en/insights/song/accenture-life-trends'}]}},
+
+{id:'2026 · T1',per:'Janeiro a março de 2026',
+ tese:'Pela primeira vez em vinte e sete anos o instituto de cor escolhe um branco. A consequência não é ausência de cor: é que o branco passa a ser tratado como material com papel, e não como fundo.',
+ cor:{tese:'O branco como cor estrutural',
+  pal:[{n:'Cloud Dancer',hex:'#F0EEE9',obs:'Pantone 11-4201, Cor do Ano 2026 — aproximação em sRGB'},
+       {n:'Transformative Teal',hex:'#1E7F86',obs:'Cor do Ano 2026 de WGSN e Coloro — aproximação'},
+       {n:'Sombra fria',hex:'#8E9298',obs:'aproximação das paletas de luz e sombra divulgadas'},
+       {n:'Pastel empoeirado',hex:'#D8C7C0',obs:'aproximação das paletas de pastéis divulgadas'}],
+  corpo:['Em 4 de dezembro de 2025, o instituto anunciou Pantone 11-4201 Cloud Dancer como Cor do Ano de 2026, descrita como um branco aéreo que funciona como símbolo de influência calmante numa sociedade que redescobre o valor da reflexão silenciosa. É a primeira vez que a escolha recai sobre um branco.',
+   'O argumento publicado é de estrutura, não de moda: um branco que serve de andaime para o espectro e permite que as outras cores apareçam. Sete paletas foram divulgadas junto, entre elas pastéis empoeirados e luz e sombra.',
+   'Em paralelo, WGSN e Coloro já haviam apontado Transformative Teal como sua Cor do Ano de 2026, por representar mudança e estabilidade ao mesmo tempo. As duas escolhas convergem no mesmo diagnóstico e divergem na resposta: uma retira, a outra media.',
+   'A leitura de Goethe aqui é direta. Ele recusa tratar o branco como ausência: luz e treva são os dois polos sem os quais nenhuma cor existe. Uma Cor do Ano branca é a indústria chegando, por outro caminho, à mesma posição de 1810.'],
+  fontes:[{n:'Pantone, Cor do Ano 2026',u:'https://www.pantone.com/na/en-us/color-of-the-year/2026'},
+          {n:'Pantone, as sete paletas de Cloud Dancer',u:'https://www.pantone.com/na/en-us/articles/color-of-the-year/color-of-the-year-2026-color-palettes'},
+          {n:'NPR, cobertura de 4 de dezembro de 2025',u:'https://www.npr.org/2025/12/04/nx-s1-5632651/pantones-color-of-the-year-2026-white'},
+          {n:'Coloro, cores-chave e histórico',u:'https://coloro.com/key-colors'}]},
+ tipo:{tese:'Revisão em vez de invenção',fam:['EB Garamond','Libre Caslon Text','Newsreader'],
+  corpo:['O relatório anual de tendências de tipo da fundição que mais publica sobre o assunto tratou o ciclo sob o título de revisão — releitura de repertório existente em lugar de busca por forma inédita. Em termos práticos: revivals cuidadosos, tipos de texto com serifa e correção de desenhos que já circulavam há tempo demais sem ajuste.'],
+  fontes:[{n:'Monotype, Type Trends',u:'https://www.monotype.com/type-trends'}]},
+ comb:{tese:'Branco em área dominante, cor em recorte',
+  corpo:['Uma paleta ancorada em branco estrutural exige inverter a proporção habitual: a superfície clara passa de sessenta para oitenta por cento da área, e o matiz entra como acontecimento. É o método que estúdios de contenção já praticam, agora com respaldo de calendário.',
+   'O risco declarado é o esvaziamento. Branco dominante sem uma treva bem escolhida e sem um acento com contraste medido produz o que o setor chamou de identidade sem identidade.'],
+  fontes:[{n:'Pantone, guia de aplicação de Cloud Dancer',u:'https://www.pantone.com/na/en-us/articles/color-of-the-year/how-to-use-pantone-color-of-the-year-2026-cloud-dancer-in-products'}]},
+ apl:{tese:'Superfície tátil como compensação',
+  corpo:['Quando a cor recua, a matéria avança: os materiais divulgados junto com a escolha do ano enfatizam textura acolchoada, lã, pelo e volume arredondado. Em suporte plano, o equivalente é granulação, papel visível e sombra macia — a compensação de quem tirou o matiz da equação.'],
+  fontes:[{n:'Pantone, guia de aplicação de Cloud Dancer',u:'https://www.pantone.com/na/en-us/articles/color-of-the-year/how-to-use-pantone-color-of-the-year-2026-cloud-dancer-in-products'}]}}
+];
+
+const AXES=[{k:'cor',n:'Cor'},{k:'tipo',n:'Tipografia'},{k:'comb',n:'Combinações'},{k:'apl',n:'Aplicações'}];
+const TD={i:0};
+
+/* hex → posição no círculo de Goethe, para levar a paleta ao instrumento */
+function angleFor(H){let best=0,bd=999;
+  for(let a=0;a<360;a+=.5){const d=Math.abs(wrapDeg(atAngle(a).H-H));if(d<bd){bd=d;best=a}}return best}
+function colorsFromHex(hs){return hs.map(h=>{const l=hex2lch(h);return{a:angleFor(l.H),L:l.L,C:l.C,lock:false}})}
+
+function drawTrend(){
+  const e=TREND[TD.i];
+  $('edTabs').innerHTML=TREND.map((x,i)=>`<button data-i="${i}" aria-pressed="${i===TD.i}">${esc(x.id)}${i===0?' · atual':''}</button>`).join('');
+  $('edTabs').querySelectorAll('button').forEach(b=>b.onclick=()=>{TD.i=+b.dataset.i;drawTrend();
+    try{$('edHead').scrollIntoView({behavior:'smooth',block:'start'})}catch(_){}});
+  $('edHead').innerHTML=`<h2 style="margin-top:20px">${esc(e.id)}</h2>
+    <p class="sm" style="margin:0 0 10px">${esc(e.per)}${TD.i===0?' · edição em vigor':' · arquivada'}</p>
+    <p class="lede">${esc(e.tese)}</p>`;
+  $('edAxes').innerHTML=AXES.map(ax=>{const a=e[ax.k];if(!a)return '';
+    return `<div class="card" style="margin-top:16px">
+      <div class="sm" style="margin-bottom:4px">${ax.n}</div>
+      <h3 style="margin-bottom:10px">${esc(a.tese)}</h3>
+      ${a.pal?`<div class="trendpal">${a.pal.map(p=>`<button data-h="${p.hex}" style="background:${p.hex};color:${readable(p.hex)}">
+          <span>${esc(p.n)}</span><span class="hx">${p.hex}</span></button>`).join('')}</div>
+        <p class="sm" style="margin-top:8px">${a.pal.map(p=>esc(p.n)+' — '+esc(p.obs)).join(' · ')}</p>`:''}
+      ${a.fam?`<div class="pills" style="margin:6px 0 12px">${a.fam.map(f=>`<span class="pill">${esc(f)}</span>`).join('')}</div>`:''}
+      ${a.corpo.map(t=>`<p class="lede" style="margin-top:10px">${esc(t)}</p>`).join('')}
+      <p class="sm" style="margin-top:12px">Fontes: ${a.fontes.map(f=>`<a href="${f.u}" target="_blank" rel="noopener">${esc(f.n)}</a>`).join(' · ')}</p>
+      ${ax.k==='cor'&&a.pal?`<div class="btnrow"><button class="mini" data-open="cor">Abrir esta paleta em Cores</button></div>`:''}
+      ${ax.k==='tipo'&&a.fam?`<div class="btnrow"><button class="mini" data-open="tipo">Abrir estas famílias em Tipografia</button></div>`:''}
+    </div>`}).join('');
+  $('edAxes').querySelectorAll('[data-h]').forEach(b=>b.onclick=()=>copy(b.dataset.h,b.dataset.h+' copiado'));
+  const co=$('edAxes').querySelector('[data-open="cor"]');
+  if(co)co.onclick=()=>{const hs=e.cor.pal.map(p=>p.hex);
+    S.colors=colorsFromHex(hs);S.n=hs.length;$('cntLbl').textContent=S.n;
+    $('cnt').querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',+x.dataset.n===S.n));
+    $('scheme').value=0;S.baseOver=S.colors[0].a;render();pushH();goto('cores');
+    toast('Paleta da edição carregada, em esquema livre')};
+  const to=$('edAxes').querySelector('[data-open="tipo"]');
+  if(to)to.onclick=()=>{const fs=e.tipo.fam.map(n=>FONTS.find(f=>f.n===n)).filter(Boolean);
+    if(!fs.length)return toast('Estas famílias não estão no banco do instrumento');
+    T.fams=fs.slice(0,5);T.nFam=T.fams.length;$('tFamLbl').textContent=T.nFam;
+    $('tFamN').querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',+x.dataset.n===T.nFam));
+    T.disp=T.fams[0];T.body=T.fams[1]||T.fams[0];T.mono=T.fams.find(f=>f.cls==='mono')||null;T.ov={};
+    T.fams.forEach(loadFont);
+    $('tWhy').textContent=`${T.fams.map(f=>f.n).join(' + ')} — famílias citadas na edição ${e.id}.`;
+    renderSpec();goto('tipo');toast('Famílias da edição carregadas')};
+  drawBanners();drawArquivo();
+}
+
+/* ── banners ── */
+function bannerSvg(e,axk){
+  const ax=AXES.find(a=>a.k===axk),a=e[axk];
+  const hs=(e.cor.pal||[]).map(p=>p.hex),ls=hs.map(lum);
+  const bg=hs[ls.indexOf(Math.max(...ls))]||'#F2F1EE',ink=hs[ls.indexOf(Math.min(...ls))]||'#111';
+  const ac=hs.find(h=>h!==bg&&h!==ink&&ratio(h,bg)>=3)||ink;
+  const W=1200,H=630,esc2=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  const wrapT=(t,max)=>{const w=t.split(' '),out=[];let l='';
+    w.forEach(x=>{if((l+' '+x).trim().length>max){out.push(l);l=x}else l=(l?l+' ':'')+x});if(l)out.push(l);return out};
+  const lines=wrapT(a.tese,26).slice(0,4);
+  const bars=hs.map((h,i)=>`<rect x="${72+i*((W-144)/hs.length)}" y="${H-118}" width="${((W-144)/hs.length)-8}" height="46" fill="${h}"/>`).join('');
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">
+  <rect width="${W}" height="${H}" fill="${bg}"/>
+  <rect x="72" y="66" width="54" height="6" fill="${ac}"/>
+  <text x="72" y="112" font-family="Helvetica,Arial,sans-serif" font-size="21" fill="${ink}" opacity=".7">${esc2(e.id)} · ${esc2(ax.n)}</text>
+  ${lines.map((l,i)=>`<text x="72" y="${208+i*74}" font-family="Georgia,serif" font-size="64" fill="${ink}">${esc2(l)}</text>`).join('')}
+  ${bars}
+  <text x="72" y="${H-40}" font-family="Helvetica,Arial,sans-serif" font-size="19" fill="${ink}" opacity=".65">${esc2(a.fontes.map(f=>f.n.split(',')[0]).join(' · ').slice(0,88))}</text>
+  <text x="${W-72}" y="112" text-anchor="end" font-family="Helvetica,Arial,sans-serif" font-size="19" fill="${ink}" opacity=".55">Farbenkreis</text>
+</svg>`;
+}
+function drawBanners(){
+  const e=TREND[TD.i];
+  $('banners').innerHTML=AXES.map(ax=>`<div class="card">
+    <div class="bnr">${bannerSvg(e,ax.k)}</div>
+    <div class="btnrow" style="margin-top:12px">
+      <button class="mini" data-b="${ax.k}" data-f="svg">Baixar SVG</button>
+      <button class="mini" data-b="${ax.k}" data-f="png">Baixar PNG</button>
+      <button class="mini" data-b="${ax.k}" data-f="copy">Copiar o código SVG</button>
+    </div></div>`).join('');
+  $('banners').querySelectorAll('[data-b]').forEach(b=>b.onclick=()=>{
+    const svg=bannerSvg(e,b.dataset.b),nm='tendencias-'+slug(e.id)+'-'+b.dataset.b;
+    if(b.dataset.f==='svg')return download(nm+'.svg',svg,'image/svg+xml');
+    if(b.dataset.f==='copy')return copy(svg,'SVG copiado');
+    const cv=$('cv'),ctx=cv.getContext('2d');cv.width=1200;cv.height=630;
+    const img=new Image();
+    img.onload=()=>{ctx.fillStyle='#fff';ctx.fillRect(0,0,1200,630);ctx.drawImage(img,0,0);
+      cv.toBlob(bl=>download(nm+'.png',bl),'image/png')};
+    img.onerror=()=>toast('Não foi possível rasterizar aqui — baixe o SVG');
+    img.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(svg)});
+}
+function drawArquivo(){
+  $('edArquivo').innerHTML=TREND.map((x,i)=>`<button class="mini" data-i="${i}" style="margin:0 8px 8px 0">${esc(x.id)} — ${esc(x.per)}</button>`).join('')
+   +`<p class="sm" style="margin-top:10px">${TREND.length} edições no arquivo. A mais antiga é ${esc(TREND[TREND.length-1].id)}.</p>`;
+  $('edArquivo').querySelectorAll('button').forEach(b=>b.onclick=()=>{TD.i=+b.dataset.i;drawTrend();
+    try{$('edHead').scrollIntoView({behavior:'smooth',block:'start'})}catch(_){}});
+}
+function trendMd(e){
+  let s=`# Tendências — ${e.id}\n\n_${e.per}_\n\n${e.tese}\n`;
+  AXES.forEach(ax=>{const a=e[ax.k];if(!a)return;
+    s+=`\n## ${ax.n} — ${a.tese}\n\n`;
+    if(a.pal){s+=`| Cor | HEX aproximado | Observação |\n|---|---|---|\n`
+      +a.pal.map(p=>`| ${p.n} | \`${p.hex}\` | ${p.obs} |\n`).join('')+'\n'}
+    if(a.fam)s+=`Famílias citadas: ${a.fam.join(', ')}\n\n`;
+    s+=a.corpo.map(t=>t+'\n').join('\n');
+    s+=`\nFontes:\n`+a.fontes.map(f=>`- [${f.n}](${f.u})\n`).join('')});
+  s+=`\n---\n\nOs valores em hex são aproximações em sRGB feitas a partir da descrição e da imagem divulgadas, não os códigos oficiais. Compilado em ${new Date().toLocaleString('pt-BR')}.\n`;
+  return s;
+}
+$('edSchema').onclick=()=>{const el=$('edSchemaOut');
+  el.style.display=el.style.display==='none'?'block':'none';
+  el.textContent=`{\n  id: '2026 · T4',              // rótulo da aba\n  per: 'Outubro a dezembro de 2026',\n  tese: 'Uma frase que resume o trimestre.',\n  cor:  { tese, pal: [{n, hex, obs}], corpo: [ ... ], fontes: [{n, u}] },\n  tipo: { tese, fam: ['Nome da família'], corpo: [ ... ], fontes: [{n, u}] },\n  comb: { tese, corpo: [ ... ], fontes: [{n, u}] },\n  apl:  { tese, corpo: [ ... ], fontes: [{n, u}] }\n}\n\n// pal.hex alimenta o botão que abre a paleta no instrumento de cor\n// tipo.fam precisa bater com o nome exato de uma família do banco FONTS`};
+$('edJson').onclick=()=>download('tendencias.json',JSON.stringify(TREND,null,2),'application/json');
+$('edMd').onclick=()=>download('tendencias-'+slug(TREND[TD.i].id)+'.md',trendMd(TREND[TD.i]),'text/markdown');
+/* ═══════════ NAVEGAÇÃO ═══════════ */
+function goto(p){
+  document.querySelectorAll('.page').forEach(el=>el.classList.toggle('on',el.id==='p-'+p));
+  document.querySelectorAll('.tab').forEach(b=>b.setAttribute('aria-current',b.dataset.p===p?'page':'false'));
+  $('hereLbl').textContent={home:'Início',cores:'Cores',tipo:'Tipografia',criacao:'Criação',tend:'Tendências'}[p]||'';
+  try{window.scrollTo({top:0,behavior:'instant'})}catch(_){}
+  if(p==='tipo'&&!T.disp)newPair();
+  if(p==='tipo')renderSpec();
+}
+document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>goto(b.dataset.p));
+document.querySelectorAll('[data-goto]').forEach(b=>b.onclick=()=>goto(b.dataset.goto));
+const setG=g=>{document.documentElement.setAttribute('data-ground',g);
+  $('gLuz').setAttribute('aria-pressed',g==='luz');$('gTreva').setAttribute('aria-pressed',g==='treva');
+  drawHome();if(S.colors.length)render()};
+$('gLuz').onclick=()=>setG('luz');$('gTreva').onclick=()=>setG('treva');
+
+/* ═══════════ DEMONSTRAÇÕES DA PÁGINA INICIAL ═══════════ */
+function wheelSvg(marks,size,showLabels){
+  const cx=200,cy=200,R=size||160,seg=[];
+  for(let i=0;i<120;i++){const a0=i*3,a1=a0+3.3;
+    const p=(a,r)=>[cx+r*Math.cos((a-90)*Math.PI/180),cy+r*Math.sin((a-90)*Math.PI/180)];
+    seg.push(`<path d="M${cx},${cy} L${p(a0,R)} A${R},${R} 0 0 1 ${p(a1,R)} Z" fill="${hexAt(a0+1.6)}"/>`)}
+  let g=seg.join('');
+  (marks||[]).forEach(m=>{const r=R*.72,x=cx+r*Math.cos((m-90)*Math.PI/180),y=cy+r*Math.sin((m-90)*Math.PI/180);
+    g+=`<circle cx="${x}" cy="${y}" r="${R*.13}" fill="${hexAt(m)}" stroke="#000" stroke-width="2.5"/>
+        <circle cx="${x}" cy="${y}" r="${R*.13}" fill="none" stroke="#fff" stroke-width="1"/>`});
+  if(showLabels)g+=ANCHORS.map(an=>{const r=R+22,x=cx+r*Math.cos((an.a-90)*Math.PI/180),y=cy+r*Math.sin((an.a-90)*Math.PI/180);
+    return `<text x="${x}" y="${y+4}" text-anchor="${an.a===0||an.a===180?'middle':an.a<180?'start':'end'}" fill="var(--soft)" font-family="IBM Plex Sans,sans-serif" font-size="11">${an.nome}</text>`}).join('');
+  return g;
+}
+function drawHome(){
+  $('homeWheel').innerHTML=wheelSvg([],160,true)
+   +`<circle cx="200" cy="200" r="160" fill="none" stroke="var(--rule)"/>
+     <path d="M200 40 A160 160 0 0 1 200 360" fill="none" stroke="var(--ink)" stroke-width="2" stroke-dasharray="2 6" opacity=".55"/>
+     <text x="286" y="196" text-anchor="middle" font-family="Bodoni Moda,serif" font-size="15" fill="#000">lado</text>
+     <text x="286" y="214" text-anchor="middle" font-family="Bodoni Moda,serif" font-size="15" fill="#000">positivo</text>
+     <text x="114" y="196" text-anchor="middle" font-family="Bodoni Moda,serif" font-size="15" fill="#fff">lado</text>
+     <text x="114" y="214" text-anchor="middle" font-family="Bodoni Moda,serif" font-size="15" fill="#fff">negativo</text>`;
+
+  const demos=[['Monocromático',[20]],['Análogo',[20,50,350]],['Complementar',[20,200]],
+   ['Complementar dividido',[20,170,230]],['Tríade',[20,140,260]],['Tetrádico',[20,80,200,260]]];
+  $('schemeDemos').innerHTML=demos.map(([n,m])=>
+    `<div><svg viewBox="0 0 400 400" style="width:100%;height:auto">${wheelSvg(m,150,false)}</svg>
+     <div class="sm" style="text-align:center;margin-top:4px">${n}</div></div>`).join('');
+
+  drawVenn('add');drawVenn('sub');
+
+  const hues=[30,60,90,150,210,260,300,340];
+  const row=(f,lbl)=>`<div style="display:flex;align-items:center;gap:10px;margin-bottom:4px">
+    <span class="sm" style="width:62px;flex:none">${lbl}</span>
+    <span style="display:flex;flex:1">${hues.map(h=>`<i style="flex:1;height:46px;background:${f(h)};display:block"></i>`).join('')}</span></div>`;
+  $('okDemo').innerHTML=row(h=>hslHex(h,70,55),'HSL')+row(h=>oklch2hex(.65,.13,h),'OKLab');
+
+  const reps={'serif-old':'EB Garamond','serif-trans':'Lora','serif-mod':'Playfair Display','serif-slab':'Roboto Slab',
+    'sans-grot':'Space Grotesk','sans-neo':'Inter','sans-geo':'Poppins','sans-hum':'IBM Plex Sans','mono':'JetBrains Mono','display':'Syne'};
+  $('classGrid').innerHTML=Object.keys(CLS).map(k=>{const f=FONTS.find(x=>x.n===reps[k]);if(f)loadFont(f);
+    return `<div class="card"><div style="font-family:${f?fam(f):'serif'};font-size:32px;line-height:1.1;margin-bottom:6px">Aa Gg</div>
+      <h4>${CLS[k].n}</h4><p class="sm">${CLS[k].d}</p><p class="sm" style="margin-top:6px;opacity:.75">Exemplo: ${reps[k]}</p></div>`}).join('');
+}
+
+/* ── diagramas de mistura, arrastáveis ── */
+const VENN={
+ add:{el:'vennAdd',bg:'#000',lb:'#fff',parts:[
+   {c:'#FF0000',n:'R',x:36,y:34},{c:'#00FF00',n:'G',x:64,y:34},{c:'#0000FF',n:'B',x:50,y:64}]},
+ sub:{el:'vennSub',bg:'#FFFFFF',lb:'#000',parts:[
+   {c:'#00AEEF',n:'C',x:36,y:34},{c:'#EC008C',n:'M',x:64,y:34},{c:'#FFF200',n:'Y',x:50,y:64}]}
+};
+const VENN0=JSON.parse(JSON.stringify(VENN));
+function drawVenn(k){
+  const V=VENN[k],el=$(V.el);if(!el)return;
+  el.style.background=V.bg;
+  el.innerHTML=V.parts.map((p,i)=>
+     `<div class="c" data-i="${i}" style="background:${p.c};width:52%;aspect-ratio:1;left:${p.x}%;top:${p.y}%;transform:translate(-50%,-50%)"></div>`).join('')
+   +`<div class="marks">${V.parts.map(p=>`<span class="lb" style="left:${p.x}%;top:${p.y}%;color:${V.lb}">${p.n}</span>`).join('')}</div>`;
+  el.querySelectorAll('.c').forEach(c=>{
+    c.addEventListener('pointerdown',e=>{
+      e.preventDefault();const i=+c.dataset.i;c.classList.add('drag');
+      try{c.setPointerCapture(e.pointerId)}catch(_){}
+      const mv=ev=>{const r=el.getBoundingClientRect();
+        VENN[k].parts[i].x=Math.max(2,Math.min(98,(ev.clientX-r.left)/r.width*100));
+        VENN[k].parts[i].y=Math.max(2,Math.min(98,(ev.clientY-r.top)/r.height*100));
+        c.style.left=VENN[k].parts[i].x+'%';c.style.top=VENN[k].parts[i].y+'%';
+        const lb=el.querySelectorAll('.lb')[i];lb.style.left=c.style.left;lb.style.top=c.style.top};
+      const up=()=>{c.classList.remove('drag');c.removeEventListener('pointermove',mv);c.removeEventListener('pointerup',up)};
+      c.addEventListener('pointermove',mv);c.addEventListener('pointerup',up);c.addEventListener('pointercancel',up)})});
+}
+document.querySelectorAll('[data-venn]').forEach(b=>b.onclick=()=>{
+  const k=b.dataset.venn;VENN[k].parts=JSON.parse(JSON.stringify(VENN0[k].parts));drawVenn(k)});
+
+/* ═══════════ INÍCIO ═══════════ */
+drawHome();
+drawTrend();
+build(false);
+pushH();
+drawGrad();
+listSaved();
+listTSaved();
+$('gFromPal').click();
