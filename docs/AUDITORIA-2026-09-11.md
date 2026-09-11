@@ -62,7 +62,7 @@ Emitido em 11 de setembro de 2026, ao fim das Etapas 1 a 7 do plano em `PASSAGEM
 
 ## Mudanças de comportamento deliberadas (todas na Etapa 6)
 
-1. **Véu de legibilidade** nos rótulos pequenos das faixas (`.cell.lowc`): quando preto ou branco, já com a opacidade do rótulo, não alcançam 4,5:1 sobre a cor mostrada, os três rótulos ganham fundo translúcido. Única mudança visual em relação ao original; afeta só a página Cores.
+1. **Véu de legibilidade** nos rótulos pequenos das faixas (`.cell.lowc`): quando preto ou branco, já com a opacidade do rótulo, não alcançam 4,5:1 sobre a cor mostrada, os três rótulos ganham fundo translúcido. Afeta só a página Cores, e só as cores de meio-tom.
 2. **Papéis ARIA da tabbar**: os cinco botões são `role="tab"` com `aria-selected`, o que a `role="tablist"` já exigia. As cinco páginas viraram `<main>` (uma visível por vez).
 3. **Linha "Exemplo:" nos cartões de classe** da página inicial perdeu a opacidade decorativa de 0,75 — com ela, o token suave caía a 3,9:1 em luz.
 4. A postura inicial do instrumento de cor é **55**, como no controle do HTML original (o estado é a fonte de verdade agora, e o controle o reflete).
