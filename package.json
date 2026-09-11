@@ -5,11 +5,30 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc --noEmit && vite build",
-    "preview": "vite preview"
+    "build": "tsc --noEmit && vitest run && vite build",
+    "preview": "vite preview",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit",
+    "audit:smoke": "node tests/tools/smoke.mjs",
+    "audit:ref": "node tests/tools/compare-live.mjs http://localhost:4173/?test",
+    "audit:axe": "node tests/tools/axe.mjs",
+    "audit:shots": "node tests/tools/shots.mjs",
+    "audit:diff": "node tests/tools/diff-shots.mjs",
+    "audit:lighthouse": "CHROME_PATH=${CHROME_PATH:-/opt/pw-browsers/chromium-1194/chrome-linux/chrome} lighthouse http://localhost:4173/ --quiet --chrome-flags=\"--headless=new --no-sandbox --disable-gpu\" --preset=perf --form-factor=mobile --screenEmulation.mobile --throttling-method=simulate --output=json --output-path=lighthouse-mobile.json",
+    "assets": "node tests/tools/assets.mjs",
+    "snapshot:reference": "node tests/tools/snapshot-reference.mjs"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.10.2",
+    "@fontsource-variable/bodoni-moda": "^5.1.0",
+    "@fontsource/ibm-plex-sans": "^5.1.0",
+    "jsdom": "^25.0.1",
+    "lighthouse": "^12.2.1",
+    "pixelmatch": "^6.0.0",
+    "playwright": "^1.48.0",
+    "pngjs": "^7.0.0",
     "typescript": "~5.6.3",
-    "vite": "^5.4.10"
+    "vite": "^5.4.10",
+    "vitest": "^2.1.8"
   }
 }

@@ -1,0 +1,86 @@
+/* ═══════════ LÉXICO DA CRIAÇÃO ═══════════
+   Motor determinístico: palavras da descrição deslocam as escolhas.
+   Nenhuma chamada de rede acontece aqui — e, se um dia acontecer, a interface tem de dizer. */
+export interface Piece { v: string; n: string; mock: 'editorial' | 'ui' | 'ident' | 'poster' | 'slide' | 'pack' }
+export const PIECES: Piece[] = [
+ {v:'none',n:'Nenhum — sem definir',mock:'editorial'},
+ {v:'site',n:'Site ou página',mock:'ui'},
+ {v:'app',n:'Aplicativo ou produto digital',mock:'ui'},
+ {v:'identidade',n:'Identidade visual',mock:'ident'},
+ {v:'cartaz',n:'Cartaz ou capa',mock:'poster'},
+ {v:'apres',n:'Apresentação ou slide',mock:'slide'},
+ {v:'relatorio',n:'Relatório ou documento',mock:'editorial'},
+ {v:'ebook',n:'Livro, e-book ou revista',mock:'editorial'},
+ {v:'news',n:'Newsletter ou e-mail',mock:'editorial'},
+ {v:'embalagem',n:'Embalagem ou rótulo',mock:'pack'},
+ {v:'painel',n:'Painel de dados',mock:'ui'},
+ {v:'social',n:'Peça para redes',mock:'poster'},
+ {v:'sinal',n:'Sinalização ou ambiente',mock:'poster'}
+];
+export interface Support { v: string; n: string }
+export const SUPS: Support[] = [
+ {v:'none',n:'Nenhum — sem definir'},
+ {v:'tela',n:'Tela'},
+ {v:'impresso',n:'Impresso'},
+ {v:'ambos',n:'Tela e impresso'},
+ {v:'ambiente',n:'Ambiente e grande formato'}
+];
+export interface LexEntry { w: string[]; emo?: string; mkt?: string; cult?: string; mus?: string; lens?: string; dpos?: number; dc?: number }
+export const LEX: LexEntry[] = [
+ {w:['sério','seria','sobrio','sóbrio','formal','institucional','corporativo','banco','governo'],emo:'Autoridade',lens:'Landor',dpos:-.22,dc:-.18},
+ {w:['confiança','confiavel','confiável','seguro','solidez','estável'],emo:'Confiança',dpos:-.15},
+ {w:['alegre','alegria','leve','divertido','otimista','colorido','festa'],emo:'Alegria',dc:.2,dpos:.1},
+ {w:['urgente','urgência','promoção','liquidação','agora','rápido','ação'],emo:'Energia',mus:'Punk',dc:.25,dpos:.2},
+ {w:['luxo','sofisticado','premium','exclusivo','elegante','alta joalheria','requinte'],emo:'Cerimônia',mkt:'Luxo',lens:'Pearlfisher',dc:-.2},
+ {w:['calor','quente','acolhedor','afetivo','humano','próximo','proximo','carinho'],emo:'Intimidade',dc:.1},
+ {w:['calma','calmo','sereno','tranquilo','descanso','pausa','silêncio','silencio'],emo:'Repouso',mus:'Ambient',dc:-.3},
+ {w:['natureza','floresta','regeneração','regenerativo','clima','sustentável','sustentavel','ambiental'],emo:'Cuidado',mkt:'Clima'},
+ {w:['café','cafe','cacau','agro','agricultura','fazenda','cooperativa','roça'],mkt:'Bioeconomia',emo:'Abundância'},
+ {w:['amazônia','amazonia','indígena','indigena','floresta em pé','ribeirinho','kayapó','urucum','jenipapo'],cult:'Amazônia',mkt:'Bioeconomia'},
+ {w:['maori','māori','aotearoa','nova zelândia','nova zelandia','iwi','tangata'],cult:'Aotearoa'},
+ {w:['japão','japao','japonês','japones','zen','wabi','minimalista japonês'],cult:'Japão',dc:-.25},
+ {w:['méxico','mexico','barragán','barragan','latino'],cult:'México',dc:.2},
+ {w:['índia','india','indiano','sari','holi'],cult:'Índia',dc:.2},
+ {w:['áfrica','africa','africano','kente','adire','afrobeat'],cult:'África',mus:'Afrobeats',dc:.18},
+ {w:['andes','andino','peru','bolívia','bolivia','quéchua','quechua'],cult:'Andes'},
+ {w:['mediterrâneo','mediterraneo','grécia','grecia','ibiza','cal'],cult:'Mediterrâneo'},
+ {w:['nórdico','nordico','escandinavo','suécia','suecia','dinamarca','noruega'],cult:'Nórdico',dc:-.3},
+ {w:['bauhaus','modernista','suíço','suico','grid','grade'],cult:'Bauhaus',lens:'Mucho'},
+ {w:['tecnologia','software','saas','startup','plataforma','digital','api'],mkt:'Tecnologia',lens:'Koto'},
+ {w:['saúde','saude','clínica','clinica','hospital','paciente','médico','medico'],mkt:'Saúde',emo:'Cuidado',dc:-.15},
+ {w:['educação','educacao','escola','curso','aprender','ensino','universidade'],mkt:'Educação',emo:'Alegria'},
+ {w:['viagem','turismo','roteiro','expedição','expedicao','retiro','hospedagem'],mkt:'Turismo'},
+ {w:['comida','alimento','restaurante','bebida','gastronomia','chef','cardápio','cardapio'],mkt:'Alimentos',emo:'Desejo',dc:.2},
+ {w:['moda','roupa','coleção','colecao','desfile','vestuário','vestuario'],mkt:'Moda',lens:'PORTO ROCHA'},
+ {w:['arte','museu','galeria','exposição','exposicao','curadoria','editorial'],mkt:'Arte',lens:'Experimental Jetset'},
+ {w:['finanças','financas','investidor','fundo','capital','banco','crédito','credito'],mkt:'Finanças',emo:'Confiança'},
+ {w:['ong','social','comunidade','impacto','doação','doacao','voluntário','voluntario'],mkt:'Setor público',emo:'Cuidado'},
+ {w:['ousado','ousada','radical','provocativo','disruptivo','barulhento','forte'],lens:'Ragged Edge',dpos:.3,dc:.25},
+ {w:['discreto','contido','sutil','silencioso','minimalista','limpo','sóbrio visual'],lens:'Pentagram',dc:-.25,dpos:-.15},
+ {w:['máximo','maximo','exuberante','farto','abundante','festivo','vibrante'],lens:'COLLINS',dc:.3},
+ {w:['noturno','escuro','noite','fundo preto','dark'],lens:'Studio Dumbar'},
+ {w:['movimento','animação','animacao','vídeo','video','motion'],lens:'DixonBaxi'},
+ {w:['gôndola','gondola','prateleira','supermercado','varejo','embalagem'],lens:'Jones Knowles',mkt:'Varejo',dc:.25},
+ {w:['melancolia','saudade','nostalgia','memória','memoria','luto'],emo:'Melancolia',mus:'Fado',dc:-.25},
+ {w:['mistério','misterio','oculto','ritual','espiritual','sagrado','iniciação'],emo:'Mistério',dc:-.1},
+ {w:['técnico','tecnico','dado','dados','pesquisa','científico','cientifico','engenharia'],emo:'Rigor',mus:'Techno',dc:-.2},
+ {w:['brasil','brasileiro','samba','carnaval','tropical'],mus:'Samba',dc:.22},
+ {w:['bossa','jazz','suave','sofisticação sonora'],mus:'Bossa'},
+ {w:['jovem','juventude','adolescente','gen z','tiktok'],dpos:.25,dc:.2},
+ {w:['infantil','criança','crianca','brinquedo','lúdico','ludico'],emo:'Alegria',dc:.3},
+ {w:['idoso','longevidade','sênior','senior','envelhecer'],mkt:'Bem-estar',dc:-.1}
+];
+
+/* ── as três leituras ── */
+export interface Angle { k: 'convencao' | 'ruptura' | 'lateral'; n: string; dpos: number; lens: string[]; sch: string[]; strat: string; why: string }
+export const ANGLES: Angle[] = [
+ {k:'convencao',n:'A leitura direta',dpos:-.28,lens:['Pentagram — Londres e Nova York','Landor — rede global','Interbrand e Siegel+Gale — rede global','Mucho — Barcelona e São Francisco'],
+  sch:['Goethe — característica','Análogo','Monocromático'],strat:'contraste',
+  why:'Fica dentro do que o campo já reconhece e gasta a diferença em precisão, não em volume. É a proposta que não precisa ser defendida numa reunião.'},
+ {k:'ruptura',n:'A leitura de contraste',dpos:.34,lens:['Wolff Olins — Londres e Nova York','Ragged Edge — Londres','Jones Knowles Ritchie — Londres e Nova York','&Walsh — Nova York'],
+  sch:['Complementar','Goethe — harmônica','Tríade'],strat:'oposto',
+  why:'Vai contra a convenção de propósito: o objetivo é ser percebido como diferente antes de ser compreendido. Custa mais para sustentar e rende mais quando sustentada.'},
+ {k:'lateral',n:'A leitura lateral',dpos:.05,lens:['COLLINS — Nova York e São Francisco','Experimental Jetset — Amsterdã','PORTO ROCHA — Nova York e Londres','Studio Dumbar — Roterdã','Pearlfisher — Londres e Nova York'],
+  sch:['Complementar dividido','Tetrádico','Quadrado','Goethe — sem caráter'],strat:'super',
+  why:'Entra por um caminho que ninguém pediu: troca o eixo do problema, seja pela referência cultural, pela dinâmica ou pela quantidade de cor. É a que costuma abrir a conversa.'}
+];
