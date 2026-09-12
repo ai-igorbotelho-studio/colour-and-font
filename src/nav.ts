@@ -8,7 +8,10 @@ export type Page = 'home' | 'cores' | 'tipo' | 'criacao' | 'tend';
 const LABEL: Record<Page, string> = { home: 'Início', cores: 'Cores', tipo: 'Tipografia', criacao: 'Criação', tend: 'Tendências' };
 
 export function goto(p: Page | string): void {
-  $all(document, '.page').forEach(el => el.classList.toggle('on', el.id === 'p-' + p));
+  const swap = () => $all(document, '.page').forEach(el => el.classList.toggle('on', el.id === 'p-' + p));
+  // troca de página com transição nativa quando o navegador oferece; senão, instantânea
+  const doc = document as Document & { startViewTransition?: (cb: () => void) => void };
+  if (doc.startViewTransition && !matchMedia('(prefers-reduced-motion: reduce)').matches) doc.startViewTransition(swap); else swap();
   $all<HTMLButtonElement>(document, '.tab').forEach(b => { const on = b.dataset.p === p; b.setAttribute('aria-current', on ? 'page' : 'false'); b.setAttribute('aria-selected', String(on)) });
   $('hereLbl').textContent = LABEL[p as Page] || '';
   try { window.scrollTo({ top: 0, behavior: 'instant' as ScrollBehavior }) } catch (_) {}

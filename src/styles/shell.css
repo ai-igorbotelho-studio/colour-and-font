@@ -1,0 +1,66 @@
+/* ═══════════ CASCA — trilho lateral no desktop, tabbar flutuante no toque ═══════════
+   O mesmo #tabbar vira trilho escuro à esquerda a partir de 1024px (container da janela);
+   abaixo disso continua a pílula flutuante no rodapé, com as safe-areas do iOS. */
+.skip{position:absolute;left:12px;top:-60px;z-index:100;background:var(--ink);color:var(--ground);padding:10px 16px;border-radius:var(--pill);font-size:13.5px;text-decoration:none}
+.skip:focus{top:12px}
+.gt button{min-height:40px}
+.tblwrap{overflow-x:auto;-webkit-overflow-scrolling:touch;max-width:100%}
+html{scroll-padding-top:80px;scroll-padding-bottom:calc(112px + env(safe-area-inset-bottom))}
+body{padding-bottom:calc(104px + env(safe-area-inset-bottom));-webkit-tap-highlight-color:transparent}
+button,select,[role="tab"]{touch-action:manipulation}
+#tabbar{bottom:calc(16px + env(safe-area-inset-bottom));left:calc(12px + env(safe-area-inset-left));right:calc(12px + env(safe-area-inset-right));max-width:calc(100% - 24px - env(safe-area-inset-left) - env(safe-area-inset-right))}
+.wrap{container-type:inline-size;container-name:conteudo}
+
+/* ── interação ── */
+button,.tab,.pick,.cell,.card,.tabs2 button,.viewbar button,.rolebar button{transition:background .2s,color .2s,border-color .2s,transform .15s cubic-bezier(.2,.7,.2,1),box-shadow .2s}
+button.act:hover,button.mini:hover,.gt button:hover,.seg button:hover,.tabs2 button:hover,.viewbar button:hover,.rolebar button:hover{transform:translateY(-1px)}
+button.act:active,button.mini:active,.gt button:active,.seg button:active,#tabbar button:active,.tabs2 button:active,.viewbar button:active,.rolebar button:active,.propstrip button:active,.trendpal button:active{transform:scale(.97)}
+button.mini:hover,.tabs2 button:hover,.viewbar button:hover,.rolebar button:hover{border-color:var(--ink)}
+button:disabled{opacity:.45;cursor:not-allowed;transform:none!important}
+.cell:hover{transform:translateY(-2px);box-shadow:var(--sh);z-index:1}
+.card:hover{border-color:var(--ink)}
+.page{animation:pagein .32s cubic-bezier(.2,.7,.2,1)}
+@keyframes pagein{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@media(prefers-reduced-motion:reduce){.page{animation:none}}
+
+/* ── as duas metades da roda e os controles viram cartões ── */
+.stage>div{background:var(--card);border:1px solid var(--rule2);border-radius:var(--r);padding:clamp(16px,2.6vw,26px)}
+.stage:not(.stage-1)>div:first-child{display:flex;flex-direction:column;justify-content:center}
+.stage{border-bottom:0;padding:22px 0 8px}
+.stage-1{grid-template-columns:1fr}
+
+/* ── grids fluidos: contam com a largura do conteúdo, não da janela ── */
+.grid2{grid-template-columns:1fr}
+.grid3{grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
+.grid2>*,.grid3>*,.stage>*,.ctl,.ctl>select{min-width:0}
+@container conteudo (min-width:720px){.grid2{grid-template-columns:1fr 1fr;gap:36px}}
+@container conteudo (min-width:880px){.stage:not(.stage-1){grid-template-columns:minmax(0,440px) minmax(0,1fr);gap:34px;align-items:start}}
+@container conteudo (min-width:560px){.grid3{grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}}
+
+/* ── desktop: trilho fixo à esquerda; o corpo abre espaço para ele ── */
+@media(min-width:1024px){
+  body{padding-left:88px;padding-bottom:34px;min-height:100dvh}
+  nav{padding:0 clamp(24px,3vw,40px);height:72px;max-width:1240px}
+  .wrap{max-width:1240px;padding:0 clamp(24px,3vw,40px) 34px}
+  #tabbar{position:fixed;top:0;bottom:0;left:0;right:auto;height:100dvh;width:88px;max-width:none;margin:0;
+    flex-direction:column;justify-content:flex-start;gap:6px;padding:calc(18px + env(safe-area-inset-top)) 10px 18px;border-radius:0;
+    background:var(--rail);border:0;border-right:1px solid rgba(255,255,255,.06);box-shadow:none;backdrop-filter:none;-webkit-backdrop-filter:none;overflow:visible}
+  #tabbar::before{content:"";width:40px;height:40px;border-radius:50%;margin:0 auto 18px;flex:none;
+    background:conic-gradient(from 90deg,#C4003F,#E96A00,#F2CC00,#3E8F45,#22409B,#6E2B8C,#C4003F);box-shadow:inset 0 0 0 5px var(--rail)}
+  #tabbar button{width:68px;min-width:0;min-height:60px;padding:10px 4px;color:var(--rail-soft);font-size:10.5px;gap:5px}
+  #tabbar button:hover{color:var(--rail-ink);background:rgba(255,255,255,.07)}
+  #tabbar button[aria-current="page"]{background:var(--rail-on);color:var(--rail-on-ink)}
+  .toast{bottom:24px}
+  html{scroll-padding-bottom:24px}
+  #scale,#exp{left:88px}
+}
+@media(min-width:1024px) and (max-height:560px){#tabbar{overflow:auto;scrollbar-width:none}#tabbar::before{display:none}}
+
+/* ── telefone deitado: barra mais baixa, nada estoura ── */
+@media(max-width:1023px) and (max-height:480px){
+  #tabbar button{min-height:44px;padding:6px 12px;flex-direction:row;gap:6px}
+  #tabbar button svg{width:18px;height:18px}
+  body{padding-bottom:calc(112px + env(safe-area-inset-bottom))}
+}
+#scale{height:100dvh}
+#exp .sheet{max-height:calc(100dvh - env(safe-area-inset-bottom))}

@@ -2,7 +2,7 @@
 <html lang="pt-BR" data-ground="luz">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Farbenkreis — instrumentos de cor e tipografia</title>
 <meta name="description" content="Instrumentos de cor e tipografia derivados do círculo cromático de Goethe: paletas por intenção e campo, combinação de famílias, hierarquia, legibilidade medida e tendências trimestrais.">
 <meta name="theme-color" content="#D9D8D3" media="(prefers-color-scheme: light)">
@@ -20,10 +20,11 @@
 <link rel="preload" href="/fonts/bodoni-moda-latin-opsz-normal.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="manifest" href="/manifest.webmanifest">
 <link rel="apple-touch-icon" href="/icons/icon-192.png">
-  <script type="module" crossorigin src="/assets/index-C_nmX6t2.js"></script>
-  <link rel="stylesheet" crossorigin href="/assets/index-BSD3j9Nd.css">
+  <script type="module" crossorigin src="/assets/index-CcyROnsm.js"></script>
+  <link rel="stylesheet" crossorigin href="/assets/index-CJY6I3pg.css">
 </head>
 <body>
+<a class="skip" href="#conteudo">Ir para o conteúdo</a>
 <nav>
   <div class="mk">Farbenkreis</div>
   <div class="here" id="hereLbl">Início</div>
@@ -43,7 +44,7 @@
   <button class="tab" role="tab" data-p="tend" aria-selected="false">
     <svg viewBox="0 0 24 24"><path d="M3 16.5 9 10l4 4 7.5-8"/><path d="M15.5 6h5v5"/></svg><span>Tendências</span></button>
 </div>
-<div class="wrap">
+<div class="wrap" id="conteudo">
 <!-- ══════════ INÍCIO ══════════ -->
 <main class="page on" id="p-home">
 
@@ -314,8 +315,8 @@
 <!-- ══════════ TIPOGRAFIA ══════════ -->
 <main class="page" id="p-tipo">
 
-<div class="stage" style="grid-template-columns:1fr">
-  <div class="grid3" style="grid-template-columns:1fr">
+<div class="stage stage-1">
+  <div class="grid3">
     <div>
       <div class="ctl"><label for="tEmo">O que a peça precisa provocar</label><select id="tEmo"></select></div>
       <div class="ctl"><label for="tUse">Uso principal</label><select id="tUse"></select></div>
@@ -360,7 +361,7 @@
   <div class="rolebar" id="tRoleBar"></div>
   <div class="grid3" id="tRoleCtl" style="margin-top:16px"></div>
   <div class="btnrow"><button class="mini" id="tRoleReset">Devolver este nível ao padrão</button><button class="mini" id="tRoleResetAll">Devolver todos</button></div>
-  <table class="roletable"><thead><tr><th>Nível</th><th>Família</th><th>Corpo</th><th>Peso</th><th>Entrelinha</th><th>Cor</th></tr></thead><tbody id="tRoleRows"></tbody></table>
+  <div class="tblwrap"><table class="roletable"><thead><tr><th>Nível</th><th>Família</th><th>Corpo</th><th>Peso</th><th>Entrelinha</th><th>Cor</th></tr></thead><tbody id="tRoleRows"></tbody></table>
 </section>
 
 <section>
@@ -419,7 +420,6 @@
   <p class="sm" id="tSavedEmpty">Nada salvo ainda.</p>
 </section>
 </main>
-</div>
 
 <!-- ══════════ CRIAÇÃO ══════════ -->
 <main class="page" id="p-criacao">
@@ -504,6 +504,7 @@
   <pre id="edSchemaOut" style="display:none"></pre>
 </section>
 </main>
+</div>
 
 <div id="exp" role="dialog" aria-modal="true" aria-label="Exportar">
   <div class="sheet">

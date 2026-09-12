@@ -16,7 +16,8 @@
     "audit:diff": "node tests/tools/diff-shots.mjs",
     "audit:lighthouse": "CHROME_PATH=${CHROME_PATH:-/opt/pw-browsers/chromium-1194/chrome-linux/chrome} lighthouse http://localhost:4173/ --quiet --chrome-flags=\"--headless=new --no-sandbox --disable-gpu\" --preset=perf --form-factor=mobile --screenEmulation.mobile --throttling-method=simulate --output=json --output-path=lighthouse-mobile.json",
     "assets": "node tests/tools/assets.mjs",
-    "snapshot:reference": "node tests/tools/snapshot-reference.mjs"
+    "snapshot:reference": "node tests/tools/snapshot-reference.mjs",
+    "audit:viewports": "node tests/tools/viewports.mjs"
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.10.2",

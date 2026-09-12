@@ -6,12 +6,16 @@
   --ground:#D9D8D3;--panel:#E9E8E4;--ink:#000000;--soft:#45443F;
   --rule:rgba(0,0,0,.30);--rule2:rgba(0,0,0,.14);--field:#F2F1EE;--tw:.38s;
   --r:22px;--r2:15px;--pill:999px;--sh:0 8px 26px rgba(0,0,0,.12);
+  --rail:#141414;--rail-ink:#F2F1EE;--rail-soft:#B9B8B3;--rail-on:#F2F1EE;--rail-on-ink:#141414;
+  --card:#E9E8E4;--frame:#CFCEC8;
 }
 html[data-ground="treva"]{
   color-scheme:dark;
   --ground:#121212;--panel:#1D1D1C;--ink:#FFFFFF;--soft:#BCBBB6;
   --rule:rgba(255,255,255,.34);--rule2:rgba(255,255,255,.17);--field:#2B2B29;
   --sh:0 8px 26px rgba(0,0,0,.55);
+  --rail:#0B0B0B;--rail-ink:#F2F1EE;--rail-soft:#A9A8A3;--rail-on:#F2F1EE;--rail-on-ink:#0B0B0B;
+  --card:#1D1D1C;--frame:#0A0A0A;
 }
 option{background:var(--field);color:var(--ink)}
 input,select,textarea,button{color-scheme:inherit}

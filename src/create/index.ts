@@ -35,11 +35,11 @@ function drawProposals(): void {
       <div class="grid2" style="margin-top:18px">
         <div>${why(p)}</div>
         <div>
-          <table class="roletable"><thead><tr><th>Cor</th><th>HEX</th><th>RGB</th><th>CMYK</th><th>Área</th></tr></thead><tbody>
+          <div class="tblwrap"><table class="roletable"><thead><tr><th>Cor</th><th>HEX</th><th>RGB</th><th>CMYK</th><th>Área</th></tr></thead><tbody>
           ${p.hs.map((h, j) => { const [r, g, b] = hex2rgb(h);
             return `<tr><td><span style="display:inline-block;width:13px;height:13px;background:${h};vertical-align:-2px;margin-right:6px"></span>${j + 1}</td>
             <td>${h}</td><td>${r} ${g} ${b}</td><td>${rgb2cmyk(r, g, b).map(x => Math.round(x)).join(' ')}</td><td>${Math.round(p.areas[j])}%</td></tr>` }).join('')}
-          </tbody></table>
+          </tbody></table></div>
           <div class="btnrow">
             <button class="act" data-act="md">Baixar em Markdown</button>
             <button class="mini" data-act="zip">Baixar .zip</button>

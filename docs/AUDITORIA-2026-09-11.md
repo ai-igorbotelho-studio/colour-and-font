@@ -74,3 +74,45 @@ Emitido em 11 de setembro de 2026, ao fim das Etapas 1 a 7 do plano em `PASSAGEM
 ## Não verificado
 
 Lighthouse foi rodado em Chromium headless com rede simulada, não em 4G real. Nenhum dispositivo iOS ou Android real foi usado; `backdrop-filter` na tabbar, `aspect-ratio` e o download via `navigator.share` precisam de teste no aparelho. INP durante o arraste não foi perfilado.
+
+---
+
+# Adendo de 12 de setembro de 2026 — casca, grid responsivo e interação
+
+Pedido: interatividade mais moderna, inspirada num painel com trilho lateral escuro, cartões arredondados e grade bento; grid plenamente responsivo; auditoria rigorosa antes do deploy.
+
+## O que mudou
+
+| Área | Antes | Depois |
+|---|---|---|
+| Navegação no desktop (≥ 1024 px) | pílula flutuante no rodapé em qualquer largura | **trilho fixo à esquerda** (88 px, escuro nos dois modos, `--rail`), com o disco do círculo no topo e o item ativo em pílula clara; o corpo abre `padding-left` para ele |
+| Navegação no toque (< 1024 px) | pílula flutuante | a mesma pílula, agora com **safe-areas do iOS** (`viewport-fit=cover` + `env(safe-area-inset-*)`), largura máxima que nunca estoura a janela, e layout em linha quando o telefone está deitado |
+| Roda e controles / filtros da tipografia | duas colunas de página | **cartões** (`--card`, raio 22 px) — duas colunas só a partir de 880 px de conteúdo, para os selects não truncarem no tablet |
+| Grids `.grid2` / `.grid3` | breakpoints de viewport (760 / 800 px) | **container queries** sobre `.wrap` + `repeat(auto-fit, minmax(220–240px, 1fr))` — reagem à largura real do conteúdo, que muda com o trilho; `min-width:0` nos itens impede que a largura intrínseca dos selects arrebente as colunas |
+| Troca de página | instantânea | **View Transitions** quando o navegador oferece, fade curto no CSS como reserva; ambos respeitam `prefers-reduced-motion` |
+| Botões, células, abas | sem feedback de estado | hover com leve elevação, pressão a 97 %, borda de destaque, `touch-action:manipulation` (sem atraso de 300 ms no toque), `-webkit-tap-highlight-color` transparente |
+| Acessibilidade | — | atalho "Ir para o conteúdo", `scroll-padding` para nada ficar escondido sob a barra ao focar ou rolar até um elemento, alvo do seletor Luz/Treva subiu a 40 px |
+| Ruído | aviso "Paradas puxadas da paleta" a cada carregamento | só quando o botão é apertado |
+
+## Defeitos do HTML original encontrados pela auditoria e corrigidos
+
+1. Um `</div>` a mais depois da grade de legibilidade fechava o contêiner `.wrap` no meio da página Cores — com as páginas em `<main>`, Tipografia, Criação e Tendências caíam **fora do contêiner, sem as margens laterais** (a barra de postura e a tabbar estouravam a largura no telefone).
+2. Já corrigido antes: `nav .mk` herdava o estilo das maquetes.
+3. Tabelas de níveis e de cores das propostas ganharam `.tblwrap` com rolagem horizontal própria — em 360 px a tabela da hierarquia empurrava a página para o lado.
+
+## Auditoria de janelas — `tests/tools/viewports.mjs`
+
+Oito janelas (360×740, 390×844, 844×390 deitado, 768×1024, 1024×768, 1280×800, 1440×900, 1920×1080) × cinco páginas, com a Criação gerando as três propostas. Critérios por combinação: **sem rolagem horizontal**, **tabbar ou trilho inteiramente dentro da janela**, **todo botão visível ≥ 40 px** (fora das células e degraus da paleta, que são amostras de cor). Resultado: **40/40 combinações limpas**. O script fica no repositório (`npm run audit:viewports`) e falha o processo se algo regredir.
+
+## Números depois da mudança
+
+| Medida | Resultado |
+|---|---|
+| Referência do original (10 paletas, 5 pares, 6 propostas) | 0 divergências |
+| Fumaça (28 selects, 269 opções, todos os botões) | 0 erros JS |
+| axe, cinco páginas, luz e treva | 0 críticas, 0 sérias |
+| Testes unitários | 76/76 (11 pares de tokens medidos, incluindo os do trilho) |
+| Lighthouse móvel simulado | 98 · LCP 1,9 s · CLS 0 · TBT 120 ms |
+| CSS | 26,9 kB brutos, 6,4 kB gzip (+ `shell.css`) |
+
+Não verificado: Safari iOS e Android reais (safe-areas e `100dvh` precisam de aparelho), INP durante o arraste.

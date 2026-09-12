@@ -69,14 +69,16 @@ export function drawGrad(): void {
     + [...G.stops].sort((a, b) => a.t - b.t).map(s => `/* ${s.hex} em ${Math.round(s.t * 100)}% */`).join('\n');
   gradientStore.notify();
 }
+/** Paradas do gradiente a partir da paleta atual. */
+export function gradFromPalette(): void { const hs = palette();
+  G.stops = hs.map((h, i) => ({ t: hs.length === 1 ? 0 : i / (hs.length - 1), hex: h })); G.sel = 0; drawGrad() }
 export function initGradient(): void {
   $('gAdd').onclick = () => { const t = G.stops.length ? Math.min(1, Math.max(...G.stops.map(s => s.t)) - .25) : .5;
     G.stops.push({ t: Math.max(0, t), hex: gradSample(Math.max(0, t)) }); G.sel = G.stops.length - 1; drawGrad() };
   $('gDel').onclick = () => { if (G.stops.length <= 2) return toast('Um gradiente precisa de ao menos duas paradas');
     G.stops.splice(G.sel, 1); G.sel = 0; drawGrad() };
   $('gRev').onclick = () => { G.stops.forEach(s => s.t = 1 - s.t); drawGrad() };
-  $('gFromPal').onclick = () => { const hs = palette();
-    G.stops = hs.map((h, i) => ({ t: hs.length === 1 ? 0 : i / (hs.length - 1), hex: h })); G.sel = 0; drawGrad(); toast('Paradas puxadas da paleta') };
+  $('gFromPal').onclick = () => { gradFromPalette(); toast('Paradas puxadas da paleta') };
   ['gType', 'gSpace', 'gEase'].forEach(id => $(id).onchange = drawGrad);
   $('gAngle').oninput = drawGrad;
   $('gCopy').onclick = () => copy('background: ' + gradCssString() + ';', 'CSS do gradiente copiado');

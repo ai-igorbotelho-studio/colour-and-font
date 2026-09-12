@@ -2,6 +2,7 @@ import './styles/tokens.css';
 import './styles/base.css';
 import './styles/components.css';
 import './styles/views.css';
+import './styles/shell.css';
 import { initHome } from './home';
 import { initPalette } from './palette/index';
 import { initType } from './type/index';

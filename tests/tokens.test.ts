@@ -13,7 +13,7 @@ function block(sel: string): Record<string, string> {
   return out;
 }
 const luz = block(':root'), treva = block('html[data-ground="treva"]');
-const pairs: [string, string][] = [['--ink', '--ground'], ['--ink', '--panel'], ['--ink', '--field'], ['--soft', '--ground'], ['--soft', '--panel'], ['--soft', '--field']];
+const pairs: [string, string][] = [['--ink', '--ground'], ['--ink', '--panel'], ['--ink', '--field'], ['--ink', '--card'], ['--soft', '--ground'], ['--soft', '--panel'], ['--soft', '--field'], ['--soft', '--card'], ['--rail-ink', '--rail'], ['--rail-soft', '--rail'], ['--rail-on-ink', '--rail-on']];
 
 describe.each([['luz', luz], ['treva', treva]] as const)('tokens em %s', (_g, t) => {
   it.each(pairs)('%s sobre %s alcança 4,5:1', (fg, bg) => {

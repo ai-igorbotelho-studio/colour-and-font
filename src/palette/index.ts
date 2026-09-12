@@ -15,7 +15,7 @@ import { showDetail, initDetail } from './detail';
 import { drawReads } from './reads';
 import { drawContrast, initContrast } from './contrast';
 import { drawOut, initExport } from './export';
-import { drawGrad, initGradient } from './gradient';
+import { initGradient, gradFromPalette } from './gradient';
 import { scaleFill, initScale } from './scale';
 import { listSaved, initSaved } from './saved';
 
@@ -74,7 +74,6 @@ export function initPalette(): void {
 
   build(false);
   pushH();
-  drawGrad();
+  gradFromPalette();
   listSaved();
-  $('gFromPal').click();
 }
