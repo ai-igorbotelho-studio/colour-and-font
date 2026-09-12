@@ -11,7 +11,7 @@ let bad = 0;
 for (const [w, h] of VP) {
   await p.setViewportSize({ width: w, height: h });
   await p.goto(url, { waitUntil: 'domcontentloaded' }); await p.waitForTimeout(500);
-  for (const t of ['home', 'cores', 'tipo', 'criacao', 'tend']) {
+  for (const t of ['home', 'cores', 'tipo', 'criacao', 'tend', 'fund']) {
     try { await p.click(`.tab[data-p="${t}"]`, { timeout: 4000 }) } catch (e) { bad++; console.log(`${w}×${h} ${t}: aba não clicável — ${String(e.message).split('\n')[0]}`); await p.screenshot({ path: `${out || '.'}/FAIL-${t}-${w}x${h}.png` }); continue }
     await p.waitForTimeout(250);
     if (t === 'criacao') { try { await p.click('#cGo', { timeout: 4000 }) } catch (e) { bad++; console.log(`${w}×${h} criacao: #cGo não clicável — ${String(e.message).split('\n')[0]}`); await p.screenshot({ path: `${out || '.'}/FAIL-cGo-${w}x${h}.png` }) } await p.waitForTimeout(300) }

@@ -69,3 +69,17 @@ button:disabled{opacity:.45;cursor:not-allowed;transform:none!important}
 .prop .viewbar{margin-top:6px}
 .prop .spec{margin-top:12px}
 .prop h3{font-size:19px}
+
+/* ── Início: título e as portas para as outras páginas ── */
+.hero{padding-top:clamp(28px,6vw,64px);border-bottom:0}
+.eyebrow{letter-spacing:.08em;text-transform:uppercase;font-size:11.5px;margin-bottom:10px}
+.homegrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin-top:30px}
+.homecard{display:flex;flex-direction:column;align-items:flex-start;gap:8px;text-align:left;font:inherit;cursor:pointer;
+  background:var(--card);color:var(--ink);border:1px solid var(--rule2);border-radius:var(--r);padding:22px 20px 20px;min-height:170px}
+.homecard svg{width:26px;height:26px;stroke:currentColor;fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;margin-bottom:6px}
+.homecard b{font-family:"Bodoni Moda",serif;font-weight:400;font-size:24px;line-height:1}
+.homecard span{font-size:13px;color:var(--soft);line-height:1.5}
+.homecard:hover{border-color:var(--ink);transform:translateY(-2px);box-shadow:var(--sh)}
+.homecard:first-child{background:var(--ink);color:var(--ground);border-color:var(--ink)}
+.homecard:first-child span{color:var(--ground);opacity:.8}
+@media(max-width:520px){#tabbar{gap:2px;padding:6px}#tabbar button{min-width:52px;padding:10px 4px;font-size:10px}}

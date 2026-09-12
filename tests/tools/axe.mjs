@@ -14,7 +14,7 @@ await p.goto(url, { waitUntil: 'domcontentloaded' }); await p.waitForTimeout(800
 let critical = 0, serious = 0; const rows = [];
 for (const g of ['luz', 'treva']) {
   await p.click(g === 'luz' ? '#gLuz' : '#gTreva'); await p.waitForTimeout(150);
-  for (const t of ['home', 'cores', 'tipo', 'criacao', 'tend']) {
+  for (const t of ['home', 'cores', 'tipo', 'criacao', 'tend', 'fund']) {
     await p.click(`.tab[data-p="${t}"]`); await p.waitForTimeout(300);
     const r = await new AxeBuilder({ page: p }).exclude('#cv').exclude('.ctgrid button.fail').exclude('#toast').analyze();
     for (const v of r.violations) {

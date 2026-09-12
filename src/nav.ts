@@ -4,8 +4,8 @@ import { S, render } from './palette/index';
 import { T, newPair, renderSpec } from './type/index';
 import { drawHome } from './home';
 
-export type Page = 'home' | 'cores' | 'tipo' | 'criacao' | 'tend';
-const LABEL: Record<Page, string> = { home: 'Início', cores: 'Cores', tipo: 'Tipografia', criacao: 'Criação', tend: 'Tendências' };
+export type Page = 'home' | 'cores' | 'tipo' | 'criacao' | 'tend' | 'fund';
+const LABEL: Record<Page, string> = { home: 'Início', cores: 'Cores', tipo: 'Tipografia', criacao: 'Criação', tend: 'Tendências', fund: 'Fundamentação' };
 
 export function goto(p: Page | string): void {
   const swap = () => $all(document, '.page').forEach(el => el.classList.toggle('on', el.id === 'p-' + p));

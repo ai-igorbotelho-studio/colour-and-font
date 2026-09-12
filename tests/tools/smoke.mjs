@@ -12,7 +12,7 @@ p.on('download', async d => { try { await d.cancel() } catch (_) {} });
 await p.goto(url, { waitUntil: 'domcontentloaded' }); await p.waitForTimeout(600);
 
 let opts = 0, sels = 0;
-for (const t of ['home', 'cores', 'tipo', 'criacao', 'tend']) {
+for (const t of ['home', 'cores', 'tipo', 'criacao', 'tend', 'fund']) {
   await p.click(`.tab[data-p="${t}"]`); await p.waitForTimeout(250);
   // todas as opções de todos os selects visíveis desta página
   const r = await p.evaluate(() => {

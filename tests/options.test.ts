@@ -36,7 +36,7 @@ describe('todas as opções de todos os campos', () => {
     expect(errors).toEqual([]);
   });
   it('as cinco páginas abrem e os botões de contagem, esquema e fundo respondem', () => {
-    for (const p of ['home', 'cores', 'tipo', 'criacao', 'tend']) {
+    for (const p of ['home', 'cores', 'tipo', 'criacao', 'tend', 'fund']) {
       (document.querySelector(`.tab[data-p="${p}"]`) as HTMLButtonElement).click();
       expect(document.getElementById('p-' + p)!.classList.contains('on')).toBe(true);
     }
