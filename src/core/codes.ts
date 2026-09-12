@@ -1,5 +1,6 @@
 /* ═══════════ CÓDIGOS DE UMA COR ═══════════ */
 import { hex2rgb, rgb2hsl, rgb2hsv, rgb2cmyk, rgb2lab, rgb2oklab, hex2lch, lum, ratio } from './color';
+import { t } from '../i18n';
 
 export const r1 = (n: number) => Math.round(n), r2 = (n: number) => Math.round(n * 10) / 10, r3 = (n: number) => Math.round(n * 1000) / 1000;
 
@@ -12,7 +13,7 @@ export function allCodes(hex: string): CodeRow[] {
   const dec = (r << 16) + (g << 8) + b;
   return [
     ['HEX', hex],
-    ['HEX curto', hex.length === 7 && hex[1] === hex[2] && hex[3] === hex[4] && hex[5] === hex[6] ? '#' + hex[1] + hex[3] + hex[5] : '—'],
+    [t('HEX curto'), hex.length === 7 && hex[1] === hex[2] && hex[3] === hex[4] && hex[5] === hex[6] ? '#' + hex[1] + hex[3] + hex[5] : '—'],
     ['RGB', `${r}, ${g}, ${b}`],
     ['RGB css', `rgb(${r} ${g} ${b})`],
     ['RGB 0–1', `${r3(r / 255)}, ${r3(g / 255)}, ${r3(b / 255)}`],
@@ -24,11 +25,11 @@ export function allCodes(hex: string): CodeRow[] {
     ['OKLab', `${r3(o.L)}, ${r3(o.a)}, ${r3(o.b)}`],
     ['OKLCH css', `oklch(${r1(lch.L * 100)}% ${r3(lch.C)} ${r1(lch.H)})`],
     ['Decimal', String(dec)],
-    ['Luminância', r3(lum(hex))],
+    [t('Luminância'), r3(lum(hex))],
     ['Android', `#FF${hex.slice(1)}`],
     ['SwiftUI', `Color(red: ${r3(r / 255)}, green: ${r3(g / 255)}, blue: ${r3(b / 255)})`],
     ['Flutter', `Color(0xFF${hex.slice(1)})`],
-    ['Contraste com branco', ratio(hex, '#FFFFFF').toFixed(2) + ' : 1'],
-    ['Contraste com preto', ratio(hex, '#000000').toFixed(2) + ' : 1']
+    [t('Contraste com branco'), ratio(hex, '#FFFFFF').toFixed(2) + ' : 1'],
+    [t('Contraste com preto'), ratio(hex, '#000000').toFixed(2) + ' : 1']
   ];
 }

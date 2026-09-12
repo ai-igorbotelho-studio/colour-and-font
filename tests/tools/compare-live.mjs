@@ -10,6 +10,7 @@ const REF = JSON.parse(readFileSync(path.join(root, 'tests/reference.json'), 'ut
 const url = process.argv[2] || 'http://localhost:4173/';
 const b = await chromium.launch({ executablePath: '/opt/pw-browsers/chromium_headless_shell-1194/chrome-linux/headless_shell', args: ['--no-sandbox'] });
 const p = await b.newPage();
+await p.addInitScript(() => { try { localStorage.setItem('fk-lang', 'pt') } catch (_) {} });
 const errors = [];
 p.on('pageerror', e => errors.push('PAGEERROR: ' + e.message));
 p.on('console', m => { if (m.type() === 'error' && !/Failed to load resource|net::/.test(m.text())) errors.push('CONSOLE: ' + m.text()) });

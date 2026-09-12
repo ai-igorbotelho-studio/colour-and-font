@@ -2,6 +2,7 @@
 import { lum, ratio, mixLch } from '../core/color';
 import { hexOfColor, type PaletteColor } from '../core/goethe';
 import { lcg } from '../core/rng';
+import { t } from '../i18n';
 import { norm } from '../core/dom';
 import { EMO } from '../data/emotions';
 import { MKT } from '../data/markets';
@@ -25,7 +26,7 @@ export function genFonts(o: { e: number; strat: string; use: string; nf: number;
   const D = FONTS.filter(f => f.cls !== 'mono' && f.role !== 'body');
   const B = FONTS.filter(f => f.cls !== 'mono' && f.role !== 'display' && !(editorial && f.cls === 'sans-geo'));
   const rnd = lcg(o.seed, 7);
-  const E = EMO[o.e], key = E.a === null ? null : norm(E.n.split(' ')[0]).slice(0, 5);
+  const E = EMO[o.e], key = E.a === null ? null : E.key!;
   const mood = (f: Font) => key && f.moods.some(m => norm(m).startsWith(key)) ? 26 : 0;
   const pairs: { d: Font; b: Font; s: number }[] = [];
   D.forEach(d => B.forEach(b => {
@@ -74,10 +75,10 @@ export function roleOf(p: Proposal): Roles {
 }
 export function titleFor(br: Brief): string {
   const E = EMO[br.e], M = MKT[br.m], P = PIECES.find(x => x.v === br.piece);
-  if (E.a !== null && M.a !== null) return `${E.n} em ${M.n.toLowerCase()}`;
+  if (E.a !== null && M.a !== null) return t('{e} em {m}', { e: E.n, m: M.n.toLowerCase() });
   if (E.a !== null) return E.n;
   if (M.a !== null) return M.n;
-  return P && P.v !== 'none' ? P.n : 'Proposta';
+  return P && P.v !== 'none' ? P.n : t('Proposta');
 }
 
 /* ── raciocínio ── */
@@ -86,22 +87,22 @@ export function why(p: Proposal): string {
   const d = p.fonts[0], b = p.fonts[1] || p.fonts[0];
   let pares = 0; p.hs.forEach((bg, i) => p.hs.forEach((tx, j) => { if (i !== j && ratio(tx, bg) >= 4.5) pares++ }));
   let s = `<p class="lede">${p.ang.why}</p>`;
-  s += `<p class="lede" style="margin-top:10px"><b style="color:var(--ink)">Cor.</b> `
+  s += `<p class="lede" style="margin-top:10px"><b style="color:var(--ink)">${t('Cor')}.</b> `
    + (E.a !== null ? `${E.g.split('.')[0]}. ` : '')
-   + `O esquema é ${SCx.n.toLowerCase()} — ${SCx.d.toLowerCase()} `
-   + `A área vem do método de ${L.n.split(' — ')[0]}: ${L.m.split('.')[0].toLowerCase()}.`
-   + (K.anc ? ` A referência ${K.n.split(' — ')[0]} puxa o matiz para os pigmentos que aquela cultura tinha à mão.` : '')
-   + (U.m ? ` A dinâmica de ${U.n.toLowerCase()} reescreve a proporção entre as cores.` : '') + `</p>`;
-  s += `<p class="lede" style="margin-top:10px"><b style="color:var(--ink)">Tipografia.</b> `
-   + (p.fonts.length === 1 ? `${d.n} sozinha: a hierarquia inteira terá de vir de peso, corpo e caixa.`
-     : isSerif(d.cls) !== isSerif(b.cls) ? `${d.n} contra ${b.n} — uma serifada e uma sem serifa, diferença de estrutura clara o bastante para que nenhuma pareça erro.`
-     : d.sf && d.sf === b.sf ? `${d.n} e ${b.n} são da mesma superfamília, desenhadas para conviver: harmonia garantida, contraste vindo do peso.`
-     : `${d.n} e ${b.n} compartilham a classificação, então o contraste terá de vir do peso e do corpo.`)
-   + ` ${describe(d)} Do lado do texto: ${describe(b).toLowerCase()}` + `</p>`;
-  s += `<p class="lede" style="margin-top:10px"><b style="color:var(--ink)">Riscos.</b> `
-   + (pares ? `${pares} pares desta paleta passam em 4,5 para 1, então há por onde escrever.`
-     : `Nenhum par desta paleta chega a 4,5 para 1 — ela é de superfície, e o texto vai precisar de um preto ou branco de fora.`)
-   + (p.br.sup === 'impresso' || p.br.sup === 'ambos' ? ` Como vai para papel, confira o CMYK: matizes muito saturados não existem em tinta de escala.` : '')
-   + (p.br.sup === 'ambiente' ? ` Em grande formato, a distância de leitura perdoa menos o contraste baixo do que a tela.` : '') + `</p>`;
+   + t('O esquema é {s} — {d} ', { s: SCx.n.toLowerCase(), d: SCx.d.toLowerCase() })
+   + t('A área vem do método de {l}: {m}.', { l: L.n.split(' — ')[0], m: L.m.split('.')[0].toLowerCase() })
+   + (K.anc ? t(' A referência {k} puxa o matiz para os pigmentos que aquela cultura tinha à mão.', { k: K.n.split(' — ')[0] }) : '')
+   + (U.m ? t(' A dinâmica de {u} reescreve a proporção entre as cores.', { u: U.n.toLowerCase() }) : '') + `</p>`;
+  s += `<p class="lede" style="margin-top:10px"><b style="color:var(--ink)">${t('Tipografia')}.</b> `
+   + (p.fonts.length === 1 ? t('{d} sozinha: a hierarquia inteira terá de vir de peso, corpo e caixa.', { d: d.n })
+     : isSerif(d.cls) !== isSerif(b.cls) ? t('{d} contra {b} — uma serifada e uma sem serifa, diferença de estrutura clara o bastante para que nenhuma pareça erro.', { d: d.n, b: b.n })
+     : d.sf && d.sf === b.sf ? t('{d} e {b} são da mesma superfamília, desenhadas para conviver: harmonia garantida, contraste vindo do peso.', { d: d.n, b: b.n })
+     : t('{d} e {b} compartilham a classificação, então o contraste terá de vir do peso e do corpo.', { d: d.n, b: b.n }))
+   + t(' {d} Do lado do texto: {b}', { d: describe(d), b: describe(b).toLowerCase() }) + `</p>`;
+  s += `<p class="lede" style="margin-top:10px"><b style="color:var(--ink)">${t('Riscos.')}</b> `
+   + (pares ? t('{n} pares desta paleta passam em 4,5 para 1, então há por onde escrever.', { n: pares })
+     : t('Nenhum par desta paleta chega a 4,5 para 1 — ela é de superfície, e o texto vai precisar de um preto ou branco de fora.'))
+   + (p.br.sup === 'impresso' || p.br.sup === 'ambos' ? t(' Como vai para papel, confira o CMYK: matizes muito saturados não existem em tinta de escala.') : '')
+   + (p.br.sup === 'ambiente' ? t(' Em grande formato, a distância de leitura perdoa menos o contraste baixo do que a tela.') : '') + `</p>`;
   return s;
 }

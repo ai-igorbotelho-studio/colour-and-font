@@ -3,6 +3,7 @@ import { oklch2hex, readable, simulate } from '../core/color';
 import { atAngle, nameOf } from '../core/goethe';
 import { allCodes } from '../core/codes';
 import { $, $all, esc, copy } from '../core/dom';
+import { t } from '../i18n';
 import { S, hexOf, shown, proportions, hooks } from './state';
 
 export const RAMP_STEPS = [50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 950];
@@ -25,16 +26,16 @@ export function showDetail(i: number): void {
   const h = hexOf(c);
   $('detail').style.display = 'block';
   $('dHead').setAttribute('style', `background:${shown(c)};color:${readable(shown(c))}`);
-  $('dHead').textContent = `${h} · ${nameOf(c.a)} · ${Math.round(proportions()[i])}% da área`;
-  $('dTitle').textContent = `Cor ${i + 1} — ${nameOf(c.a)}`;
+  $('dHead').textContent = t('{h} · {name} · {p}% da área', { h, name: nameOf(c.a), p: Math.round(proportions()[i]) });
+  $('dTitle').textContent = t('Cor {n} — {name}', { n: i + 1, name: nameOf(c.a) });
   $('dCodes').innerHTML = allCodes(h).map(([k, v]) =>
     `<button class="code" data-v="${esc(v)}"><b>${k}</b><span>${esc(v)}</span></button>`).join('')
-    + `<div class="code"><b>Matiz no círculo</b><span>${Math.round(c.a)}°</span></div>`;
-  $all<HTMLButtonElement>($('dCodes'), 'button').forEach(b => b.onclick = () => copy(b.dataset.v!, 'Copiado'));
+    + `<div class="code"><b>${t('Matiz no círculo')}</b><span>${Math.round(c.a)}°</span></div>`;
+  $all<HTMLButtonElement>($('dCodes'), 'button').forEach(b => b.onclick = () => copy(b.dataset.v!, t('Copiado')));
   const ramp = rampOf(c);
   $('dRamp').innerHTML = ramp.map((x, k) => `<button class="cell" style="background:${simulate(x, S.cvd)};color:${readable(x)};flex:1;min-width:62px;min-height:74px;border:0;cursor:pointer;font:inherit" data-h="${x}">
      <div class="rgbx" style="opacity:.85">${RAMP_STEPS[k]}</div><div style="font-size:11px">${x}</div></button>`).join('');
-  $all<HTMLButtonElement>($('dRamp'), 'button').forEach(b => b.onclick = () => copy(b.dataset.h!, b.dataset.h + ' copiado'));
+  $all<HTMLButtonElement>($('dRamp'), 'button').forEach(b => b.onclick = () => copy(b.dataset.h!, b.dataset.h + ' ' + t('Copiado').toLowerCase()));
 }
 export function initDetail(): void {
   $('dClose').onclick = () => { $('detail').style.display = 'none'; S.sel = null; hooks.render() };

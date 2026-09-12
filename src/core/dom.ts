@@ -1,4 +1,5 @@
 /* ═══════════ UTILITÁRIOS DE INTERFACE ═══════════ */
+import { t } from '../i18n';
 export const $ = (id: string): HTMLElement => document.getElementById(id) as HTMLElement;
 export const $v = (id: string): string => (document.getElementById(id) as HTMLInputElement).value;
 export const $n = (id: string): number => +(document.getElementById(id) as HTMLInputElement).value;
@@ -14,9 +15,9 @@ export function toast(t: string): void {
   const el = $('toast'); if (!el) return; el.textContent = t; el.classList.add('on');
   clearTimeout(toastTimer); toastTimer = window.setTimeout(() => el.classList.remove('on'), 1800);
 }
-export function copy(t: string, msg?: string): void {
-  if (!navigator.clipboard) return toast('O navegador bloqueou a cópia');
-  navigator.clipboard.writeText(t).then(() => toast(msg || 'Copiado')).catch(() => toast('O navegador bloqueou a cópia'));
+export function copy(txt: string, msg?: string): void {
+  if (!navigator.clipboard) return toast(t('O navegador bloqueou a cópia'));
+  navigator.clipboard.writeText(txt).then(() => toast(msg || t('Copiado'))).catch(() => toast(t('O navegador bloqueou a cópia')));
 }
 
 /* iOS dentro de WebView não honra <a download>. Quando o navegador oferece
@@ -28,17 +29,17 @@ export function download(name: string, content: Blob | string | ArrayBuffer | Ui
     if (isIOS() && typeof navigator.share === 'function' && typeof navigator.canShare === 'function') {
       const file = new File([blob], name, { type: blob.type || mime || 'application/octet-stream' });
       if (navigator.canShare({ files: [file] })) {
-        navigator.share({ files: [file], title: name }).then(() => toast(name + ' compartilhado')).catch(() => anchor(blob, name));
+        navigator.share({ files: [file], title: name }).then(() => toast(name + t(' compartilhado'))).catch(() => anchor(blob, name));
         return;
       }
     }
     anchor(blob, name);
-  } catch (e) { toast('O navegador bloqueou o download — use copiar') }
+  } catch (e) { toast(t('O navegador bloqueou o download — use copiar')) }
 }
 function anchor(blob: Blob, name: string): void {
   const u = URL.createObjectURL(blob), a = document.createElement('a');
   a.href = u; a.download = name; document.body.appendChild(a); a.click();
-  setTimeout(() => { URL.revokeObjectURL(u); a.remove() }, 800); toast(name + ' gerado');
+  setTimeout(() => { URL.revokeObjectURL(u); a.remove() }, 800); toast(name + t(' gerado'));
 }
 
 /** Preenche um <select> a partir de uma lista de {n} — valor = índice, ou a chave pedida. */

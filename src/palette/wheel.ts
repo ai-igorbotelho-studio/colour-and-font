@@ -2,6 +2,7 @@
 import { simulate, readable, wrapDeg } from '../core/color';
 import { ANCHORS, hexAt } from '../core/goethe';
 import { $ } from '../core/dom';
+import { t } from '../i18n';
 import { S, cur, hexOf, shown, hooks } from './state';
 import { pushH } from './history';
 import { showDetail } from './detail';
@@ -20,7 +21,7 @@ export function drawWheel(): void {
   seg.push(`<circle cx="${cx}" cy="${cy}" r="${R}" fill="url(#fade)"/>`);
   $('disc').innerHTML = seg.join('');
   $('ticks').innerHTML = ANCHORS.map(an => { const r = 188, x = cx + r * Math.cos((an.a - 90) * Math.PI / 180), y = cy + r * Math.sin((an.a - 90) * Math.PI / 180);
-    return `<text x="${x}" y="${y + 4}" text-anchor="${an.a === 0 || an.a === 180 ? 'middle' : an.a < 180 ? 'start' : 'end'}" fill="var(--soft)" font-family="IBM Plex Sans,sans-serif" font-size="11">${an.nome}</text>` }).join('');
+    return `<text x="${x}" y="${y + 4}" text-anchor="${an.a === 0 || an.a === 180 ? 'middle' : an.a < 180 ? 'start' : 'end'}" fill="var(--soft)" font-family="Mulish,sans-serif" font-size="11">${an.nome}</text>` }).join('');
 
   const pts = S.colors.map(pos);
   let g = '';
@@ -32,11 +33,11 @@ export function drawWheel(): void {
   $('balls').innerHTML = S.colors.map((c, i) => { const p = pts[i], r = i === 0 ? 17 : 13;
     return `<g class="ball${c.lock ? ' lk' : ''}" data-i="${i}"><circle cx="${p[0]}" cy="${p[1]}" r="${r}" fill="${shown(c)}" stroke="var(--ink)" stroke-width="${S.sel === i ? 2.6 : 1.4}"/>
       ${c.lock ? `<circle cx="${p[0]}" cy="${p[1]}" r="4" fill="${readable(hexOf(c))}"/>` : ''}
-      <text x="${p[0]}" y="${p[1] - r - 6}" text-anchor="middle" font-size="10" fill="var(--soft)" font-family="IBM Plex Sans,sans-serif">${i + 1}</text></g>` }).join('');
+      <text x="${p[0]}" y="${p[1] - r - 6}" text-anchor="middle" font-size="10" fill="var(--soft)" font-family="Mulish,sans-serif">${i + 1}</text></g>` }).join('');
   const sc = cur().SC;
   $('wheelcap').textContent = sc.off === null
-    ? 'Arraste cada bola livremente: o ângulo é o matiz, a distância do centro é o croma. Nenhuma geometria é imposta.'
-    : `${sc.n}. ${sc.d} Arraste qualquer bola e o conjunto gira junto, mantendo as distâncias.`;
+    ? t('Arraste cada bola livremente: o ângulo é o matiz, a distância do centro é o croma. Nenhuma geometria é imposta.')
+    : t('{n}. {d} Arraste qualquer bola e o conjunto gira junto, mantendo as distâncias.', { n: sc.n, d: sc.d });
 }
 
 /* arraste das bolas */

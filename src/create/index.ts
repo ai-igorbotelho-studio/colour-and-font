@@ -2,7 +2,7 @@
 import { hex2rgb, rgb2cmyk, readable } from '../core/color';
 import { nameOf, atAngle } from '../core/goethe';
 import { $, $v, $n, $all, $set, esc, slug, copy, download, toast, fillSel } from '../core/dom';
-import { SAMPLE_TXT } from '../data/fonts';
+import { t, dec } from '../i18n';
 import { createStore } from '../core/state';
 import { EMO } from '../data/emotions';
 import { MKT } from '../data/markets';
@@ -16,7 +16,7 @@ import { render, pushH } from '../palette/index';
 import { makeZip } from '../palette/zip';
 import { VIEWS, viewHtml, type StripCtx } from '../palette/views';
 import { type ViewKey } from '../palette/state';
-import { specHtml } from '../type/specimen';
+import { specHtml, sampleText } from '../type/specimen';
 import { type TypeEnv } from '../type/hierarchy';
 import { setFamilies } from '../type/index';
 import { fam } from '../type/pairing';
@@ -35,9 +35,9 @@ const ctxOf = (p: Proposal): StripCtx => ({ H: p.hs, V: p.hs, pr: p.areas, names
 
 /** Só a amostra de cada proposta — chamada a cada movimento dos controles. */
 function drawSpecimens(): void {
-  $('cBaseV').textContent = $n('cBase') + 'px'; $('cMeasureV').textContent = $n('cMeasure') + ' caracteres';
-  $('cLhV').textContent = ($n('cLh') / 100).toFixed(2).replace('.', ',');
-  $('cTrackV').textContent = ($n('cTrack') / 1000).toFixed(3).replace('.', ',') + 'em';
+  $('cBaseV').textContent = $n('cBase') + 'px'; $('cMeasureV').textContent = t('{n} caracteres', { n: $n('cMeasure') });
+  $('cLhV').textContent = dec($n('cLh') / 100, 2);
+  $('cTrackV').textContent = dec($n('cTrack') / 1000, 3) + 'em';
   CR.props.forEach((p, i) => { const el = $('cSpec' + i); if (!el) return; const sp = specHtml(envOf(p), $v('cText'));
     el.setAttribute('style', sp.style); el.innerHTML = sp.html });
 }
@@ -46,7 +46,7 @@ function drawView(i: number): void {
   const p = CR.props[i], v = CR.views[i] || 'faixas', out = viewHtml(v, ctxOf(p));
   const wrap = $('cView' + i); wrap.className = out.className; wrap.innerHTML = out.html;
   $all<HTMLElement>(wrap, '.pick, .cell button[data-act="copy"]').forEach(el => { el.onclick = ev => { ev.stopPropagation();
-    const h = el.dataset.h || p.hs[+(el.dataset.i ?? (el.closest('.cell') as HTMLElement).dataset.i!)]; copy(h, h + ' copiado') } });
+    const h = el.dataset.h || p.hs[+(el.dataset.i ?? (el.closest('.cell') as HTMLElement).dataset.i!)]; copy(h, h + ' ' + t('Copiado').toLowerCase()) } });
   $('cHint' + i).textContent = VIEWS.find(x => x.v === v)!.d;
   $all<HTMLButtonElement>($('cBar' + i), 'button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.v === v)));
 }
@@ -55,28 +55,28 @@ function drawProposals(): void {
   $('cOut').innerHTML = CR.props.map((p, i) => `<section class="prop" data-p="${i}">
       <div class="prophead">
         <div><h2 style="margin:0">${esc(p.ang.n)}</h2>
-          <p class="sm" style="margin:4px 0 0">${esc(titleFor(p.br))} · ${esc(SCH[p.si].n)} · ${esc(LENS[p.li].n.split(' — ')[0])}${p.u !== p.br.u ? ' · dinâmica de ' + esc(MUS[p.u].n.toLowerCase()) : ''} · ${p.fonts.map(f => esc(f.n)).join(' + ')}</p></div>
+          <p class="sm" style="margin:4px 0 0">${esc(titleFor(p.br))} · ${esc(SCH[p.si].n)} · ${esc(LENS[p.li].n.split(' — ')[0])}${p.u !== p.br.u ? t(' · dinâmica de {u}', { u: esc(MUS[p.u].n.toLowerCase()) }) : ''} · ${p.fonts.map(f => esc(f.n)).join(' + ')}</p></div>
         <div class="propstrip">${p.hs.map((h, j) => `<button data-h="${h}" style="background:${h};color:${readable(h)}" title="${h}">${Math.round(p.areas[j])}%</button>`).join('')}</div>
       </div>
-      <div class="viewbar" id="cBar${i}" role="group" aria-label="Modo de visualização">${VIEWS.map(x => `<button data-v="${x.v}" aria-pressed="${x.v === (CR.views[i] || 'faixas')}">${x.n}</button>`).join('')}</div>
+      <div class="viewbar" id="cBar${i}" role="group" aria-label="${t('Modo de visualização')}">${VIEWS.map(x => `<button data-v="${x.v}" aria-pressed="${x.v === (CR.views[i] || 'faixas')}">${x.n}</button>`).join('')}</div>
       <div class="vwrap" id="cView${i}"></div>
       <p class="sm" id="cHint${i}" style="margin-top:10px"></p>
-      <h3 style="margin-top:22px">Amostra — ${p.fonts.map(f => esc(f.n)).join(' + ')}</h3>
+      <h3 style="margin-top:22px">${t('Amostra — {f}', { f: p.fonts.map(f => esc(f.n)).join(' + ') })}</h3>
       <div class="spec" id="cSpec${i}"></div>
       <div class="grid2" style="margin-top:18px">
         <div>${why(p)}</div>
         <div>
-          <div class="tblwrap"><table class="roletable"><thead><tr><th>Cor</th><th>HEX</th><th>RGB</th><th>CMYK</th><th>Área</th></tr></thead><tbody>
+          <div class="tblwrap"><table class="roletable"><thead><tr><th>${t('Cor')}</th><th>HEX</th><th>RGB</th><th>CMYK</th><th>${t('Área')}</th></tr></thead><tbody>
           ${p.hs.map((h, j) => { const [r, g, b] = hex2rgb(h);
             return `<tr><td><span style="display:inline-block;width:13px;height:13px;background:${h};vertical-align:-2px;margin-right:6px"></span>${j + 1}</td>
             <td>${h}</td><td>${r} ${g} ${b}</td><td>${rgb2cmyk(r, g, b).map(x => Math.round(x)).join(' ')}</td><td>${Math.round(p.areas[j])}%</td></tr>` }).join('')}
           </tbody></table></div>
           <div class="btnrow">
-            <button class="act" data-act="md">Baixar em Markdown</button>
-            <button class="mini" data-act="zip">Baixar .zip</button>
-            <button class="mini" data-act="cores">Levar para Cores</button>
-            <button class="mini" data-act="tipo">Levar para Tipografia</button>
-            <button class="mini" data-act="copy">Copiar os hex</button>
+            <button class="act" data-act="md">${t('Baixar em Markdown')}</button>
+            <button class="mini" data-act="zip">${t('Baixar .zip')}</button>
+            <button class="mini" data-act="cores">${t('Levar para Cores')}</button>
+            <button class="mini" data-act="tipo">${t('Levar para Tipografia')}</button>
+            <button class="mini" data-act="copy">${t('Copiar os hex')}</button>
           </div>
         </div>
       </div>
@@ -86,20 +86,20 @@ function drawProposals(): void {
   drawSpecimens();
   $all<HTMLElement>($('cOut'), '.prop').forEach(sec => {
     const p = CR.props[+sec.dataset.p!];
-    $all<HTMLButtonElement>(sec, '.propstrip button').forEach(b => b.onclick = () => copy(b.dataset.h!, b.dataset.h + ' copiado'));
+    $all<HTMLButtonElement>(sec, '.propstrip button').forEach(b => b.onclick = () => copy(b.dataset.h!, b.dataset.h + ' ' + t('Copiado').toLowerCase()));
     $all<HTMLButtonElement>(sec, '[data-act]').forEach(b => b.onclick = () => {
       const a = b.dataset.act, nm = slug(titleFor(p.br) + '-' + p.ang.n);
       if (a === 'md') return download(nm + '.md', mdProposal(p), 'text/markdown');
-      if (a === 'copy') return copy(p.hs.join('\n'), 'Hex copiados');
+      if (a === 'copy') return copy(p.hs.join('\n'), t('Hex copiados'));
       if (a === 'zip') return zipProposal(p, nm);
       if (a === 'cores') {
         S.emo = p.br.e; S.mkt = p.br.m; S.scheme = p.si; S.lens = p.li; S.cult = p.k; S.mus = p.u; S.pos = Math.round(p.t * 100);
         S.n = p.hs.length;
         S.colors = p.cols.map(c => ({ a: c.a, L: c.L, C: c.C, lock: false })); S.baseOver = p.cols[0].a;
-        syncControls(); render(); pushH(); goto('cores'); toast('Paleta carregada no instrumento de cor') }
+        syncControls(); render(); pushH(); goto('cores'); toast(t('Paleta carregada no instrumento de cor')) }
       if (a === 'tipo') {
-        setFamilies(p.fonts.slice(), `${p.fonts.map(f => f.n).join(' + ')} — vindo da proposta ${p.ang.n.toLowerCase()}.`);
-        goto('tipo'); toast('Combinação carregada no instrumento de tipografia') }
+        setFamilies(p.fonts.slice(), t('{f} — vindo da proposta {a}.', { f: p.fonts.map(f => f.n).join(' + '), a: p.ang.n.toLowerCase() }));
+        goto('tipo'); toast(t('Combinação carregada no instrumento de tipografia')) }
     });
   });
   createStoreCR.notify();
@@ -126,33 +126,33 @@ export function initCreate(): void {
   $('cPos').oninput = () => $('cPosV').textContent = ($('cPos') as HTMLInputElement).value;
   $('cBrief').oninput = () => { const lx = readBrief();
     $('cWords').innerHTML = lx.words.length
-      ? `Reconheci na descrição: <b style="color:var(--ink)">${lx.words.join('</b>, <b style="color:var(--ink)">')}</b>. Essas palavras deslocam intenção, campo, referência e postura — o que você escolher nos campos acima tem prioridade.`
-      : 'Ainda não reconheci nenhuma palavra do léxico. Escreva à vontade: os campos acima já bastam para gerar.' };
+      ? `${t('Reconheci na descrição:')} <b style="color:var(--ink)">${lx.words.join('</b>, <b style="color:var(--ink)">')}</b>${t('. Essas palavras deslocam intenção, campo, referência e postura — o que você escolher nos campos acima tem prioridade.')}`
+      : t('Ainda não reconheci nenhuma palavra do léxico. Escreva à vontade: os campos acima já bastam para gerar.') };
   $('cGo').onclick = () => {
     CR.seed = Math.random(); const br = buildBrief(CR.n);
     CR.props = ANGLES.map((a, i) => makeProposal(a, br, (CR.seed * (i + 1) * 7.13) % 1)); CR.views = CR.props.map((_p, i) => CR.views[i] || 'faixas');
     $('cRead').style.display = 'block';
-    $('cRead').innerHTML = `<b>O que eu li do seu pedido.</b> `
-      + `Peça: ${(PIECES.find(x => x.v === br.piece) || { n: 'não definida' }).n.toLowerCase()}. `
-      + `Suporte: ${(SUPS.find(x => x.v === br.sup) || { n: 'não definido' }).n.toLowerCase()}. `
-      + `Intenção: ${EMO[br.e].n.toLowerCase()}. Campo: ${MKT[br.m].n.toLowerCase()}. `
-      + (CULT[br.k].anc ? `Referência: ${CULT[br.k].n.split(' — ')[0]}. ` : '')
-      + (MUS[br.u].m ? `Dinâmica: ${MUS[br.u].n.toLowerCase()}. ` : '')
-      + `Postura de partida: ${Math.round(br.t * 100)} de 100.`
-      + (br.words.length ? ` Da descrição, pesaram: ${br.words.join(', ')}.` : ' A descrição não trouxe palavras do léxico — as três propostas vêm só dos campos.');
+    $('cRead').innerHTML = `<b>${t('O que eu li do seu pedido.')}</b> `
+      + t('Peça: {p}.', { p: (PIECES.find(x => x.v === br.piece) || { n: t('não definida') }).n.toLowerCase() }) + ' '
+      + t('Suporte: {s}.', { s: (SUPS.find(x => x.v === br.sup) || { n: t('não definido') }).n.toLowerCase() }) + ' '
+      + t('Intenção: {e}. Campo: {m}.', { e: EMO[br.e].n.toLowerCase(), m: MKT[br.m].n.toLowerCase() }) + ' '
+      + (CULT[br.k].anc ? t('Referência: {k}.', { k: CULT[br.k].n.split(' — ')[0] }) + ' ' : '')
+      + (MUS[br.u].m ? t('Dinâmica: {u}.', { u: MUS[br.u].n.toLowerCase() }) + ' ' : '')
+      + t('Postura de partida: {t} de 100.', { t: Math.round(br.t * 100) })
+      + (br.words.length ? t(' Da descrição, pesaram: {w}.', { w: br.words.join(', ') }) : t(' A descrição não trouxe palavras do léxico — as três propostas vêm só dos campos.'));
     setTimeout(drawProposals, 60); drawProposals();
     setTimeout(() => { try { $('cOut').scrollIntoView({ behavior: 'smooth', block: 'start' }) } catch (_) {} }, 120);
   };
   $('cAgain').onclick = () => $('cGo').click();
   // texto e controles da amostra: valem para as três propostas e mudam ao vivo
-  ($('cText') as HTMLTextAreaElement).value = SAMPLE_TXT;
+  ($('cText') as HTMLTextAreaElement).value = sampleText();
   $('cText').oninput = drawSpecimens;
-  $('cSample').onclick = () => { $set('cText', SAMPLE_TXT); drawSpecimens() };
+  $('cSample').onclick = () => { $set('cText', sampleText()); drawSpecimens() };
   $('cTextClear').onclick = () => { $set('cText', ''); $('cText').focus(); drawSpecimens() };
   ['cRatio', 'cPal'].forEach(id => $(id).onchange = drawSpecimens);
   ['cBase', 'cMeasure', 'cLh', 'cTrack'].forEach(id => $(id).oninput = drawSpecimens);
   $('cClear').onclick = () => { ['cPiece', 'cSup', 'cEmo', 'cMkt', 'cCult', 'cMus'].forEach(id => $set(id, 0));
     $set('cPiece', 'none'); $set('cSup', 'none'); $set('cFam', '2');
     $set('cPos', 50); $('cPosV').textContent = '50'; $set('cBrief', ''); $('cWords').textContent = '';
-    $('cOut').innerHTML = ''; $('cRead').style.display = 'none'; CR.props = []; toast('Campos limpos') };
+    $('cOut').innerHTML = ''; $('cRead').style.display = 'none'; CR.props = []; toast(t('Campos limpos')) };
 }

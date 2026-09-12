@@ -1,5 +1,6 @@
 /* ── paletas salvas ── */
 import { $, $all, esc, toast } from '../core/dom';
+import { t } from '../i18n';
 import { store } from '../core/store';
 import type { PaletteColor } from '../core/goethe';
 import { S, palette, syncControls, hooks, palName } from './state';
@@ -20,9 +21,9 @@ export async function listSaved(): Promise<void> {
       const g = await store.get(b.dataset.k!); if (!g) return; const v = JSON.parse(g.value) as SavedPalette;
       S.emo = +v.e; S.mkt = +v.m; S.scheme = +v.s; S.lens = +v.l; S.cult = +v.k; S.mus = +v.u; S.pos = +v.pos;
       S.n = v.c.length; S.colors = v.c; S.baseOver = v.c[0] ? v.c[0].a : null;
-      syncControls(); hooks.render(); pushH(); toast('Paleta recarregada');
+      syncControls(); hooks.render(); pushH(); toast(t('Paleta recarregada'));
       try { window.scrollTo({ top: 0, behavior: 'smooth' }) } catch (_) {} });
-  } catch (_) { $('savedEmpty').textContent = 'Não foi possível ler as paletas salvas neste ambiente.' }
+  } catch (_) { $('savedEmpty').textContent = t('Não foi possível ler as paletas salvas neste ambiente.') }
 }
 export function initSaved(): void {
   $('save').onclick = async () => {
@@ -30,6 +31,6 @@ export function initSaved(): void {
       e: S.emo, m: S.mkt, s: S.scheme, l: S.lens, k: S.cult, u: S.mus, pos: S.pos };
     const ok = await store.set('pal:' + Date.now(), JSON.stringify(rec));
     await listSaved();
-    toast(ok ? 'Paleta salva — aparece logo abaixo dos botões' : 'Salva só nesta sessão: este navegador não guardou');
+    toast(t(ok ? 'Paleta salva — aparece logo abaixo dos botões' : 'Salva só nesta sessão: este navegador não guardou'));
   };
 }

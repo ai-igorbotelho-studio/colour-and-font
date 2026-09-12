@@ -1,5 +1,6 @@
 /* ── combinação de famílias: cinco estratégias, um a cinco lugares ── */
 import { $v, norm } from '../core/dom';
+import { t } from '../i18n';
 import { lcg } from '../core/rng';
 import { EMO } from '../data/emotions';
 import { FONTS, CLS, type Font, type FontClass } from '../data/fonts';
@@ -13,10 +14,10 @@ export const fam = (f: Font): string => `"${f.n}", ${f.cls === 'mono' ? 'ui-mono
 export const famAttr = (f: Font): string => fam(f).replace(/"/g, "'");
 export function describe(f: Font): string {
   const p = [CLS[f.cls].n.toLowerCase()];
-  p.push(f.x >= .54 ? 'altura de x alta' : f.x <= .45 ? 'altura de x baixa' : 'altura de x média');
-  p.push(f.ct >= .7 ? 'contraste de traço alto' : f.ct <= .15 ? 'contraste quase nulo' : 'contraste moderado');
-  if (f.w <= .36) p.push('condensada'); else if (f.w >= .56) p.push('larga');
-  p.push(f.role === 'display' ? 'feita para corpo grande' : f.role === 'body' ? 'feita para texto corrido' : f.role === 'mono' ? 'monoespaçada' : 'serve a título e a texto');
+  p.push(t(f.x >= .54 ? 'altura de x alta' : f.x <= .45 ? 'altura de x baixa' : 'altura de x média'));
+  p.push(t(f.ct >= .7 ? 'contraste de traço alto' : f.ct <= .15 ? 'contraste quase nulo' : 'contraste moderado'));
+  if (f.w <= .36) p.push(t('condensada')); else if (f.w >= .56) p.push(t('larga'));
+  p.push(t(f.role === 'display' ? 'feita para corpo grande' : f.role === 'body' ? 'feita para texto corrido' : f.role === 'mono' ? 'monoespaçada' : 'serve a título e a texto'));
   return p.join(', ') + '.';
 }
 export const widthBand = (w: number): string => w <= .36 ? 'cond' : w >= .56 ? 'ext' : 'norm';
@@ -42,8 +43,8 @@ export function candidates(slot: Slot, F: Filters = filtersFromUI()): Font[] {
     return true });
 }
 export function moodScore(f: Font, emo: number): number { const e = EMO[emo]; if (e.a === null) return 0;
-  const key = norm(e.n.split(' ')[0]);
-  return f.moods.some(m => norm(m).startsWith(key.slice(0, 5))) ? 26 : 0 }
+  const key = e.key!;
+  return f.moods.some(m => norm(m).startsWith(key)) ? 26 : 0 }
 export function pairScore(d: Font, b: Font, F: Filters): number {
   const st = F.strat; let s = moodScore(d, F.emo) * 1.1 + moodScore(b, F.emo);
   const sameSuper = d.sf && d.sf === b.sf, sameFam = d.n === b.n;

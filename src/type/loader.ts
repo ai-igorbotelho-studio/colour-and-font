@@ -2,6 +2,7 @@
    Injeta o <link> do banco e espera a família ficar disponível, com tempo limite.
    Se a rede falhar, a reserva declarada em fam() já está em uso — avisa uma vez e segue. */
 import { slug, toast } from '../core/dom';
+import { t } from '../i18n';
 import type { Font } from '../data/fonts';
 
 const loaded = new Set<string>();
@@ -22,7 +23,7 @@ export function loadFont(f: Font | null | undefined): Promise<boolean> {
     const l = document.createElement('link'); l.rel = 'stylesheet'; l.href = cdnLink(f);
     let done = false;
     const finish = (ok: boolean) => { if (done) return; done = true;
-      if (!ok) { failed.add(f.n); if (!warned) { warned = true; toast('Uma família não carregou — a reserva declarada está em uso') } }
+      if (!ok) { failed.add(f.n); if (!warned) { warned = true; toast(t('Uma família não carregou — a reserva declarada está em uso')) } }
       res(ok) };
     const timer = window.setTimeout(() => finish(false), FONT_TIMEOUT);
     l.onerror = () => { clearTimeout(timer); finish(false) };

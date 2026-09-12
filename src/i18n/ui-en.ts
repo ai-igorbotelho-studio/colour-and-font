@@ -1,0 +1,399 @@
+/* Dicionário da interface — português (fonte) → inglês britânico.
+   Chaves de HTML são o texto normalizado (espaços colapsados, sem bordas);
+   chaves de JS são as strings passadas a t(), com {variáveis}. */
+export const UI: Record<string, string> = {
+  /* ── casca ── */
+  'Ir para o conteúdo': 'Skip to content',
+  'Início': 'Home', 'Fundo': 'Ground', 'Luz': 'Light', 'Treva': 'Dark', 'Seções': 'Sections', 'Idioma': 'Language',
+  'Cores': 'Colour', 'Tipografia': 'Type', 'Criação': 'Create', 'Tendências': 'Trends', 'Fundamentação': 'Foundations',
+  'Farbenkreis — instrumentos de cor e tipografia': 'Farbenkreis — instruments for colour and type',
+  'Instrumentos de cor e tipografia derivados do círculo cromático de Goethe: paletas por intenção e campo, combinação de famílias, hierarquia, legibilidade medida e tendências trimestrais.':
+    'Instruments for colour and type derived from Goethe\'s colour circle: palettes by intention and field, type pairing, hierarchy, measured legibility and quarterly trends.',
+  'Paletas derivadas do círculo de Goethe, combinação tipográfica com hierarquia, legibilidade medida em WCAG e um compilado trimestral de tendências.':
+    'Palettes derived from Goethe\'s circle, type pairing with hierarchy, legibility measured to WCAG and a quarterly digest of trends.',
+
+  /* ── início ── */
+  'Cor e tipografia': 'Colour and type', 'como instrumentos': 'as instruments',
+  'Paletas derivadas do círculo de Goethe, combinação de famílias com hierarquia, legibilidade medida e um compilado trimestral de tendências. Escolha por onde começar.':
+    'Palettes derived from Goethe\'s circle, type pairing with hierarchy, measured legibility and a quarterly digest of trends. Choose where to begin.',
+  'Roda de Goethe, esquemas, lentes de estúdio, legibilidade e vinte formatos de exportação.': 'Goethe\'s wheel, schemes, studio lenses, legibility and twenty export formats.',
+  'Noventa e três famílias livres, cinco estratégias de combinação e oito níveis de hierarquia ao vivo.': 'Ninety-three open families, five pairing strategies and eight live levels of hierarchy.',
+  'Descreva a peça e receba três propostas por caminhos opostos, com paleta, famílias e amostra.': 'Describe the piece and receive three proposals by opposite routes, each with palette, families and specimen.',
+  'Edições trimestrais com fonte e data: cor, tipografia, combinações e aplicações.': 'Quarterly editions with source and date: colour, type, pairings and applications.',
+  'O círculo de Goethe, os três regimes, OKLab, contraste e a classificação tipográfica.': 'Goethe\'s circle, the three regimes, OKLab, contrast and the classification of type.',
+
+  /* ── fundamentação ── */
+  'O que está por trás': 'What lies behind', 'dos instrumentos': 'the instruments',
+  'Duas ferramentas e uma base teórica comum. A de cor deriva paletas a partir do círculo de Goethe, de intenções, de setores, de métodos de estúdio, de referências culturais e de dinâmicas musicais. A de tipografia faz o mesmo com famílias tipográficas e combinações. Esta página explica o que está por trás das duas.':
+    'Two tools and one shared theoretical base. The colour tool derives palettes from Goethe\'s circle, from intentions, sectors, studio methods, cultural references and musical dynamics. The type tool does the same with typefaces and pairings. This page explains what lies behind both.',
+  'O círculo de Goethe': 'Goethe\'s colour circle',
+  'Em 1810, Goethe recusou a explicação de Newton e colocou o olho no centro: o que vemos depende do objeto, da iluminação e da percepção. Daí ele deriva um círculo de seis matizes, um lado positivo e um negativo, uma intensificação em direção ao purpúreo, e três regimes de combinação.':
+    'In 1810 Goethe refused Newton\'s explanation and put the eye at the centre: what we see depends on the object, the light and perception. From that he derives a circle of six hues, a positive and a negative side, an intensification towards purple, and three regimes of combination.',
+  'Lado positivo': 'The positive side',
+  'Amarelo, vermelho-amarelo, escarlate. Goethe os descreve como ativos, quentes, que se aproximam de quem olha. O amarelo é a cor imediatamente vizinha da luz; o vermelho-amarelo é o lado ativo em sua maior energia.':
+    'Yellow, red-yellow, scarlet. Goethe describes them as active, warm, advancing towards the viewer. Yellow is the colour nearest to light; red-yellow is the active side at its highest energy.',
+  'Lado negativo': 'The negative side',
+  'Azul, vermelho-azul. Passivos, frios, que afastam. O azul carrega consigo um princípio de treva: atrai e ao mesmo tempo puxa para longe.':
+    'Blue, red-blue. Passive, cold, receding. Blue carries a principle of darkness: it draws us in and at the same time pulls away.',
+  'Intensificação': 'Intensification',
+  'Cada lado pode ser empurrado em direção ao vermelho. No purpúreo os dois se encontram — é o cume, ao qual Goethe atribui dignidade e gravidade.':
+    'Each side can be pushed towards red. In purple the two meet — the summit, to which Goethe attributes dignity and gravity.',
+  'Verde': 'Green',
+  'A união do amarelo com o azul. Ali, diz ele, olho e alma descansam: não se quer ir além, e não se pode.':
+    'The union of yellow and blue. There, he says, eye and soul rest: one does not wish to go further, and cannot.',
+  'Preto e branco são cores.': 'Black and white are colours.',
+  'Em Goethe, a cor nasce no limite entre luz e treva, atravessada por um meio turvo. A treva não é ausência: é o outro polo, sem o qual nenhuma cor existiria. As duas ferramentas aqui tratam luz e treva como participantes plenos, com matiz, papel e proporção próprios — e não como fundo neutro.':
+    'For Goethe, colour is born at the boundary between light and darkness, seen through a turbid medium. Darkness is not absence: it is the other pole, without which no colour would exist. Both tools here treat light and darkness as full participants, with their own hue, role and proportion — not as neutral background.',
+  'Os três regimes de Goethe': 'Goethe\'s three regimes',
+  'Antes do vocabulário moderno de esquemas, Goethe já classificava as combinações em três — e dava seu veredito sobre cada uma.':
+    'Before the modern vocabulary of schemes, Goethe already sorted combinations into three — and passed his verdict on each.',
+  'Harmônica': 'Harmonious', 'Característica': 'Characteristic', 'Sem caráter': 'Characterless',
+  'Os opostos do círculo. O olho, forçado a uma só cor, produz por conta própria a oposta, e só então se sente completo. Carregam em si a condição de totalidade: é o par mais estável e o menos surpreendente.':
+    'The opposites of the circle. The eye, forced to a single colour, produces the opposite of its own accord and only then feels complete. They carry the condition of totality within them: the most stable pair and the least surprising.',
+  'Um espaço de distância no círculo — amarelo e azul, amarelo e vermelho, azul e vermelho. Dizem alguma coisa, ainda que não tudo. É onde mora quase todo trabalho interessante.':
+    'One space apart on the circle — yellow and blue, yellow and red, blue and red. They say something, though not everything. It is where almost all interesting work lives.',
+  'Vizinhas no círculo. Não produzem efeito desagradável, mas ficam aquém: falta-lhes caráter. Servem quando outra coisa carrega o sistema.':
+    'Neighbours on the circle. They produce no unpleasant effect, but fall short: they lack character. Useful when something else carries the system.',
+  'O vocabulário moderno de esquemas': 'The modern vocabulary of schemes',
+  'O que o século XX chamou de esquemas são relações geométricas no círculo. Todos estão no instrumento de cor, e a geometria é preservada enquanto você arrasta as bolas.':
+    'What the twentieth century called schemes are geometric relations on the circle. All of them are in the colour instrument, and the geometry is preserved while you drag the balls.',
+  'Monocromático varia luminosidade e croma num só matiz. Análogo fica em vizinhança. Complementar cruza o círculo. Tríade divide em três. Complementar dividido troca o oposto pelos dois vizinhos dele — mantém a tensão e reduz o choque. Tetrádico forma um retângulo e entrega dois pares opostos.':
+    'Monochromatic varies lightness and chroma within one hue. Analogous stays in the neighbourhood. Complementary crosses the circle. Triadic divides it in three. Split-complementary swaps the opposite for its two neighbours — keeps the tension, reduces the clash. Tetradic forms a rectangle and delivers two opposite pairs.',
+  'Luz que soma, pigmento que subtrai': 'Light that adds, pigment that subtracts',
+  'Uma paleta se comporta de dois modos diferentes conforme o suporte, e confundir os dois é a origem de boa parte da frustração entre tela e impressão. Arraste os círculos abaixo: as sobreposições são calculadas de verdade pelo navegador, somando ou subtraindo.':
+    'A palette behaves in two different ways depending on the medium, and confusing the two is the source of much of the frustration between screen and print. Drag the circles below: the overlaps are genuinely computed by the browser, adding or subtracting.',
+  'Recolocar': 'Reset', 'Arraste os círculos.': 'Drag the circles.',
+  'Aditiva — RGB': 'Additive — RGB', 'Subtrativa — CMYK': 'Subtractive — CMYK',
+  'Feixes de luz somados. Vermelho, verde e azul se sobrepõem e produzem ciano, magenta e amarelo; os três juntos dão branco. É o modelo da tela, do projetor, do LED. Somar luz clareia.':
+    'Beams of light added together. Red, green and blue overlap to produce cyan, magenta and yellow; all three give white. It is the model of the screen, the projector, the LED. Adding light brightens.',
+  'Tintas que filtram a luz refletida pelo papel. Ciano, magenta e amarelo sobrepostos absorvem quase tudo e tendem ao preto — na prática um preto sujo, por isso a impressão acrescenta o K. Somar pigmento escurece.':
+    'Inks that filter the light reflected by paper. Cyan, magenta and yellow overlapped absorb almost everything and tend towards black — in practice a muddy black, which is why print adds K. Adding pigment darkens.',
+  'Consequência prática.': 'A practical consequence.',
+  'Amarelos, verdes e azuis muito saturados que existem em tela não têm equivalente em tinta de escala. O instrumento de cor mostra o valor CMYK ao lado do RGB justamente para tornar essa perda visível antes de ela virar prova de gráfica.':
+    'Highly saturated yellows, greens and blues that exist on screen have no equivalent in process ink. The colour instrument shows the CMYK value beside the RGB precisely to make that loss visible before it turns into a press proof.',
+  'Por que OKLab': 'Why OKLab',
+  'HSL é fácil de calcular e mente sobre o olho: um amarelo e um azul com a mesma luminosidade declarada não parecem ter a mesma luminosidade. OKLab é um espaço perceptualmente uniforme — distâncias iguais no número correspondem a diferenças mais parecidas na percepção.':
+    'HSL is easy to compute and lies about the eye: a yellow and a blue with the same declared lightness do not look equally light. OKLab is a perceptually uniform space — equal distances in the numbers correspond to more similar differences in perception.',
+  'Acima, a mesma sequência de matizes com luminosidade fixa em HSL e em OKLab. Toda interpolação, escala de tons e ajuste destas ferramentas acontece em OKLab, e o croma é reduzido até caber no sRGB em vez de ser cortado.':
+    'Above, the same sequence of hues at fixed lightness in HSL and in OKLab. Every interpolation, tonal scale and adjustment in these tools happens in OKLab, and chroma is reduced until it fits sRGB rather than clipped.',
+  'Contraste não é gosto': 'Contrast is not taste',
+  'A razão de contraste do WCAG mede o que o olho consegue ler, não o que ele sente. Texto corrido pede 4.5, texto grande e elementos de interface pedem 3.0. As duas ferramentas calculam isso automaticamente para todos os pares e avisam quando a combinação bonita é ilegível.':
+    'The WCAG contrast ratio measures what the eye can read, not what it feels. Body text asks for 4.5, large text and interface elements for 3.0. Both tools compute this automatically for every pair and warn when the handsome combination is illegible.',
+  'Classificação tipográfica': 'Classifying type',
+  'A escolha de uma família começa por identificar a que família histórica ela pertence — porque é isso que define como ela se comporta em texto longo, em tamanho grande e em tela pequena.':
+    'Choosing a typeface begins with identifying which historical family it belongs to — because that is what determines how it behaves in long text, at large sizes and on small screens.',
+  'Anatomia que importa na prática': 'Anatomy that matters in practice',
+  'Altura de x': 'x-height',
+  'A altura das minúsculas em relação às maiúsculas. Alta lê bem em tamanho pequeno e em tela; baixa tem elegância e pede corpo maior. Duas famílias com alturas de x muito diferentes brigam quando postas lado a lado.':
+    'The height of the lowercase relative to the capitals. High reads well at small sizes and on screen; low has elegance and asks for a larger size. Two families with very different x-heights fight when set side by side.',
+  'Contraste de traço': 'Stroke contrast',
+  'A diferença entre a haste grossa e a fina. Alto contraste — as modernas, as didonas — brilha em título e some em corpo pequeno. Baixo contraste aguenta condições ruins de leitura.':
+    'The difference between the thick and the thin stroke. High contrast — the moderns, the Didones — shines in headlines and vanishes at small sizes. Low contrast withstands poor reading conditions.',
+  'Abertura': 'Aperture',
+  'O quanto letras como c, e, s se fecham. Aberturas amplas mantêm as letras distinguíveis à distância e em corpo pequeno; fechadas dão densidade e ar editorial.':
+    'How far letters such as c, e and s close up. Wide apertures keep letters distinct at a distance and at small sizes; closed ones give density and an editorial air.',
+  'Largura e ritmo': 'Width and rhythm',
+  'Condensada economiza espaço e acelera; estendida ocupa e desacelera. O ritmo entre letra e contraforma é o que faz um parágrafo parecer uniforme ou manchado.':
+    'Condensed saves space and speeds up; extended occupies and slows down. The rhythm between letter and counter is what makes a paragraph look even or patchy.',
+  'Medida': 'Measure',
+  'O comprimento da linha. Entre 45 e 75 caracteres é a faixa em que o olho encontra o início da próxima linha sem esforço. Linha longa demais exige mais entrelinha para compensar.':
+    'The length of the line. Between 45 and 75 characters is the range in which the eye finds the start of the next line without effort. Too long a line demands more leading to compensate.',
+  'Escala modular': 'Modular scale',
+  'Os tamanhos derivam de uma razão constante — quarta justa, quinta, áurea. A hierarquia fica previsível e as decisões param de ser arbitrárias.':
+    'Sizes derive from a constant ratio — perfect fourth, fifth, golden. The hierarchy becomes predictable and decisions stop being arbitrary.',
+  'Como combinar duas famílias': 'How to pair two families',
+  'O erro comum é buscar semelhança. Duas famílias parecidas não se harmonizam: elas competem, e a diferença pequena parece defeito.':
+    'The common mistake is to seek similarity. Two similar families do not harmonise: they compete, and the small difference looks like a fault.',
+  'Contraste de estrutura': 'Structural contrast',
+  'Uma serifada de alto contraste no título contra uma sem serifa humanista no corpo. A diferença é clara, a hierarquia se resolve sozinha e nenhuma das duas parece erro.':
+    'A high-contrast serif for the headline against a humanist sans for the body. The difference is clear, the hierarchy resolves itself and neither looks like a mistake.',
+  'Superfamília': 'Superfamily',
+  'Famílias desenhadas juntas para conviver — a versão serifada, a sem serifa e a monoespaçada do mesmo projeto. Harmonia garantida, contraste menor, risco de monotonia.':
+    'Families drawn together to coexist — the serif, sans and monospaced versions of one design. Harmony guaranteed, less contrast, a risk of monotony.',
+  'Uma só família': 'A single family',
+  'Toda a hierarquia feita por peso, tamanho, largura e caixa. É a saída mais difícil de errar e a que mais depende de disciplina de espaçamento.':
+    'The whole hierarchy built from weight, size, width and case. The hardest route to get wrong, and the one that most depends on spacing discipline.',
+  'Compatibilidade métrica': 'Metric compatibility',
+  'Mesmo com estruturas diferentes, altura de x e largura próximas fazem as duas parecerem escolhidas juntas. É o critério que o instrumento usa para pontuar as combinações.':
+    'Even with different structures, close x-heights and widths make the two look chosen together. It is the criterion the instrument uses to score pairings.',
+  'Base teórica:': 'Theoretical basis:',
+  '(1810), na parte dos efeitos sensíveis e morais da cor e nos capítulos sobre completude e combinações características. Conversões de cor em OKLab, com ajuste de croma para o gamut sRGB. Razões de contraste segundo WCAG 2.1. Famílias tipográficas de bancos abertos — Google Fonts, Fontshare, Fontsource — com licenças que permitem uso e hospedagem própria.':
+    '(1810), in the section on the sensuous and moral effect of colour and the chapters on completeness and characteristic combinations. Colour conversions in OKLab, with chroma adjusted to the sRGB gamut. Contrast ratios to WCAG 2.1. Typefaces from open libraries — Google Fonts, Fontshare, Fontsource — with licences that allow use and self-hosting.',
+
+  /* ── cores ── */
+  'Círculo de Goethe. Arraste as bolas para mudar as cores.': 'Goethe\'s circle. Drag the balls to change the colours.',
+  'O que a peça precisa provocar': 'What the piece needs to evoke',
+  'Campo de atuação': 'Field', 'Postura diante da convenção do campo': 'Stance towards the field\'s convention',
+  'Pertencer': 'Belong', 'Romper': 'Break', 'Esquema geométrico': 'Geometric scheme',
+  'Quantas cores': 'How many colours', 'Número de cores': 'Number of colours',
+  'Lente de estúdio': 'Studio lens', 'Referência cultural': 'Cultural reference', 'Estilo musical': 'Musical style',
+  'Simular visão de cor': 'Simulate colour vision', 'Gerar · barra de espaço': 'Generate · space bar',
+  '← Voltar': '← Undo', 'Refazer →': 'Redo →', 'Exportar': 'Export', 'Ver em escala': 'View full screen', 'Salvar': 'Save',
+  'Paleta': 'Palette', 'Modo de visualização': 'View mode', 'Cor': 'Colour', 'Escala de tons': 'Tonal scale', 'Fechar': 'Close',
+  'A leitura de Goethe': 'Goethe\'s reading', 'Campo, lente, cultura e som': 'Field, lens, culture and sound',
+  'Legibilidade': 'Legibility',
+  'Uma paleta bonita pode ser ilegível, e o olho de quem a escolheu é o pior juiz disso. Esta grade responde a uma pergunta prática: se eu escrever com uma cor desta paleta sobre um fundo de outra, alguém consegue ler?':
+    'A handsome palette can be illegible, and the eye that chose it is the worst judge. This grid answers a practical question: if I write in one colour of this palette on a ground of another, can anyone read it?',
+  'O número é a razão de contraste entre as duas — quanto maior, mais separadas elas estão para o olho. Cada célula está pintada com o par de verdade, então a própria grade mostra o resultado: onde o número some, o texto também some.':
+    'The number is the contrast ratio between the two — the higher, the further apart they are to the eye. Each cell is painted with the actual pair, so the grid shows the result itself: where the number vanishes, so does the text.',
+  'Exigência': 'Requirement', 'Texto corrido': 'Body text', 'Texto grande': 'Large text', 'Exigência máxima': 'Highest requirement',
+  'A linha é o fundo, a coluna é o texto. Toque numa célula para ver o par em tamanho real e corrigir o que não passa.':
+    'Rows are the ground, columns the text. Tap a cell to see the pair at real size and correct what fails.',
+  'Os pares que funcionam': 'The pairs that work',
+  'Gradientes': 'Gradients',
+  'Arraste as paradas na régua. O espaço de interpolação muda tudo: em sRGB dois tons cruzados passam por um meio cinzento; em OKLab o caminho é perceptualmente reto e não afunda.':
+    'Drag the stops along the ruler. The interpolation space changes everything: in sRGB two crossing tones pass through a greyish middle; in OKLab the path is perceptually straight and does not sink.',
+  'Adicionar parada': 'Add stop', 'Remover parada': 'Remove stop', 'Puxar da paleta': 'Pull from palette', 'Inverter': 'Reverse',
+  'Tipo': 'Type', 'Linear': 'Linear', 'Radial': 'Radial', 'Cônico': 'Conic', 'Espaço de interpolação': 'Interpolation space',
+  'OKLab — perceptual': 'OKLab — perceptual', 'OKLCH — pelo arco do matiz': 'OKLCH — along the hue arc', 'sRGB — o padrão do CSS': 'sRGB — the CSS default',
+  'Ângulo': 'Angle', 'Distribuição das paradas': 'Distribution of stops', 'Nenhuma — como estão': 'None — as they are',
+  'Suave nas pontas': 'Soft at the ends', 'Acelera no fim': 'Accelerates at the end', 'Acelera no começo': 'Accelerates at the start',
+  'Copiar CSS': 'Copy CSS', 'Baixar SVG': 'Download SVG', 'Baixar PNG': 'Download PNG',
+  'Arquivos de imagem para apresentação, arquivos de troca para software de design, e código para implementação.':
+    'Image files for presentation, exchange files for design software, and code for implementation.',
+  'ASE · Adobe': 'ASE · Adobe', 'GPL · GIMP e Inkscape': 'GPL · GIMP and Inkscape', 'Texto para Procreate e afins': 'Text for Procreate and the like',
+  'Hex puro': 'Plain hex', 'Copiar': 'Copy', 'Baixar arquivo': 'Download file',
+  'Paletas salvas': 'Saved palettes', 'Nada salvo ainda. Fica só neste navegador.': 'Nothing saved yet. It stays in this browser only.',
+
+  /* ── tipografia ── */
+  'Uso principal': 'Main use', 'Estratégia de combinação': 'Pairing strategy', 'Classe do título': 'Headline class', 'Classe do texto': 'Text class',
+  'Banco de fontes': 'Font library', 'Largura': 'Width', 'Formato do arquivo': 'File format',
+  'woff2 — padrão da web': 'woff2 — the web standard', 'woff2 variável': 'variable woff2', 'Nenhum — só a CDN': 'None — CDN only',
+  'Quantas famílias': 'How many families', 'Número de famílias': 'Number of families',
+  'Gerar combinação': 'Generate pairing', 'Trocar título e texto': 'Swap headline and text', 'Somar uma monoespaçada': 'Add a monospaced',
+  'A combinação': 'The pairing', 'Hierarquia': 'Hierarchy',
+  'Cada nível tem família, peso, degrau da escala, entrelinha, entreletra, caixa e cor próprios. Toque num nível para ajustá-lo; use o botão da direita para ligar e desligar os que o projeto não usa.':
+    'Each level has its own family, weight, scale step, leading, tracking, case and colour. Tap a level to adjust it; use the button on the right to switch off the ones the project does not use.',
+  'Devolver este nível ao padrão': 'Reset this level', 'Devolver todos': 'Reset all',
+  'Nível': 'Level', 'Família': 'Family', 'Corpo': 'Size', 'Peso': 'Weight', 'Entrelinha': 'Leading',
+  'Seu texto': 'Your text',
+  'Cole aqui o texto real do projeto. Cada linha vira um nível da hierarquia, e a amostra abaixo se redesenha ao vivo com a paleta, o corpo e a escala escolhidos.':
+    'Paste the project\'s real text here. Each line becomes a level of the hierarchy, and the specimen below redraws live with the chosen palette, size and scale.',
+  'Seu texto, uma linha por nível': 'Your text, one line per level',
+  'Comece a linha com': 'Start a line with', 'para título,': 'for a headline,', 'para subtítulo,': 'for a subheading,', 'para rótulo,': 'for a label,',
+  'para citação,': 'for a quotation,', 'para destaque,': 'for emphasis,', 'para referência, e envolva em': 'for a reference, and wrap in',
+  '[colchetes]': '[brackets]', 'para botão. Linha sem prefixo vira parágrafo.': 'for a button. A line without a prefix becomes a paragraph.',
+  'para referência e': 'for a reference and', '[texto]': '[text]', 'para botão.': 'for a button.',
+  'Trazer texto de exemplo': 'Bring the sample text', 'Limpar': 'Clear', 'Baixar a amostra em PNG': 'Download the specimen as PNG',
+  'Amostra': 'Specimen',
+  'Nenhuma — tudo no mesmo corpo': 'None — everything the same size',
+  '1,200 — terça menor': '1.200 — minor third', '1,250 — terça maior': '1.250 — major third', '1,333 — quarta justa': '1.333 — perfect fourth',
+  '1,414 — trítono': '1.414 — tritone', '1,500 — quinta justa': '1.500 — perfect fifth', '1,618 — áurea': '1.618 — golden', '2,000 — oitava': '2.000 — octave',
+  'Corpo do texto': 'Text size', '66 caracteres': '66 characters', 'Entreletra do título': 'Headline tracking', '-0,02em': '-0.02em',
+  'Cores da amostra': 'Specimen colours', 'Nenhuma — preto sobre branco': 'None — black on white',
+  'A paleta atual': 'The current palette', 'A paleta invertida': 'The palette inverted', 'A paleta da proposta': 'The proposal\'s palette',
+  'Todos os códigos': 'All the code', 'Link da CDN': 'CDN link', 'HTML completo': 'Full HTML', 'Onde baixar': 'Where to download',
+  'Bancos de fontes livres': 'Open font libraries',
+  'Todas as famílias deste instrumento vêm de bancos que permitem baixar, hospedar e usar comercialmente. Vale conferir a licença de cada uma no próprio banco antes de distribuir.':
+    'Every family in this instrument comes from libraries that allow downloading, self-hosting and commercial use. Check each licence at the library itself before distributing.',
+  'Banco': 'Library', 'O que é': 'What it is', 'Formato entregue': 'Format delivered',
+  'Combinações salvas': 'Saved pairings', 'Nada salvo ainda.': 'Nothing saved yet.',
+
+  /* ── criação ── */
+  'Descreva o que você precisa fazer. O instrumento atravessa os dois anteriores — o círculo de Goethe do lado da cor, o banco de famílias do lado da tipografia — e devolve três propostas completas, cada uma com paleta, combinação tipográfica, aplicação desenhada e o raciocínio por trás.':
+    'Describe what you need to make. The instrument runs through the two before it — Goethe\'s circle on the colour side, the font library on the type side — and returns three complete proposals, each with a palette, a type pairing, a drawn application and the reasoning behind it.',
+  'As três nunca são variações da mesma ideia: a primeira lê a convenção do campo, a segunda a contraria, e a terceira entra por um caminho lateral. Tudo é calculado no seu navegador, sem consultar nada fora dele.':
+    'The three are never variations on one idea: the first reads the field\'s convention, the second goes against it, and the third comes in sideways. Everything is computed in your browser, without consulting anything outside it.',
+  'O que você está criando': 'What you are making', 'Onde isso vai existir': 'Where it will live', 'O que precisa provocar': 'What it needs to evoke',
+  'Postura diante da convenção': 'Stance towards convention', 'Quantas famílias tipográficas': 'How many typefaces', 'Que o instrumento decida': 'Let the instrument decide',
+  'Descreva em uma ou duas frases — quem é, para quem fala, que sensação precisa deixar': 'Describe it in a sentence or two — who it is, who it speaks to, what feeling it must leave',
+  'Ex.: um relatório anual de uma cooperativa de café na Amazônia, sério mas quente, para investidores que não conhecem o setor':
+    'E.g. an annual report for a coffee cooperative in the Amazon, serious but warm, for investors who do not know the sector',
+  'Gerar três propostas': 'Generate three proposals', 'Outras três': 'Another three', 'Limpar tudo': 'Clear everything',
+  'Seu texto e a amostra': 'Your text and the specimen',
+  'Cole o texto real do projeto: cada proposta abaixo o redesenha ao vivo com a própria paleta e as próprias famílias. Corpo, escala, medida, entrelinha e entreletra valem para as três, e mudam na hora.':
+    'Paste the project\'s real text: each proposal below redraws it live with its own palette and families. Size, scale, measure, leading and tracking apply to all three and change instantly.',
+
+  /* ── tendências ── */
+  'Um compilado trimestral do que as casas de previsão, as fundições tipográficas e os observatórios de comportamento estão publicando — reduzido a quatro eixos: cor, tipografia, combinações e aplicações. Cada eixo vira um banner que você pode baixar, e a paleta e as famílias de cada edição abrem direto nos outros instrumentos.':
+    'A quarterly digest of what forecasting houses, type foundries and behaviour observatories are publishing — reduced to four axes: colour, type, pairings and applications. Each axis becomes a banner you can download, and each edition\'s palette and families open directly in the other instruments.',
+  'O que esta página é e o que não é.': 'What this page is and is not.',
+  'Ela reúne o que foi publicado abertamente: comunicados de imprensa, anúncios de instituto de cor, relatórios de fundição e cobertura editorial, cada item com fonte e data. Não reproduz relatório de assinatura — previsões completas de WGSN, Coloro, Nelly Rodi, Peclers ou Monotype só existem para quem assina, e o que está aqui é o recorte público. Os valores em hex são':
+    'It gathers what was published openly: press releases, colour-institute announcements, foundry reports and editorial coverage, each item with source and date. It does not reproduce subscription reports — the full forecasts from WGSN, Coloro, Nelly Rodi, Peclers or Monotype exist only for subscribers, and what is here is the public excerpt. The hex values are',
+  'aproximações em sRGB': 'sRGB approximations',
+  'feitas a partir da descrição e da imagem divulgadas, não os códigos oficiais: para produção, use o código da própria fonte.':
+    'made from the published description and image, not the official codes: for production, use the source\'s own code.',
+  'Edições': 'Editions', 'Banners': 'Banners',
+  'Quatro resumos em formato de cartão, gerados a partir da edição escolhida. Saem em SVG vetorial ou PNG de 1200 por 630, que é a medida de pré-visualização de link.':
+    'Four card-shaped summaries generated from the chosen edition. They come out as vector SVG or 1200 by 630 PNG, the link-preview size.',
+  'Arquivo': 'Archive', 'As edições anteriores continuam acessíveis. Nada é apagado quando entra uma nova.': 'Earlier editions remain accessible. Nothing is deleted when a new one comes in.',
+  'Como esta página se atualiza': 'How this page is updated',
+  'Todo o conteúdo vive numa única estrutura de dados no código, a constante': 'All the content lives in a single data structure in the code, the constant',
+  ', com uma entrada por trimestre. Acrescentar uma edição é inserir um objeto no começo da lista, com período, resumo, os quatro eixos e as fontes de cada um. Nada mais precisa ser tocado: as abas, os banners, o arquivo e os botões que levam aos instrumentos se montam sozinhos a partir dela.':
+    ', with one entry per quarter. Adding an edition means inserting an object at the start of the list, with period, summary, the four axes and the sources of each. Nothing else needs touching: the tabs, banners, archive and the buttons that lead to the instruments build themselves from it.',
+  'Ver o formato de uma edição': 'See the format of an edition', 'Baixar as edições em JSON': 'Download the editions as JSON', 'Baixar a edição atual em Markdown': 'Download the current edition as Markdown',
+
+  /* ── exportação (folha) ── */
+  'Exportar a paleta': 'Export the palette', 'Imagem': 'Image', 'SVG vetorial': 'Vector SVG', 'Pôster PNG 2000px': '2000px PNG poster',
+  'Troca entre programas': 'Exchange between programs', 'Texto com todos os códigos': 'Text with all the codes', 'CSV para planilha': 'CSV for spreadsheets',
+  'Markdown para colar no Claude': 'Markdown to paste into Claude', 'Código': 'Code', 'Vários de uma vez, num arquivo .zip': 'Several at once, in a .zip file',
+  'Marque o que precisa e baixe tudo num pacote só.': 'Tick what you need and download it all in one package.',
+  'Baixar o .zip': 'Download the .zip', 'Selecionar tudo': 'Select all', 'Limpar seleção': 'Clear selection',
+  'Só um .txt com todos os códigos': 'Just a .txt with all the codes', 'Paleta em escala': 'Palette full screen',
+
+  /* ── JS: utilitários ── */
+  'O navegador bloqueou a cópia': 'The browser blocked copying', 'Copiado': 'Copied', ' compartilhado': ' shared', ' gerado': ' generated',
+  'O navegador bloqueou o download — use copiar': 'The browser blocked the download — use copy',
+  'Uma família não carregou — a reserva declarada está em uso': 'A family did not load — the declared fallback is in use',
+  'HEX curto': 'Short HEX', 'Luminância': 'Luminance', 'Contraste com branco': 'Contrast with white', 'Contraste com preto': 'Contrast with black',
+  ' puxado ao ': ' pulled towards ',
+
+  /* ── JS: instrumento de cor ── */
+  'Um passo atrás': 'One step back', 'Um passo à frente': 'One step forward',
+  'Nova combinação — use Voltar para recuperar a anterior': 'New combination — use Undo to bring back the previous one',
+  '← Voltar ({n})': '← Undo ({n})',
+  'Arraste cada bola livremente: o ângulo é o matiz, a distância do centro é o croma. Nenhuma geometria é imposta.': 'Drag each ball freely: the angle is the hue, the distance from the centre is the chroma. No geometry is imposed.',
+  '{n}. {d} Arraste qualquer bola e o conjunto gira junto, mantendo as distâncias.': '{n}. {d} Drag any ball and the whole set turns with it, keeping the distances.',
+  'Congelar': 'Freeze', 'Mover para trás': 'Move back', 'Mover para frente': 'Move forward', 'Abrir códigos': 'Open codes',
+  '% da área': '% of the area', 'Painel': 'Panel', 'Coleções': 'Collections', 'Histórico': 'History', 'Ajustes': 'Settings',
+  'Um título dentro de uma interface': 'A headline inside an interface', 'O contraste aqui é {r} para 1.': 'The contrast here is {r} to 1.',
+  'Ação principal': 'Primary action', 'Secundária': 'Secondary',
+  'Área segundo o método de {l}': 'Area by the method of {l}', ', reescrita pela dinâmica de {u}': ', rewritten by the dynamics of {u}',
+  '. A cor {n} domina com {p}% — é a ordem, mais que os números, que decide se o conjunto é lido como contido ou como declarado.': '. Colour {n} dominates at {p}% — it is the order, more than the numbers, that decides whether the set reads as restrained or declared.',
+  'Cor {n} — {name}': 'Colour {n} — {name}', 'Matiz no círculo': 'Hue on the circle', '{h} · {name} · {p}% da área': '{h} · {name} · {p}% of the area',
+  '{n} cores': '{n} colours', 'em {m}': 'in {m}', 'sob a lente {l}': 'through the {l} lens', 'inflectida por {k}': 'inflected by {k}', 'em dinâmica de {u}': 'in the dynamics of {u}',
+  'posicionada à mão no anel': 'placed by hand on the ring', 'sem tensão entre intenção e campo': 'with no tension between intention and field',
+  'quase inteiramente dentro da convenção do campo': 'almost entirely within the field\'s convention', 'ancorada na convenção, com desvio perceptível': 'anchored in the convention, with a perceptible deviation',
+  'mais próxima da intenção do que da categoria': 'closer to the intention than to the category', 'deliberadamente fora do que o campo faz': 'deliberately outside what the field does',
+  'Está no lado positivo — o lado que Goethe descreve como ativo, quente e que se aproxima de quem olha.': 'It sits on the positive side — the side Goethe describes as active, warm and advancing towards the viewer.',
+  'Está no lado negativo — passivo, frio, que segundo ele afasta o olho em vez de atraí-lo.': 'It sits on the negative side — passive, cold, which by his account pushes the eye away rather than drawing it in.',
+  'Está no ponto em que os dois lados do círculo se encontram, onde a intensificação chega ao purpúreo.': 'It sits where the two sides of the circle meet, where intensification reaches purple.',
+  'A primeira cor caiu em': 'The first colour landed on', '({a}° no círculo)': '({a}° on the circle)',
+  'A convenção é {c}.': 'The convention is {c}.',
+  'Exigência atual:': 'Current requirement:', '{t} para 1': '{t} to 1',
+  'É o mínimo do WCAG 2.1 para texto de leitura, do tamanho de um parágrafo. Serve como régua padrão.': 'The WCAG 2.1 minimum for reading text at paragraph size. It serves as the default rule.',
+  'Basta para título grande, texto em negrito acima de 18 pontos, ícones, bordas de campo e outros elementos de interface.': 'Enough for large headlines, bold text above 18 points, icons, field borders and other interface elements.',
+  'O nível mais alto do WCAG, pensado para quem tem baixa visão ou lê em condições ruins de luz. Exigir isso encolhe muito a paleta utilizável.': 'The highest WCAG level, meant for low vision or poor lighting. Demanding it shrinks the usable palette considerably.',
+  'Cada célula mostra o nível que o par alcança — AAA a partir de 7, AA a partir de 4,5, AA grande a partir de 3, e baixo abaixo disso. As que não chegam à exigência aparecem riscadas e com contorno.': 'Each cell shows the level the pair reaches — AAA from 7, AA from 4.5, AA large from 3, and low below that. Those that fall short of the requirement appear struck through and outlined.',
+  'fundo ↓ &nbsp; texto →': 'ground ↓ &nbsp; text →', 'AA grande': 'AA large', 'baixo': 'low',
+  'Um título nesta combinação': 'A headline in this combination',
+  'E um parágrafo do tamanho que você realmente vai usar, com linhas suficientes para perceber se o olho cansa antes do fim. É aqui que se descobre se a razão de contraste era só um número.': 'And a paragraph at the size you will actually use, with enough lines to notice whether the eye tires before the end. This is where you find out whether the contrast ratio was only a number.',
+  'Cor {j} {tx} sobre cor {i} {bg} · {r} para 1 · {l}': 'Colour {j} {tx} on colour {i} {bg} · {r} to 1 · {l}',
+  'Este par passa na exigência atual. Pode usar como texto sobre fundo.': 'This pair passes the current requirement. You can use it as text on a ground.',
+  'Este par fica abaixo de {t}.': 'This pair falls below {t}.',
+  'Mantendo o mesmo matiz e croma e mexendo só na luminosidade, a cor {j} chegaria lá em': 'Keeping the same hue and chroma and moving only the lightness, colour {j} would get there at',
+  'Não existe luminosidade que resolva sem mudar o matiz — troque uma das duas cores.': 'No lightness solves it without changing the hue — swap one of the two colours.',
+  'Corrigir a cor {j} para {h}': 'Correct colour {j} to {h}', 'Inverter fundo e texto': 'Swap ground and text', 'Copiar o par': 'Copy the pair',
+  'Cor {j} ajustada para {h}': 'Colour {j} adjusted to {h}', 'fundo {bg} · texto {tx} · {r}:1 · {l}': 'ground {bg} · text {tx} · {r}:1 · {l}', 'Par copiado': 'Pair copied',
+  'Nenhum par desta paleta alcança {t} para 1.': 'No pair in this palette reaches {t} to 1.',
+  'Isso não invalida a paleta: quer dizer que ela é de superfície, não de texto — e que o texto vai precisar de um preto ou um branco vindo de fora dela.': 'That does not invalidate the palette: it means it is a surface palette, not a text one — and the text will need a black or a white from outside it.',
+  'Texto da cor {j} sobre a cor {i}': 'Colour {j} text on colour {i}', '{tx} sobre {bg} · {r} para 1 · {l}': '{tx} on {bg} · {r} to 1 · {l}',
+  'Um gradiente precisa de ao menos duas paradas': 'A gradient needs at least two stops', 'Paradas puxadas da paleta': 'Stops pulled from the palette',
+  'CSS do gradiente copiado': 'Gradient CSS copied', '/* paradas */': '/* stops */', '/* {h} em {p}% */': '/* {h} at {p}% */',
+  'Paleta recarregada': 'Palette reloaded', 'Não foi possível ler as paletas salvas neste ambiente.': 'Could not read the saved palettes in this environment.',
+  'Paleta salva — aparece logo abaixo dos botões': 'Palette saved — it appears just below the buttons', 'Salva só nesta sessão: este navegador não guardou': 'Saved for this session only: this browser did not keep it',
+  'Não foi possível rasterizar aqui — baixe o SVG': 'Could not rasterise here — download the SVG', 'Código copiado': 'Code copied',
+  '/* área sugerida */': '/* suggested area */', 'esquema {s}': '{s} scheme',
+  'Derivada do círculo cromático de Goethe': 'Derived from Goethe\'s colour circle',
+  'Esquema: {s}': 'Scheme: {s}', 'Cores: {c}': 'Colours: {c}', 'Área: {a}': 'Area: {a}', 'cor {n} {p}%': 'colour {n} {p}%',
+  'Derivada do círculo cromático de Goethe. Conversões em OKLab, croma ajustado ao gamut sRGB.': 'Derived from Goethe\'s colour circle. Conversions in OKLab, chroma adjusted to the sRGB gamut.',
+  'Gerado em {d}.': 'Generated on {d}.', 'Marque ao menos um formato': 'Tick at least one format', 'Montando…': 'Building…',
+  'Nenhum formato pôde ser gerado': 'No format could be generated', '{n} arquivos no pacote': '{n} files in the package',
+  'SVG da paleta': 'Palette SVG', 'PNG da paleta': 'Palette PNG', 'JPG da paleta': 'Palette JPG', 'Pôster PNG': 'PNG poster', 'ASE da Adobe': 'Adobe ASE', 'GPL do GIMP': 'GIMP GPL',
+  'Todos os códigos em txt': 'All codes as txt', 'SVG do gradiente': 'Gradient SVG', 'Markdown para o Claude': 'Markdown for Claude',
+  'CSS da tipografia': 'Type CSS', 'HTML com o texto': 'HTML with the text', 'PNG da amostra': 'Specimen PNG',
+  'Cor {n} — {name}\n  HEX {h}\n  RGB {rgb}\n  HSL {hsl}\n  CMYK {cmyk}\n  OKLCH {ok}\n  Área {p}%': 'Colour {n} — {name}\n  HEX {h}\n  RGB {rgb}\n  HSL {hsl}\n  CMYK {cmyk}\n  OKLCH {ok}\n  Area {p}%',
+  'indice,nome,hex': 'index,name,hex', 'area_pct': 'area_pct',
+  '/* ══ TODOS OS CÓDIGOS ══ */': '/* ══ ALL CODES ══ */', '-tudo': '-all', '-codigos': '-codes',
+  'Faixas': 'Bands', 'Proporção': 'Proportion', 'Cartões': 'Cards', 'Círculos': 'Circles', 'Anéis': 'Rings', 'Mosaico': 'Mosaic', 'Em interface': 'In an interface', 'Em pôster': 'On a poster', 'Degradê': 'Blend',
+  'Arraste as células para reordenar. O cadeado congela a cor na hora de gerar. Toque numa cor para abrir todos os códigos e a escala de tons.': 'Drag the cells to reorder. The lock freezes a colour when generating. Tap a colour to open all its codes and the tonal scale.',
+  'A largura de cada cor é a área que ela deve ocupar segundo o método de estúdio escolhido.': 'The width of each colour is the area it should occupy by the chosen studio method.',
+  'Cada cor com hex, rgb, hsl e cmyk visíveis de uma vez — bom para conferir antes de mandar para gráfica.': 'Each colour with hex, rgb, hsl and cmyk visible at once — good for checking before sending to press.',
+  'O diâmetro acompanha a área. Útil para enxergar a dominância sem a distração da forma retangular.': 'The diameter follows the area. Useful for seeing dominance without the distraction of the rectangle.',
+  'Cores encaixadas uma dentro da outra: mostra como cada uma se comporta cercada pela seguinte.': 'Colours nested one inside another: shows how each behaves surrounded by the next.',
+  'A rampa completa de cada cor, de 50 a 950. Toque em qualquer degrau para copiar aquele tom.': 'The full ramp of each colour, from 50 to 950. Tap any step to copy that tone.',
+  'Blocos de tamanhos diferentes, como uma superfície real seria composta.': 'Blocks of different sizes, the way a real surface would be composed.',
+  'A paleta aplicada a uma tela de exemplo, com a razão de contraste do par principal calculada.': 'The palette applied to a sample screen, with the contrast ratio of the main pair computed.',
+  'A paleta em composição impressa, com o fundo mais claro e o texto mais escuro da própria paleta.': 'The palette in a printed composition, with the lightest ground and the darkest text from the palette itself.',
+  'As cores derretidas umas nas outras, na ordem da tira. Mostra se a sequência tem buracos ou saltos.': 'The colours melted into one another, in the order of the strip. Shows whether the sequence has gaps or jumps.',
+
+  /* ── JS: tipografia ── */
+  'Nenhuma família atende a todos os filtros ao mesmo tempo. Solte um deles — ou volte algum para Nenhuma.': 'No family meets every filter at once. Release one — or set one back to None.',
+  '{d} sozinha, carregando a hierarquia inteira': '{d} alone, carrying the whole hierarchy', '{d} no título, {b} no texto': '{d} for headlines, {b} for text',
+  ', mais {x}': ', plus {x}', ', para provocar {e}': ', to evoke {e}', ', pela estratégia de {s}': ', by the strategy of {s}',
+  'Com uma família só não há o que trocar': 'With a single family there is nothing to swap', '{d} no título, {b} no texto — invertido à mão.': '{d} for headlines, {b} for text — swapped by hand.',
+  'Terceira família acrescentada, em rótulo e referência': 'Third family added, for labels and references', 'Nenhuma monoespaçada passa nos filtros': 'No monospaced passes the filters',
+  'Nível devolvido ao padrão': 'Level reset', 'Hierarquia inteira devolvida ao padrão': 'Whole hierarchy reset',
+  'Ligar e desligar níveis': 'Switch levels on and off', 'Agora um toque no nível liga ou desliga': 'Now a tap on a level switches it on or off', 'De volta a ajustar níveis': 'Back to adjusting levels',
+  'Família de {r}': 'Family for {r}', 'Degrau da escala': 'Scale step', 'Entreletra': 'Tracking', 'Caixa': 'Case', 'Automática pela paleta': 'Automatic from the palette', 'Cor {n} — {h}': 'Colour {n} — {h}',
+  'Itálico': 'Italic', 'Nenhum': 'None', ' · desligado': ' · off', 'sem nível atribuído': 'no level assigned', ' · pesos ': ' · weights ',
+  'Por que este conjunto funciona.': 'Why this set works.',
+  'Uma família só: toda a hierarquia terá de vir de peso, corpo, largura e caixa. É a saída mais difícil de errar e a que mais depende de disciplina de espaçamento. ': 'A single family: the whole hierarchy will have to come from weight, size, width and case. The hardest route to get wrong, and the one that most depends on spacing discipline. ',
+  'Uma serifada contra uma sem serifa: a diferença de estrutura é clara o bastante para que nenhuma pareça erro. ': 'A serif against a sans: the structural difference is clear enough that neither looks like a mistake. ',
+  'São parentes da mesma superfamília, desenhadas para conviver — a harmonia é garantida e o contraste vem do peso e do tamanho. ': 'They are relatives from the same superfamily, drawn to coexist — harmony is guaranteed and contrast comes from weight and size. ',
+  'Mesma classificação em papéis diferentes: o contraste terá de vir do peso e do corpo, não da forma. ': 'The same classification in different roles: contrast will have to come from weight and size, not from form. ',
+  'As alturas de x das duas primeiras são {met} ({a} contra {b} da altura de maiúscula), e a diferença de contraste de traço é {ct}.': 'The x-heights of the first two are {met} ({a} against {b} of cap height), and the difference in stroke contrast is {ct}.',
+  'muito próximas': 'very close', 'compatíveis': 'compatible', 'distantes': 'far apart',
+  'grande, o que separa bem título de texto': 'large, which separates headline from text well', 'moderada': 'moderate', 'pequena, então use peso e corpo para separar': 'small, so use weight and size to separate',
+  ' A terceira entra em rótulo e referência, onde a diferença de forma vira sinal de função.': ' The third goes into labels and references, where the difference in form becomes a sign of function.',
+  ' A quarta carrega a citação, que é o único lugar onde uma voz diferente não atrapalha a leitura.': ' The fourth carries the quotation, the one place where a different voice does not disturb reading.',
+  ' A quinta fica em destaque e botão — cinco vozes é o limite antes de o sistema virar ruído.': ' The fifth takes emphasis and buttons — five voices is the limit before the system turns to noise.',
+  'Referência': 'Reference', 'Parágrafo': 'Paragraph', 'Destaque': 'Emphasis', 'Citação': 'Quotation', 'Subtítulo': 'Subheading', 'Título': 'Headline', 'Rótulo': 'Label', 'Botão': 'Button',
+  'Nenhum arquivo escolhido — use a aba do link da CDN.': 'No file chosen — use the CDN link tab.',
+  '/* {n} — baixe em {u} */': '/* {n} — download at {u} */', '/* mesma família pela CDN do Fontsource, sem hospedar nada */': '/* the same family via the Fontsource CDN, hosting nothing */',
+  '<!-- pré-conexão, acelera a primeira renderização -->': '<!-- preconnect, speeds up the first render -->', '/* níveis da hierarquia */': '/* levels of the hierarchy */',
+  '  Banco: {b}': '  Library: {b}', '  Página: {u}': '  Page: {u}', '  Arquivo {f} pela CDN do Fontsource: {u}': '  {f} file via the Fontsource CDN: {u}',
+  '  Baixe otf e ttf direto na página do Fontshare': '  Download otf and ttf directly from the Fontshare page', '  Licença: confira na própria página antes de redistribuir': '  Licence: check the page itself before redistributing',
+  'Espelho sem rastreamento das famílias do Google:': 'Tracking-free mirror of the Google families:',
+  'Combinação recarregada': 'Pairing reloaded', '{d} no título, {b} no texto — combinação recarregada.': '{d} for headlines, {b} for text — pairing reloaded.',
+  'Não foi possível ler as combinações salvas neste ambiente.': 'Could not read the saved pairings in this environment.',
+  'Combinação salva — aparece no fim da página': 'Pairing saved — it appears at the end of the page',
+  '{n}px': '{n}px', '{n} caracteres': '{n} characters', 'Exemplo: {n}': 'Example: {n}',
+
+  /* ── JS: criação ── */
+  'A leitura direta': 'The direct reading', 'A leitura de contraste': 'The contrasting reading', 'A leitura lateral': 'The lateral reading',
+  'Reconheci na descrição:': 'I recognised in the description:', '. Essas palavras deslocam intenção, campo, referência e postura — o que você escolher nos campos acima tem prioridade.': '. These words shift intention, field, reference and stance — whatever you choose in the fields above takes priority.',
+  'Ainda não reconheci nenhuma palavra do léxico. Escreva à vontade: os campos acima já bastam para gerar.': 'No word from the lexicon recognised yet. Write freely: the fields above are enough to generate.',
+  'O que eu li do seu pedido.': 'What I read in your request.', 'Peça: {p}.': 'Piece: {p}.', 'Suporte: {s}.': 'Medium: {s}.', 'Intenção: {e}. Campo: {m}.': 'Intention: {e}. Field: {m}.',
+  'Referência: {k}.': 'Reference: {k}.', 'Dinâmica: {u}.': 'Dynamics: {u}.', 'Postura de partida: {t} de 100.': 'Starting stance: {t} of 100.',
+  ' Da descrição, pesaram: {w}.': ' From the description, these carried weight: {w}.', ' A descrição não trouxe palavras do léxico — as três propostas vêm só dos campos.': ' The description brought no words from the lexicon — the three proposals come from the fields alone.',
+  'não definida': 'not set', 'não definido': 'not set', 'Campos limpos': 'Fields cleared',
+  ' · dinâmica de {u}': ' · dynamics of {u}', 'Amostra — {f}': 'Specimen — {f}', 'Área': 'Area',
+  'Baixar em Markdown': 'Download as Markdown', 'Baixar .zip': 'Download .zip', 'Levar para Cores': 'Take to Colour', 'Levar para Tipografia': 'Take to Type', 'Copiar os hex': 'Copy the hex values',
+  'Hex copiados': 'Hex values copied', 'Paleta carregada no instrumento de cor': 'Palette loaded into the colour instrument', 'Combinação carregada no instrumento de tipografia': 'Pairing loaded into the type instrument',
+  '{f} — vindo da proposta {a}.': '{f} — from the {a} proposal.', '{e} em {m}': '{e} in {m}', 'Proposta': 'Proposal',
+  'O esquema é {s} — {d} ': 'The scheme is {s} — {d} ', 'A área vem do método de {l}: {m}.': 'The area comes from the {l} method: {m}.',
+  ' A referência {k} puxa o matiz para os pigmentos que aquela cultura tinha à mão.': ' The {k} reference pulls the hue towards the pigments that culture had to hand.',
+  ' A dinâmica de {u} reescreve a proporção entre as cores.': ' The dynamics of {u} rewrite the proportion between the colours.',
+  '{d} sozinha: a hierarquia inteira terá de vir de peso, corpo e caixa.': '{d} alone: the whole hierarchy will have to come from weight, size and case.',
+  '{d} contra {b} — uma serifada e uma sem serifa, diferença de estrutura clara o bastante para que nenhuma pareça erro.': '{d} against {b} — a serif and a sans, a structural difference clear enough that neither looks like a mistake.',
+  '{d} e {b} são da mesma superfamília, desenhadas para conviver: harmonia garantida, contraste vindo do peso.': '{d} and {b} are from the same superfamily, drawn to coexist: harmony guaranteed, contrast from weight.',
+  '{d} e {b} compartilham a classificação, então o contraste terá de vir do peso e do corpo.': '{d} and {b} share a classification, so contrast will have to come from weight and size.',
+  ' {d} Do lado do texto: {b}': ' {d} On the text side: {b}', 'Riscos.': 'Risks.',
+  '{n} pares desta paleta passam em 4,5 para 1, então há por onde escrever.': '{n} pairs in this palette pass 4.5 to 1, so there is room to write.',
+  'Nenhum par desta paleta chega a 4,5 para 1 — ela é de superfície, e o texto vai precisar de um preto ou branco de fora.': 'No pair in this palette reaches 4.5 to 1 — it is a surface palette, and the text will need a black or white from outside.',
+  ' Como vai para papel, confira o CMYK: matizes muito saturados não existem em tinta de escala.': ' As it goes to paper, check the CMYK: highly saturated hues do not exist in process ink.',
+  ' Em grande formato, a distância de leitura perdoa menos o contraste baixo do que a tela.': ' At large format, reading distance forgives low contrast less than the screen does.',
+  'altura de x alta': 'high x-height', 'altura de x baixa': 'low x-height', 'altura de x média': 'medium x-height',
+  'contraste de traço alto': 'high stroke contrast', 'contraste quase nulo': 'almost no contrast', 'contraste moderado': 'moderate contrast',
+  'condensada': 'condensed', 'larga': 'wide', 'feita para corpo grande': 'made for large sizes', 'feita para texto corrido': 'made for running text', 'monoespaçada': 'monospaced', 'serve a título e a texto': 'serves headline and text',
+
+  /* ── JS: markdown ── */
+  '**Intenção:** {e}': '**Intention:** {e}', '**Campo:** {m}': '**Field:** {m}', '**Esquema:** {s}': '**Scheme:** {s}', '**Lente de estúdio:** {l}': '**Studio lens:** {l}',
+  '**Referência cultural:** {k}': '**Cultural reference:** {k}', '**Estilo musical:** {u}': '**Musical style:** {u}', '**Postura:** {p} de 100 entre pertencer e romper': '**Stance:** {p} of 100 between belonging and breaking',
+  '**Leitura:** {a}': '**Reading:** {a}', '**Peça:** {p}': '**Piece:** {p}', '**Suporte:** {s}': '**Medium:** {s}', '**Postura:** {p} de 100': '**Stance:** {p} of 100',
+  '**Palavras reconhecidas na descrição:** {w}': '**Words recognised in the description:** {w}',
+  '## Paleta': '## Palette', '| # | HEX | RGB | HSL | CMYK | OKLCH | Área |': '| # | HEX | RGB | HSL | CMYK | OKLCH | Area |',
+  'Fundo sugerido `{bg}`, texto `{ink}`, contraste {r} para 1.': 'Suggested ground `{bg}`, text `{ink}`, contrast {r} to 1.',
+  '### Pares legíveis a 4,5 para 1': '### Legible pairs at 4.5 to 1', '- Nenhum. Use preto ou branco de fora da paleta para texto.': '- None. Use black or white from outside the palette for text.',
+  '## Tipografia': '## Type', '| Papel | Família | Banco | Pesos | Característica |': '| Role | Family | Library | Weights | Character |',
+  'Texto': 'Text', 'Apoio': 'Support', 'Acento': 'Accent', 'Extra': 'Extra', '## Variáveis CSS': '## CSS variables',
+  'Derivada do círculo cromático de Goethe (*Zur Farbenlehre*, 1810). Conversões em OKLab, croma ajustado ao gamut sRGB. Razões de contraste segundo WCAG 2.1. Gerado em {d}.': 'Derived from Goethe\'s colour circle (*Zur Farbenlehre*, 1810). Conversions in OKLab, chroma adjusted to the sRGB gamut. Contrast ratios to WCAG 2.1. Generated on {d}.',
+
+  /* ── JS: tendências ── */
+  ' · atual': ' · current', ' · edição em vigor': ' · edition in force', ' · arquivada': ' · archived', 'Fontes: ': 'Sources: ',
+  'Abrir esta paleta em Cores': 'Open this palette in Colour', 'Abrir estas famílias em Tipografia': 'Open these families in Type',
+  'Paleta da edição carregada, em esquema livre': 'Edition palette loaded, in free scheme', 'Estas famílias não estão no banco do instrumento': 'These families are not in the instrument\'s library',
+  '{f} — famílias citadas na edição {e}.': '{f} — families cited in the {e} edition.', 'Famílias da edição carregadas': 'Edition families loaded',
+  'Copiar o código SVG': 'Copy the SVG code', 'SVG copiado': 'SVG copied', 'tendencias': 'trends',
+  '{n} edições no arquivo. A mais antiga é {e}.': '{n} editions in the archive. The oldest is {e}.',
+  '# Tendências — {e}': '# Trends — {e}', '| Cor | HEX aproximado | Observação |': '| Colour | Approximate HEX | Note |', 'Famílias citadas: {f}': 'Families cited: {f}', 'Fontes:': 'Sources:',
+  'Os valores em hex são aproximações em sRGB feitas a partir da descrição e da imagem divulgadas, não os códigos oficiais. Compilado em {d}.': 'The hex values are sRGB approximations made from the published description and image, not the official codes. Compiled on {d}.',
+  '// rótulo da aba': '// tab label', '// pal.hex alimenta o botão que abre a paleta no instrumento de cor': '// pal.hex feeds the button that opens the palette in the colour instrument',
+  '// tipo.fam precisa bater com o nome exato de uma família em src/data/fonts.ts': '// tipo.fam must match the exact name of a family in src/data/fonts.ts',
+  'Uma frase que resume o trimestre.': 'One sentence summing up the quarter.',
+
+  /* ── JS: início e navegação ── */
+  'lado': 'side', 'positivo': 'positive', 'negativo': 'negative',
+  'Monocromático': 'Monochromatic', 'Análogo': 'Analogous', 'Complementar': 'Complementary', 'Complementar dividido': 'Split-complementary', 'Tríade': 'Triadic', 'Tetrádico': 'Tetradic',
+};

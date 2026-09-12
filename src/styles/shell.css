@@ -83,3 +83,7 @@ button:disabled{opacity:.45;cursor:not-allowed;transform:none!important}
 .homecard:first-child{background:var(--ink);color:var(--ground);border-color:var(--ink)}
 .homecard:first-child span{color:var(--ground);opacity:.8}
 @media(max-width:520px){#tabbar{gap:2px;padding:6px}#tabbar button{min-width:52px;padding:10px 4px;font-size:10px}}
+
+nav .gt+.gt{margin-left:6px}
+@media(max-width:520px){nav{gap:8px;padding:0 14px}nav .mk{font-size:18px}nav .here{display:none}nav .gt{padding:2px}nav .gt+.gt{margin-left:0}
+  nav .gt button{padding:8px 9px;font-size:12px;min-height:40px}}

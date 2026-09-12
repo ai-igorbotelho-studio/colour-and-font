@@ -1,5 +1,6 @@
 /* ── combinações salvas ── */
 import { $, $all, esc, toast } from '../core/dom';
+import { t } from '../i18n';
 import { store } from '../core/store';
 import { FONTS } from '../data/fonts';
 import { T, typeHooks } from './state';
@@ -18,14 +19,14 @@ export async function listTSaved(): Promise<void> {
       T.disp = FONTS.find(f => f.n === v.d) || T.disp; T.body = FONTS.find(f => f.n === v.b) || T.body;
       T.mono = v.m ? FONTS.find(f => f.n === v.m) || null : null;
       [T.disp, T.body, T.mono].forEach(loadFont);
-      $('tWhy').textContent = `${T.disp!.n} no título, ${T.body!.n} no texto — combinação recarregada.`;
-      setTimeout(typeHooks.renderSpec, 60); typeHooks.renderSpec(); toast('Combinação recarregada') });
-  } catch (_) { $('tSavedEmpty').textContent = 'Não foi possível ler as combinações salvas neste ambiente.' }
+      $('tWhy').textContent = t('{d} no título, {b} no texto — combinação recarregada.', { d: T.disp!.n, b: T.body!.n });
+      setTimeout(typeHooks.renderSpec, 60); typeHooks.renderSpec(); toast(t('Combinação recarregada')) });
+  } catch (_) { $('tSavedEmpty').textContent = t('Não foi possível ler as combinações salvas neste ambiente.') }
 }
 export function initTypeSaved(): void {
   $('tSave').onclick = async () => {
     if (!T.disp) return;
     const ok = await store.set('tipo:' + Date.now(), JSON.stringify({ d: T.disp.n, b: T.body!.n, m: T.mono ? T.mono.n : null } satisfies SavedPair));
     await listTSaved();
-    toast(ok ? 'Combinação salva — aparece no fim da página' : 'Salva só nesta sessão: este navegador não guardou'); };
+    toast(t(ok ? 'Combinação salva — aparece no fim da página' : 'Salva só nesta sessão: este navegador não guardou')); };
 }

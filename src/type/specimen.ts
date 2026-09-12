@@ -1,6 +1,8 @@
 /* ── amostra ao vivo com a paleta aplicada, e a amostra em PNG ── */
 import { readable } from '../core/color';
 import { $, $v, $n, esc, slug, download } from '../core/dom';
+import { t, dec, isEn } from '../i18n';
+import { MOODS_EN, SAMPLE_TXT_EN } from '../i18n/data-en';
 import { ROLES, SAMPLE_TXT, type Font } from '../data/fonts';
 import { palette } from '../palette/state';
 import { T } from './state';
@@ -8,9 +10,12 @@ import { famAttr, isSerif, describe } from './pairing';
 import { roleColors, roleCss, roleCfg, roleColorsE, roleCssE, envFromT, parseText, drawRoleBar, drawRoleCtl, drawRoleRows, type TypeEnv } from './hierarchy';
 import { drawTOut } from './export';
 
+/** Texto de exemplo no idioma da interface. */
+export const sampleText = (): string => isEn() ? SAMPLE_TXT_EN : SAMPLE_TXT;
+
 /** A amostra como HTML, para qualquer ambiente: instrumento de tipografia ou proposta da Criação. */
 export function specHtml(env: TypeEnv, text: string): { style: string; html: string } {
-  const C = roleColorsE(env), meas = env.meas, blocks = parseText(text || SAMPLE_TXT, env.off);
+  const C = roleColorsE(env), meas = env.meas, blocks = parseText(text || sampleText(), env.off);
   const html = blocks.map(b => {
     const s = roleCssE(b.r, env), mw = ['titulo', 'subtitulo'].includes(b.r) ? '20ch' : meas + 'ch';
     if (b.r === 'botao') return `<p style="margin:0 0 16px"><span style="${s.style}background:${C.ac};color:${readable(C.ac)};display:inline-block;padding:.7em 1.3em;border-radius:2px">${esc(b.t)}</span></p>`;
@@ -27,44 +32,44 @@ export function specHtml(env: TypeEnv, text: string): { style: string; html: str
 export function renderSpec(): void {
   if (!T.fams.length) return;
   const base = $n('tBase'), meas = $n('tMeasure');
-  $('tBaseV').textContent = base + 'px'; $('tMeasureV').textContent = meas + ' caracteres';
-  $('tLhV').textContent = ($n('tLh') / 100).toFixed(2).replace('.', ',');
-  $('tTrackV').textContent = ($n('tTrack') / 1000).toFixed(3).replace('.', ',') + 'em';
+  $('tBaseV').textContent = base + 'px'; $('tMeasureV').textContent = t('{n} caracteres', { n: meas });
+  $('tLhV').textContent = dec($n('tLh') / 100, 2);
+  $('tTrackV').textContent = dec($n('tTrack') / 1000, 3) + 'em';
   drawRoleBar(); drawRoleCtl(); drawRoleRows();
   const sp = specHtml(envFromT(), $v('tText'));
   $('spec').setAttribute('style', sp.style);
   $('spec').innerHTML = sp.html;
-  const labels: [string, string][] = [['Referência', 'referencia'], ['Parágrafo', 'paragrafo'], ['Destaque', 'destaque'], ['Citação', 'citacao'], ['Subtítulo', 'subtitulo'], ['Título', 'titulo']];
+  const labels: [string, string][] = [[t('Referência'), 'referencia'], [t('Parágrafo'), 'paragrafo'], [t('Destaque'), 'destaque'], [t('Citação'), 'citacao'], [t('Subtítulo'), 'subtitulo'], [t('Título'), 'titulo']];
   $('ratioList').innerHTML = labels.map(([lb, k]) => { const s = roleCss(k), c = roleCfg(k);
     return `<div><span>${s.size}px</span><span style="font-family:${famAttr(c.f)};font-weight:${c.wt};font-size:${Math.min(s.size, 54)}px;line-height:1.1;font-style:${c.it ? 'italic' : 'normal'}">${lb}</span></div>` }).join('');
   drawCards(); drawTOut();
 }
 export function drawCards(): void {
-  const roleOf = (f: Font) => ROLES.filter(r => !T.off[r.k] && roleCfg(r.k).f === f).map(r => r.n).join(', ') || 'sem nível atribuído';
+  const roleOf = (f: Font) => ROLES.filter(r => !T.off[r.k] && roleCfg(r.k).f === f).map(r => r.n).join(', ') || t('sem nível atribuído');
   $('tCards').innerHTML = T.fams.map(f => `<div class="fontcard">
     <div class="big" style="font-family:${famAttr(f)}">${esc(f.n)}</div>
     <div class="meta">${roleOf(f)}</div>
-    <div class="meta">${f.src === 'google' ? 'Google Fonts' : 'Fontshare'} · pesos ${f.wts.replace(/;/g, ', ')}</div>
+    <div class="meta">${f.src === 'google' ? 'Google Fonts' : 'Fontshare'}${t(' · pesos ')}${f.wts.replace(/;/g, ', ')}</div>
     <div class="meta">${describe(f)}</div>
-    <div class="pills">${f.moods.map(m => `<span class="pill">${m}</span>`).join('')}</div>
+    <div class="pills">${f.moods.map(m => `<span class="pill">${isEn() ? (MOODS_EN[m] || m) : m}</span>`).join('')}</div>
   </div>`).join('');
   const d = T.fams[0], b = T.fams[1] || T.fams[0];
   const xd = Math.abs(d.x - b.x), ctd = Math.abs(d.ct - b.ct);
-  const met = xd <= .03 ? 'muito próximas' : xd <= .07 ? 'compatíveis' : 'distantes';
-  $('tScore').innerHTML = `<b>Por que este conjunto funciona.</b> `
-    + (T.fams.length === 1 ? 'Uma família só: toda a hierarquia terá de vir de peso, corpo, largura e caixa. É a saída mais difícil de errar e a que mais depende de disciplina de espaçamento. ' :
+  const met = t(xd <= .03 ? 'muito próximas' : xd <= .07 ? 'compatíveis' : 'distantes');
+  $('tScore').innerHTML = `<b>${t('Por que este conjunto funciona.')}</b> `
+    + t(T.fams.length === 1 ? 'Uma família só: toda a hierarquia terá de vir de peso, corpo, largura e caixa. É a saída mais difícil de errar e a que mais depende de disciplina de espaçamento. ' :
       isSerif(d.cls) !== isSerif(b.cls) ? 'Uma serifada contra uma sem serifa: a diferença de estrutura é clara o bastante para que nenhuma pareça erro. ' :
       d.sf && d.sf === b.sf ? 'São parentes da mesma superfamília, desenhadas para conviver — a harmonia é garantida e o contraste vem do peso e do tamanho. ' :
       'Mesma classificação em papéis diferentes: o contraste terá de vir do peso e do corpo, não da forma. ')
-    + (T.fams.length === 1 ? '' : `As alturas de x das duas primeiras são ${met} (${(d.x * 100).toFixed(0)} contra ${(b.x * 100).toFixed(0)} da altura de maiúscula), e a diferença de contraste de traço é ${ctd >= .4 ? 'grande, o que separa bem título de texto' : ctd >= .2 ? 'moderada' : 'pequena, então use peso e corpo para separar'}.`)
-    + (T.fams.length >= 3 ? ` A terceira entra em rótulo e referência, onde a diferença de forma vira sinal de função.` : '')
-    + (T.fams.length >= 4 ? ` A quarta carrega a citação, que é o único lugar onde uma voz diferente não atrapalha a leitura.` : '')
-    + (T.fams.length >= 5 ? ` A quinta fica em destaque e botão — cinco vozes é o limite antes de o sistema virar ruído.` : '');
+    + (T.fams.length === 1 ? '' : t('As alturas de x das duas primeiras são {met} ({a} contra {b} da altura de maiúscula), e a diferença de contraste de traço é {ct}.', { met, a: (d.x * 100).toFixed(0), b: (b.x * 100).toFixed(0), ct: t(ctd >= .4 ? 'grande, o que separa bem título de texto' : ctd >= .2 ? 'moderada' : 'pequena, então use peso e corpo para separar') }))
+    + (T.fams.length >= 3 ? t(' A terceira entra em rótulo e referência, onde a diferença de forma vira sinal de função.') : '')
+    + (T.fams.length >= 4 ? t(' A quarta carrega a citação, que é o único lugar onde uma voz diferente não atrapalha a leitura.') : '')
+    + (T.fams.length >= 5 ? t(' A quinta fica em destaque e botão — cinco vozes é o limite antes de o sistema virar ruído.') : '');
 }
 
 interface Line { t?: string; ff?: string; col?: string; lh?: number; r?: string; size?: number; gap?: number }
 export function specDraw(): void {
-  const C = roleColors(), blocks = parseText($v('tText') || SAMPLE_TXT);
+  const C = roleColors(), blocks = parseText($v('tText') || sampleText());
   const W = 1600, PAD = 110, cv = $('cv') as HTMLCanvasElement, ctx = cv.getContext('2d')!;
   const lines: Line[] = []; let y = 0; const wrapAt = W - PAD * 2;
   blocks.forEach(bk => { const st = roleCss(bk.r), c = st.c;
@@ -93,4 +98,4 @@ export function specDraw(): void {
   ctx.fillText(T.fams.map(f => f.n).join('  ·  ') + '   |   ' + palette().join('  '), PAD, H - 46);
 }
 export function specBlob(): Promise<Blob> { return new Promise(res => { specDraw(); ($('cv') as HTMLCanvasElement).toBlob(b => res(b as Blob), 'image/png') }) }
-export function specPng(): void { specBlob().then(b => download('amostra-' + slug(T.fams[0].n) + '.png', b)) }
+export function specPng(): void { specBlob().then(b => download(t('amostra') + '-' + slug(T.fams[0].n) + '.png', b)) }

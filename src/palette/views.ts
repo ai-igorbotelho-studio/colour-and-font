@@ -2,12 +2,13 @@
 import { hex2rgb, rgb2hex, rgb2cmyk, rgb2hsl, lum, ratio, readable, mixLch, simulate } from '../core/color';
 import { nameOf, atAngle } from '../core/goethe';
 import { $, $all, esc, copy } from '../core/dom';
+import { t, dec } from '../i18n';
 import { S, cur, hexOf, shown, proportions, hooks, type ViewKey } from './state';
 import { pushH } from './history';
 import { openDetail, rampLch, RAMP_STEPS } from './detail';
 
 export interface View { v: ViewKey; n: string; d: string }
-export const VIEWS: View[] = [
+const VIEWS_PT: View[] = [
   { v: 'faixas', n: 'Faixas', d: 'Arraste as células para reordenar. O cadeado congela a cor na hora de gerar. Toque numa cor para abrir todos os códigos e a escala de tons.' },
   { v: 'proporcao', n: 'Proporção', d: 'A largura de cada cor é a área que ela deve ocupar segundo o método de estúdio escolhido.' },
   { v: 'cartoes', n: 'Cartões', d: 'Cada cor com hex, rgb, hsl e cmyk visíveis de uma vez — bom para conferir antes de mandar para gráfica.' },
@@ -19,6 +20,7 @@ export const VIEWS: View[] = [
   { v: 'poster', n: 'Em pôster', d: 'A paleta em composição impressa, com o fundo mais claro e o texto mais escuro da própria paleta.' },
   { v: 'degrade', n: 'Degradê', d: 'As cores derretidas umas nas outras, na ordem da tira. Mostra se a sequência tem buracos ou saltos.' }
 ];
+export const VIEWS: View[] = VIEWS_PT.map(x => ({ v: x.v, n: t(x.n), d: t(x.d) }));
 
 export function initViews(): void {
   $('viewbar').innerHTML = VIEWS.map(x => `<button data-v="${x.v}" aria-pressed="${x.v === 'faixas'}">${x.n}</button>`).join('');
@@ -47,22 +49,22 @@ export function viewHtml(v: ViewKey, x: StripCtx): { className: string; html: st
   if (v === 'faixas') return { className: 'strip', html: H.map((_h, i) => `<div class="cell${lowc(i) ? ' lowc' : ''}" ${x.tools ? 'draggable="true"' : ''} data-i="${i}" style="background:${V[i]};color:${fg(i)}">
       <div class="top"><span class="rl">${i + 1} · ${Math.round(pr[i])}%</span>
         ${x.tools ? `<span class="tools">
-          <button data-act="lock" title="Congelar">${x.locks[i] ? '●' : '○'}</button>
-          <button data-act="left" title="Mover para trás">‹</button>
-          <button data-act="right" title="Mover para frente">›</button>
-          <button data-act="copy" title="Copiar">⧉</button>
-          <button data-act="info" title="Abrir códigos">⋯</button>
-        </span>` : `<span class="tools"><button data-act="copy" title="Copiar">⧉</button></span>`}</div>
+          <button data-act="lock" title="${t('Congelar')}">${x.locks[i] ? '●' : '○'}</button>
+          <button data-act="left" title="${t('Mover para trás')}">‹</button>
+          <button data-act="right" title="${t('Mover para frente')}">›</button>
+          <button data-act="copy" title="${t('Copiar')}">⧉</button>
+          <button data-act="info" title="${t('Abrir códigos')}">⋯</button>
+        </span>` : `<span class="tools"><button data-act="copy" title="${t('Copiar')}">⧉</button></span>`}</div>
       <div class="hexbig">${H[i]}</div>
       <div class="nmx">${x.names[i]}</div>
       <div class="rgbx">rgb ${hex2rgb(H[i]).join(' · ')}</div>
     </div>`).join('') };
   if (v === 'proporcao') return { className: 'vwrap v-prop', html: H.map((_c, i) => `<button class="pick" data-i="${i}" style="flex:${pr[i].toFixed(2)};background:${V[i]};color:${fg(i)}">
-      <span style="font-family:'Bodoni Moda',serif;font-size:18px">${H[i]}</span>
+      <span style="font-family:'DM Serif Display',serif;font-size:18px">${H[i]}</span>
       <span style="font-size:11px;opacity:.8">${Math.round(pr[i])}% · rgb ${hex2rgb(H[i]).join(' ')}</span></button>`).join('') };
   if (v === 'cartoes') return { className: 'vwrap v-cards', html: H.map((_c, i) => { const [r, g, b] = hex2rgb(H[i]), cm = rgb2cmyk(r, g, b), hs = rgb2hsl(r, g, b);
       return `<button class="pick" data-i="${i}"><span class="sw" style="background:${V[i]}"></span>
-      <span class="meta"><b>${H[i]}</b>${x.names[i]}<br>rgb ${r} ${g} ${b}<br>hsl ${hs.map(y => Math.round(y)).join(' ')}<br>cmyk ${cm.map(y => Math.round(y)).join(' ')}<br>${Math.round(pr[i])}% da área</span></button>` }).join('') };
+      <span class="meta"><b>${H[i]}</b>${x.names[i]}<br>rgb ${r} ${g} ${b}<br>hsl ${hs.map(y => Math.round(y)).join(' ')}<br>cmyk ${cm.map(y => Math.round(y)).join(' ')}<br>${Math.round(pr[i])}${t('% da área')}</span></button>` }).join('') };
   if (v === 'circulos') { const mx = Math.max(...pr);
     return { className: 'vwrap v-circles', html: H.map((_c, i) => { const d = Math.round(70 + Math.sqrt(pr[i] / mx) * 130);
       return `<button class="pick" data-i="${i}" style="width:${d}px;height:${d}px;background:${V[i]};color:${fg(i)}">${d > 96 ? H[i] : ''}</button>` }).join('') } }
@@ -71,7 +73,7 @@ export function viewHtml(v: ViewKey, x: StripCtx): { className: string; html: st
       + H.map((_c, i) => { const r = R - (i * (R - 26) / n);
         return `<circle class="pick" data-i="${i}" cx="190" cy="190" r="${r}" fill="${V[i]}" style="cursor:pointer"/>` }).join('')
       + H.map((_c, i) => { const r = R - (i * (R - 26) / n) - ((R - 26) / n) / 2;
-        return `<text x="190" y="${190 - r + 18}" text-anchor="middle" font-size="12" font-family="IBM Plex Sans,sans-serif" fill="${fg(i)}" style="pointer-events:none">${H[i]}</text>` }).join('')
+        return `<text x="190" y="${190 - r + 18}" text-anchor="middle" font-size="12" font-family="Mulish,sans-serif" fill="${fg(i)}" style="pointer-events:none">${H[i]}</text>` }).join('')
       + `</svg>` } }
   if (v === 'escalas') return { className: 'vwrap v-ramps', html: H.map((_c, i) => { let row = `<div class="row"><span class="lab">${H[i]}</span>`;
       ramp(i).forEach((y, k) => { row += `<button class="pick" data-i="${i}" data-h="${y}" style="background:${simulate(y, x.cvd)};color:${readable(y)}">${RAMP_STEPS[k]}</button>` });
@@ -84,17 +86,17 @@ export function viewHtml(v: ViewKey, x: StripCtx): { className: string; html: st
     const soft = mixLch(bg, ink, .12);
     return { className: 'vwrap', html: `<div class="v-ui" style="background:${bg};color:${ink}">
       <div class="side" style="background:${soft}">
-        ${['Painel', 'Coleções', 'Histórico', 'Ajustes'].map((t, k) =>
-          `<span class="it" style="${k === 0 ? `background:${ac};color:${readable(ac)}` : ''}">${t}</span>`).join('')}
+        ${['Painel', 'Coleções', 'Histórico', 'Ajustes'].map((it, k) =>
+          `<span class="it" style="${k === 0 ? `background:${ac};color:${readable(ac)}` : ''}">${t(it)}</span>`).join('')}
       </div>
       <div class="main">
-        <div class="hero" style="background:${ink};color:${readable(ink)}"><h4>Um título dentro de uma interface</h4>
-          <span style="font-size:13px;opacity:.85">O contraste aqui é ${ratio(ink, readable(ink)).toFixed(1)} para 1.</span></div>
+        <div class="hero" style="background:${ink};color:${readable(ink)}"><h4>${t('Um título dentro de uma interface')}</h4>
+          <span style="font-size:13px;opacity:.85">${t('O contraste aqui é {r} para 1.', { r: dec(ratio(ink, readable(ink)), 1) })}</span></div>
         <div class="tiles">${H.map((y, i) => `<button class="pick tile" data-i="${i}" style="background:${V[i]};color:${fg(i)}">
           <span>${x.names[i]}</span><span style="font-size:14px">${y}</span></button>`).join('')}</div>
         <div style="display:flex;gap:9px;flex-wrap:wrap">
-          <span style="background:${ac};color:${readable(ac)};padding:9px 16px;border-radius:2px;font-size:13px">Ação principal</span>
-          <span style="border:1px solid ${ink};padding:9px 16px;border-radius:2px;font-size:13px">Secundária</span>
+          <span style="background:${ac};color:${readable(ac)};padding:9px 16px;border-radius:2px;font-size:13px">${t('Ação principal')}</span>
+          <span style="border:1px solid ${ink};padding:9px 16px;border-radius:2px;font-size:13px">${t('Secundária')}</span>
         </div>
       </div></div>` };
   }
@@ -147,7 +149,7 @@ export function drawStrip(): void {
   $('prop').innerHTML = S.colors.map((_c, i) =>
     `<div style="flex:${pr[i].toFixed(2)};background:${V[i]};color:${fg(i)}">${pr[i] >= 9 ? Math.round(pr[i]) + '%' : ''}</div>`).join('');
   const { L, U } = cur(), top = pr.indexOf(Math.max(...pr));
-  $('propnote').textContent = `Área segundo o método de ${L.n.split(' — ')[0]}`
-    + (U.Cm !== 1 || U.sy !== .5 ? `, reescrita pela dinâmica de ${U.n.toLowerCase()}` : '')
-    + `. A cor ${top + 1} domina com ${Math.round(pr[top])}% — é a ordem, mais que os números, que decide se o conjunto é lido como contido ou como declarado.`;
+  $('propnote').textContent = t('Área segundo o método de {l}', { l: L.n.split(' — ')[0] })
+    + (U.Cm !== 1 || U.sy !== .5 ? t(', reescrita pela dinâmica de {u}', { u: U.n.toLowerCase() }) : '')
+    + t('. A cor {n} domina com {p}% — é a ordem, mais que os números, que decide se o conjunto é lido como contido ou como declarado.', { n: top + 1, p: Math.round(pr[top]) });
 }

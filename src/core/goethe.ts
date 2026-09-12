@@ -3,6 +3,7 @@
    de 0° a 300°, com o purpúreo no topo. Purpúreo/verde, vermelho-amarelo/azul e
    amarelo/vermelho-azul são opostos exatos a 180°. Toda interpolação em OKLab. */
 import { hex2lch, oklch2hex, wrapDeg, type OKLCH } from './color';
+import { t } from '../i18n';
 
 export interface Anchor extends OKLCH { a: number; nome: string; hex: string }
 
@@ -22,9 +23,9 @@ export const hexAt = (a: number): string => { const c = atAngle(a); return oklch
 
 export function nameOf(a: number): string {
   a = ((a % 360) + 360) % 360;
-  const i = Math.floor(a / 60), p = ANCHORS[i], n = ANCHORS[(i + 1) % 6], t = (a - i * 60) / 60;
-  if (t < .14) return p.nome; if (t > .86) return n.nome;
-  return t < .5 ? p.nome + ' puxado ao ' + n.nome.toLowerCase() : n.nome + ' puxado ao ' + p.nome.toLowerCase();
+  const i = Math.floor(a / 60), p = ANCHORS[i], n = ANCHORS[(i + 1) % 6], tt = (a - i * 60) / 60;
+  if (tt < .14) return p.nome; if (tt > .86) return n.nome;
+  return tt < .5 ? p.nome + t(' puxado ao ') + n.nome.toLowerCase() : n.nome + t(' puxado ao ') + p.nome.toLowerCase();
 }
 
 /** Matiz OKLCH (H) → posição no círculo de Goethe, por busca em passos de meio grau. */

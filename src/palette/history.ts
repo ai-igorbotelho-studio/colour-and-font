@@ -1,5 +1,6 @@
 /* ── histórico com voltar e refazer ── */
 import { $ } from '../core/dom';
+import { t } from '../i18n';
 import { S, hooks, syncControls } from './state';
 import type { PaletteColor } from '../core/goethe';
 
@@ -18,7 +19,7 @@ export function pushH(): void {
 export function updH(): void {
   const undo = $('undo') as HTMLButtonElement, redo = $('redo') as HTMLButtonElement;
   undo.disabled = HIST.i <= 0; redo.disabled = HIST.i >= HIST.s.length - 1;
-  undo.textContent = HIST.i > 0 ? `← Voltar (${HIST.i})` : '← Voltar';
+  undo.textContent = HIST.i > 0 ? t('← Voltar ({n})', { n: HIST.i }) : t('← Voltar');
 }
 export function applyH(k: number): void {
   const v = JSON.parse(HIST.s[k]) as Snap;

@@ -1,5 +1,6 @@
 /* ═══════════ INSTRUMENTO DE COR — montagem ═══════════ */
 import { $, $all, $n, fillSel, toast } from '../core/dom';
+import { t } from '../i18n';
 import { EMO } from '../data/emotions';
 import { MKT } from '../data/markets';
 import { SCH } from '../data/schemes';
@@ -47,8 +48,8 @@ export function initPalette(): void {
   initWheel(); initViews(); initDetail(); initContrast(); initExport(); initGradient(); initScale(); initSaved();
 
   /* ── histórico ── */
-  $('undo').onclick = () => { if (HIST.i > 0) { applyH(HIST.i - 1); toast('Um passo atrás') } };
-  $('redo').onclick = () => { if (HIST.i < HIST.s.length - 1) { applyH(HIST.i + 1); toast('Um passo à frente') } };
+  $('undo').onclick = () => { if (HIST.i > 0) { applyH(HIST.i - 1); toast(t('Um passo atrás')) } };
+  $('redo').onclick = () => { if (HIST.i < HIST.s.length - 1) { applyH(HIST.i + 1); toast(t('Um passo à frente')) } };
   document.addEventListener('keydown', e => {
     if (!$('p-cores').classList.contains('on')) return;
     const t = (e.target as Element).tagName; if (t === 'INPUT' || t === 'SELECT' || t === 'TEXTAREA') return;
@@ -64,7 +65,7 @@ export function initPalette(): void {
     S.n = +b.dataset.n!; $('cntLbl').textContent = String(S.n);
     $all($('cnt'), 'button').forEach(x => x.setAttribute('aria-pressed', String(x === b))); build(true); pushH() });
   $('gen').onclick = () => { S.seed = Math.random(); S.baseOver = null; build(true); pushH();
-    toast('Nova combinação — use Voltar para recuperar a anterior') };
+    toast(t('Nova combinação — use Voltar para recuperar a anterior')) };
   document.addEventListener('keydown', e => {
     if (e.code !== 'Space') return;
     const t = (e.target as Element).tagName;

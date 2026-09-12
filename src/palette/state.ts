@@ -5,6 +5,7 @@ import { createStore } from '../core/state';
 import { simulate } from '../core/color';
 import { hexOfColor, type PaletteColor } from '../core/goethe';
 import { $, $all, $set } from '../core/dom';
+import { t } from '../i18n';
 import { EMO, type Emotion } from '../data/emotions';
 import { MKT, type Market } from '../data/markets';
 import { SCH, type Scheme } from '../data/schemes';
@@ -45,7 +46,7 @@ export function proportionsFor(w0: number[], sy: number, n: number): number[] {
 }
 /** Nome da paleta, a partir da intenção, do campo e da lente. */
 export function palName(): string { const { E, M, L } = cur();
-  return [E.a !== null ? E.n : null, M.a !== null ? M.n : null, L.n !== 'Nenhuma' ? L.n.split(' — ')[0] : null].filter(Boolean).join(' · ') || 'Paleta' }
+  return [E.a !== null ? E.n : null, M.a !== null ? M.n : null, S.lens !== 0 ? L.n.split(' — ')[0] : null].filter(Boolean).join(' · ') || t('Paleta') }
 
 export function proportions(): number[] { const { L, U } = cur(); return proportionsFor(L.w, U.sy, S.colors.length) }
 

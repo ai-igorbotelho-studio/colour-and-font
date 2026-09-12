@@ -1,6 +1,7 @@
 /* ═══════════ ESTÚDIO DE GRADIENTES ═══════════ */
 import { hex2rgb, rgb2hex, rgb2hsl, rgb2oklab, oklch2hex, mixLch, wrapDeg, hslHex, simulate } from '../core/color';
 import { $, $v, $all, copy, download, toast } from '../core/dom';
+import { t } from '../i18n';
 import { createStore } from '../core/state';
 import { S, palette } from './state';
 
@@ -65,8 +66,8 @@ export function drawGrad(): void {
       el.addEventListener('pointermove', mv); el.addEventListener('pointerup', up); drawGrad() });
   });
   $('gAngleV').textContent = $v('gAngle') + '°';
-  $('gradCss').textContent = 'background: ' + css + ';\n\n/* paradas */\n'
-    + [...G.stops].sort((a, b) => a.t - b.t).map(s => `/* ${s.hex} em ${Math.round(s.t * 100)}% */`).join('\n');
+  $('gradCss').textContent = 'background: ' + css + ';\n\n' + t('/* paradas */') + '\n'
+    + [...G.stops].sort((a, b) => a.t - b.t).map(s => t('/* {h} em {p}% */', { h: s.hex, p: Math.round(s.t * 100) })).join('\n');
   gradientStore.notify();
 }
 /** Paradas do gradiente a partir da paleta atual. */
@@ -75,13 +76,13 @@ export function gradFromPalette(): void { const hs = palette();
 export function initGradient(): void {
   $('gAdd').onclick = () => { const t = G.stops.length ? Math.min(1, Math.max(...G.stops.map(s => s.t)) - .25) : .5;
     G.stops.push({ t: Math.max(0, t), hex: gradSample(Math.max(0, t)) }); G.sel = G.stops.length - 1; drawGrad() };
-  $('gDel').onclick = () => { if (G.stops.length <= 2) return toast('Um gradiente precisa de ao menos duas paradas');
+  $('gDel').onclick = () => { if (G.stops.length <= 2) return toast(t('Um gradiente precisa de ao menos duas paradas'));
     G.stops.splice(G.sel, 1); G.sel = 0; drawGrad() };
   $('gRev').onclick = () => { G.stops.forEach(s => s.t = 1 - s.t); drawGrad() };
-  $('gFromPal').onclick = () => { gradFromPalette(); toast('Paradas puxadas da paleta') };
+  $('gFromPal').onclick = () => { gradFromPalette(); toast(t('Paradas puxadas da paleta')) };
   ['gType', 'gSpace', 'gEase'].forEach(id => $(id).onchange = drawGrad);
   $('gAngle').oninput = drawGrad;
-  $('gCopy').onclick = () => copy('background: ' + gradCssString() + ';', 'CSS do gradiente copiado');
+  $('gCopy').onclick = () => copy('background: ' + gradCssString() + ';', t('CSS do gradiente copiado'));
   $('gSvg').onclick = () => download('gradiente.svg', gradSvgString(), 'image/svg+xml');
   $('gPng').onclick = () => { const w = 1600, h = 900, cv = $('cv') as HTMLCanvasElement, ctx = cv.getContext('2d')!; cv.width = w; cv.height = h;
     const ang = (+$v('gAngle') - 90) * Math.PI / 180;

@@ -1,6 +1,7 @@
 /* ── oito níveis de hierarquia, editáveis ── */
 import { lum, ratio, mixLch } from '../core/color';
 import { $, $v, $n, $all, esc, toast } from '../core/dom';
+import { t, dec } from '../i18n';
 import { ROLES, CASES, STEPS, type Font, type Role, type WeightKind, type RoleSlot, type CaseKind } from '../data/fonts';
 import { palette } from '../palette/state';
 import { T, typeHooks, type RoleOverride } from './state';
@@ -88,10 +89,10 @@ export function parseText(t: string, off: Record<string, boolean> = T.off): Bloc
 export function drawRoleBar(): void {
   $('tRoleBar').innerHTML = ROLES.map(r =>
     `<button data-k="${r.k}" class="${T.off[r.k] ? 'off' : ''}" aria-pressed="${T.role === r.k}">${r.n}</button>`).join('')
-    + `<button data-all="1" style="margin-left:8px">Ligar e desligar níveis</button>`;
+    + `<button data-all="1" style="margin-left:8px">${t('Ligar e desligar níveis')}</button>`;
   $all<HTMLButtonElement>($('tRoleBar'), 'button').forEach(b => {
     if (b.dataset.all) { b.onclick = () => { T.pick = !T.pick;
-      toast(T.pick ? 'Agora um toque no nível liga ou desliga' : 'De volta a ajustar níveis'); drawRoleBar() };
+      toast(t(T.pick ? 'Agora um toque no nível liga ou desliga' : 'De volta a ajustar níveis')); drawRoleBar() };
       b.setAttribute('aria-pressed', String(!!T.pick)); return }
     b.onclick = () => { if (T.pick) { T.off[b.dataset.k!] = !T.off[b.dataset.k!] } else T.role = b.dataset.k!; typeHooks.renderSpec() } });
 }
@@ -99,22 +100,22 @@ export function drawRoleCtl(): void {
   const k = T.role, c = roleCfg(k), d = roleDef(k), C = roleColors();
   const opt = (arr: { v: string; n: string }[], val: unknown) => arr.map(o => `<option value="${o.v}" ${String(o.v) === String(val) ? 'selected' : ''}>${esc(o.n)}</option>`).join('');
   $('tRoleCtl').innerHTML = `
-   <div class="ctl"><label for="rFam">Família de ${d.n.toLowerCase()}</label><select id="rFam">
+   <div class="ctl"><label for="rFam">${t('Família de {r}', { r: d.n.toLowerCase() })}</label><select id="rFam">
      ${T.fams.map((f, i) => `<option value="${i}" ${i === c.fi ? 'selected' : ''}>${esc(f.n)}</option>`).join('')}</select></div>
-   <div class="ctl"><label for="rWt">Peso</label><select id="rWt">
+   <div class="ctl"><label for="rWt">${t('Peso')}</label><select id="rWt">
      ${c.f.wts.split(';').map(x => `<option value="${x}" ${+x === c.wt ? 'selected' : ''}>${x}</option>`).join('')}</select></div>
-   <div class="ctl"><label for="rStep">Degrau da escala</label><select id="rStep">
+   <div class="ctl"><label for="rStep">${t('Degrau da escala')}</label><select id="rStep">
      ${STEPS.map(x => `<option value="${x}" ${x === c.step ? 'selected' : ''}>${x > 0 ? '+' + x : x} · ${Math.round($n('tBase') * Math.pow($n('tRatio'), x) * 10) / 10}px</option>`).join('')}</select></div>
-   <div class="ctl"><label for="rLh">Entrelinha <b>${c.lh.toFixed(2).replace('.', ',')}</b></label>
+   <div class="ctl"><label for="rLh">${t('Entrelinha')} <b>${dec(c.lh, 2)}</b></label>
      <input type="range" id="rLh" min="90" max="220" value="${Math.round(c.lh * 100)}"></div>
-   <div class="ctl"><label for="rTr">Entreletra <b>${c.tr.toFixed(3).replace('.', ',')}em</b></label>
+   <div class="ctl"><label for="rTr">${t('Entreletra')} <b>${dec(c.tr, 3)}em</b></label>
      <input type="range" id="rTr" min="-60" max="80" value="${Math.round(c.tr * 1000)}"></div>
-   <div class="ctl"><label for="rCs">Caixa</label><select id="rCs">${opt(CASES, c.cs)}</select></div>
-   <div class="ctl"><label for="rCol">Cor</label><select id="rCol">
-     <option value="auto" ${c.col === 'auto' ? 'selected' : ''}>Automática pela paleta</option>
-     ${C.pal.map((h, i) => `<option value="${i}" ${String(c.col) === String(i) ? 'selected' : ''}>Cor ${i + 1} — ${h}</option>`).join('')}</select></div>
-   <div class="ctl"><label for="rIt">Itálico</label><select id="rIt">
-     <option value="0" ${!c.it ? 'selected' : ''}>Nenhum</option><option value="1" ${c.it ? 'selected' : ''}>Itálico</option></select></div>`;
+   <div class="ctl"><label for="rCs">${t('Caixa')}</label><select id="rCs">${opt(CASES, c.cs)}</select></div>
+   <div class="ctl"><label for="rCol">${t('Cor')}</label><select id="rCol">
+     <option value="auto" ${c.col === 'auto' ? 'selected' : ''}>${t('Automática pela paleta')}</option>
+     ${C.pal.map((h, i) => `<option value="${i}" ${String(c.col) === String(i) ? 'selected' : ''}>${t('Cor {n} — {h}', { n: i + 1, h })}</option>`).join('')}</select></div>
+   <div class="ctl"><label for="rIt">${t('Itálico')}</label><select id="rIt">
+     <option value="0" ${!c.it ? 'selected' : ''}>${t('Nenhum')}</option><option value="1" ${c.it ? 'selected' : ''}>${t('Itálico')}</option></select></div>`;
   const set = <K extends keyof import('./state').RoleOverride>(key: K, val: import('./state').RoleOverride[K]) => { T.ov[k] = T.ov[k] || {}; T.ov[k][key] = val; typeHooks.renderSpec() };
   const val = (e: Event) => (e.target as HTMLInputElement).value;
   $('rFam').onchange = e => { T.ov[k] = T.ov[k] || {}; delete T.ov[k].wt; set('fam', +val(e)) };
@@ -128,8 +129,8 @@ export function drawRoleCtl(): void {
 }
 export function drawRoleRows(): void {
   $('tRoleRows').innerHTML = ROLES.map(r => { const c = roleCfg(r.k), s = roleCss(r.k);
-    return `<tr style="${T.off[r.k] ? 'opacity:.4' : ''}"><td>${r.n}${T.off[r.k] ? ' · desligado' : ''}</td>
+    return `<tr style="${T.off[r.k] ? 'opacity:.4' : ''}"><td>${r.n}${T.off[r.k] ? t(' · desligado') : ''}</td>
       <td>${esc(c.f.n)}</td><td class="r">${s.size}px</td><td class="r">${c.wt}</td>
-      <td class="r">${s.lh.toFixed(2).replace('.', ',')}</td>
+      <td class="r">${dec(s.lh, 2)}</td>
       <td><span style="display:inline-block;width:11px;height:11px;background:${s.col};vertical-align:-1px;margin-right:5px"></span>${s.col}</td></tr>` }).join('');
 }

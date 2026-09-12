@@ -2,6 +2,7 @@
 import { oklch2hex, hslHex } from './core/color';
 import { ANCHORS, hexAt } from './core/goethe';
 import { $, $all } from './core/dom';
+import { t } from './i18n';
 import { CLS, FONTS } from './data/fonts';
 import { famAttr } from './type/pairing';
 import { loadFont } from './type/loader';
@@ -16,23 +17,23 @@ export function wheelSvg(marks: number[], size: number, showLabels: boolean): st
     g += `<circle cx="${x}" cy="${y}" r="${R * .13}" fill="${hexAt(m)}" stroke="#000" stroke-width="2.5"/>
         <circle cx="${x}" cy="${y}" r="${R * .13}" fill="none" stroke="#fff" stroke-width="1"/>` });
   if (showLabels) g += ANCHORS.map(an => { const r = R + 22, x = cx + r * Math.cos((an.a - 90) * Math.PI / 180), y = cy + r * Math.sin((an.a - 90) * Math.PI / 180);
-    return `<text x="${x}" y="${y + 4}" text-anchor="${an.a === 0 || an.a === 180 ? 'middle' : an.a < 180 ? 'start' : 'end'}" fill="var(--soft)" font-family="IBM Plex Sans,sans-serif" font-size="11">${an.nome}</text>` }).join('');
+    return `<text x="${x}" y="${y + 4}" text-anchor="${an.a === 0 || an.a === 180 ? 'middle' : an.a < 180 ? 'start' : 'end'}" fill="var(--soft)" font-family="Mulish,sans-serif" font-size="11">${an.nome}</text>` }).join('');
   return g;
 }
 export function drawHome(): void {
   $('homeWheel').innerHTML = wheelSvg([], 160, true)
    + `<circle cx="200" cy="200" r="160" fill="none" stroke="var(--rule)"/>
      <path d="M200 40 A160 160 0 0 1 200 360" fill="none" stroke="var(--ink)" stroke-width="2" stroke-dasharray="2 6" opacity=".55"/>
-     <text x="286" y="196" text-anchor="middle" font-family="Bodoni Moda,serif" font-size="15" fill="#000">lado</text>
-     <text x="286" y="214" text-anchor="middle" font-family="Bodoni Moda,serif" font-size="15" fill="#000">positivo</text>
-     <text x="114" y="196" text-anchor="middle" font-family="Bodoni Moda,serif" font-size="15" fill="#fff">lado</text>
-     <text x="114" y="214" text-anchor="middle" font-family="Bodoni Moda,serif" font-size="15" fill="#fff">negativo</text>`;
+     <text x="286" y="196" text-anchor="middle" font-family="DM Serif Display,serif" font-size="15" fill="#000">${t('lado')}</text>
+     <text x="286" y="214" text-anchor="middle" font-family="DM Serif Display,serif" font-size="15" fill="#000">${t('positivo')}</text>
+     <text x="114" y="196" text-anchor="middle" font-family="DM Serif Display,serif" font-size="15" fill="#fff">${t('lado')}</text>
+     <text x="114" y="214" text-anchor="middle" font-family="DM Serif Display,serif" font-size="15" fill="#fff">${t('negativo')}</text>`;
 
   const demos: [string, number[]][] = [['Monocromático', [20]], ['Análogo', [20, 50, 350]], ['Complementar', [20, 200]],
    ['Complementar dividido', [20, 170, 230]], ['Tríade', [20, 140, 260]], ['Tetrádico', [20, 80, 200, 260]]];
   $('schemeDemos').innerHTML = demos.map(([n, m]) =>
     `<div><svg viewBox="0 0 400 400" style="width:100%;height:auto">${wheelSvg(m, 150, false)}</svg>
-     <div class="sm" style="text-align:center;margin-top:4px">${n}</div></div>`).join('');
+     <div class="sm" style="text-align:center;margin-top:4px">${t(n)}</div></div>`).join('');
 
   drawVenn('add'); drawVenn('sub');
 
@@ -46,7 +47,7 @@ export function drawHome(): void {
     'sans-grot': 'Space Grotesk', 'sans-neo': 'Inter', 'sans-geo': 'Poppins', 'sans-hum': 'IBM Plex Sans', 'mono': 'JetBrains Mono', 'display': 'Syne' };
   $('classGrid').innerHTML = (Object.keys(CLS) as (keyof typeof CLS)[]).map(k => { const f = FONTS.find(x => x.n === reps[k]); if (f) loadFont(f);
     return `<div class="card"><div style="font-family:${f ? famAttr(f) : 'serif'};font-size:32px;line-height:1.1;margin-bottom:6px">Aa Gg</div>
-      <h4>${CLS[k].n}</h4><p class="sm">${CLS[k].d}</p><p class="sm" style="margin-top:6px">Exemplo: ${reps[k]}</p></div>` }).join('');
+      <h4>${CLS[k].n}</h4><p class="sm">${CLS[k].d}</p><p class="sm" style="margin-top:6px">${t('Exemplo: {n}', { n: reps[k] })}</p></div>` }).join('');
 }
 
 /* ── diagramas de mistura, arrastáveis ── */

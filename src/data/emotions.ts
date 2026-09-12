@@ -1,5 +1,5 @@
 /* Intenções — as posições no círculo e a leitura de Goethe para cada uma. */
-export interface Emotion { n: string; a: number | null; g: string }
+export interface Emotion { n: string; a: number | null; g: string; key?: string }
 export const EMO: Emotion[] = [
  {n:'Nenhuma',a:null,g:'Sem intenção declarada, o matiz de partida vem só da convenção do campo, da referência cultural e de onde as bolas estiverem no anel.'},
  {n:'Alegria e clareza',a:120,g:'O amarelo é a cor imediatamente vizinha da luz. Em estado puro e límpido, diz Goethe, traz consigo uma natureza serena, alegre, suavemente excitante — mas basta sujá-lo um pouco para que essa mesma alegria vire desonra.'},
@@ -19,3 +19,5 @@ export const EMO: Emotion[] = [
  {n:'Abundância e fartura',a:135,g:'Amarelo puxado ao verde, com croma alto. A sensação de excesso vem menos do matiz do que da saturação que ele suporta.'},
  {n:'Intimidade e calor',a:18,g:'Purpúreo puxado ao vermelho e rebaixado de luminosidade. Goethe nota que essa vizinhança tem graça sem perder gravidade.'}
 ];
+/* radical da primeira palavra em português — os humores das famílias são pontuados por ele, em qualquer idioma */
+EMO.forEach(e => { e.key = e.n.split(' ')[0].toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').slice(0, 5) });
