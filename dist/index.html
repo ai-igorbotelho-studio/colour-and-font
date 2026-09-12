@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-ground="luz">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Farbenkreis — instrumentos de cor e tipografia</title>
+<meta name="description" content="Instrumentos de cor e tipografia derivados do círculo cromático de Goethe: paletas por intenção e campo, combinação de famílias, hierarquia, legibilidade medida e tendências trimestrais.">
+<meta name="theme-color" content="#D9D8D3" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#121212" media="(prefers-color-scheme: dark)">
+<meta name="color-scheme" content="light dark">
+<link rel="canonical" href="https://farbenkreis.pages.dev/">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Farbenkreis — instrumentos de cor e tipografia">
+<meta property="og:description" content="Paletas derivadas do círculo de Goethe, combinação tipográfica com hierarquia, legibilidade medida em WCAG e um compilado trimestral de tendências.">
+<meta property="og:locale" content="pt_BR">
+<meta property="og:image" content="https://farbenkreis.pages.dev/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='30' fill='%23C4003F'/%3E%3Cpath d='M32 2a30 30 0 0 1 0 60z' fill='%2322409B'/%3E%3Ccircle cx='32' cy='32' r='11' fill='%23F2CC00'/%3E%3C/svg%3E">
+<link rel="preload" href="/fonts/ibm-plex-sans-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/fonts/bodoni-moda-latin-opsz-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="apple-touch-icon" href="/icons/icon-192.png">
+  <script type="module" crossorigin src="/assets/index-DGyU9bth.js"></script>
+  <link rel="stylesheet" crossorigin href="/assets/index-DVZ0zAJa.css">
+</head>
+<body>
+<nav>
+  <div class="mk">Farbenkreis</div>
+  <div class="here" id="hereLbl">Início</div>
+  <div class="gt" role="group" aria-label="Fundo">
+    <button id="gLuz" aria-pressed="true">Luz</button><button id="gTreva" aria-pressed="false">Treva</button>
+  </div>
+</nav>
+<div id="tabbar" role="tablist" aria-label="Seções">
+  <button class="tab" role="tab" data-p="home" aria-current="page" aria-selected="true">
+    <svg viewBox="0 0 24 24"><path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg><span>Início</span></button>
+  <button class="tab" role="tab" data-p="cores" aria-selected="false">
+    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="7.4" r="1.5" fill="currentColor" stroke="none"/><circle cx="16.1" cy="13.2" r="1.5" fill="currentColor" stroke="none"/><circle cx="7.9" cy="13.2" r="1.5" fill="currentColor" stroke="none"/></svg><span>Cores</span></button>
+  <button class="tab" role="tab" data-p="tipo" aria-selected="false">
+    <svg viewBox="0 0 24 24"><path d="M4.5 19.5 12 4.5l7.5 15"/><path d="M7.8 13.5h8.4"/></svg><span>Tipografia</span></button>
+  <button class="tab" role="tab" data-p="criacao" aria-selected="false">
+    <svg viewBox="0 0 24 24"><path d="M12 3.5v5M12 15.5v5M3.5 12h5M15.5 12h5"/><path d="M6.6 6.6 9.4 9.4M14.6 14.6l2.8 2.8M17.4 6.6 14.6 9.4M9.4 14.6l-2.8 2.8"/></svg><span>Criação</span></button>
+  <button class="tab" role="tab" data-p="tend" aria-selected="false">
+    <svg viewBox="0 0 24 24"><path d="M3 16.5 9 10l4 4 7.5-8"/><path d="M15.5 6h5v5"/></svg><span>Tendências</span></button>
+</div>
+<div class="wrap">
+<!-- ══════════ INÍCIO ══════════ -->
+<main class="page on" id="p-home">
+
+<section style="padding-top:38px">
+  <h1>Cor e tipografia<br>como instrumentos</h1>
+  <p class="lede" style="margin-top:20px">Duas ferramentas e uma base teórica comum. A de cor deriva paletas a partir do círculo de Goethe, de intenções, de setores, de métodos de estúdio, de referências culturais e de dinâmicas musicais. A de tipografia faz o mesmo com famílias tipográficas e combinações. Esta página explica o que está por trás das duas.</p>
+  <div class="btnrow">
+    <button class="act" data-goto="cores">Abrir o instrumento de cor</button>
+    <button class="act ghost" data-goto="tipo">Abrir o instrumento de tipografia</button>
+  </div>
+</section>
+
+<section>
+  <h2>O círculo de Goethe</h2>
+  <p class="lede">Em 1810, Goethe recusou a explicação de Newton e colocou o olho no centro: o que vemos depende do objeto, da iluminação e da percepção. Daí ele deriva um círculo de seis matizes, um lado positivo e um negativo, uma intensificação em direção ao purpúreo, e três regimes de combinação.</p>
+  <div class="grid2" style="margin-top:22px;align-items:center">
+    <svg id="homeWheel" viewBox="0 0 400 400" style="width:100%;height:auto;max-width:400px"></svg>
+    <div>
+      <h4>Lado positivo</h4>
+      <p class="sm">Amarelo, vermelho-amarelo, escarlate. Goethe os descreve como ativos, quentes, que se aproximam de quem olha. O amarelo é a cor imediatamente vizinha da luz; o vermelho-amarelo é o lado ativo em sua maior energia.</p>
+      <h4 style="margin-top:14px">Lado negativo</h4>
+      <p class="sm">Azul, vermelho-azul. Passivos, frios, que afastam. O azul carrega consigo um princípio de treva: atrai e ao mesmo tempo puxa para longe.</p>
+      <h4 style="margin-top:14px">Intensificação</h4>
+      <p class="sm">Cada lado pode ser empurrado em direção ao vermelho. No purpúreo os dois se encontram — é o cume, ao qual Goethe atribui dignidade e gravidade.</p>
+      <h4 style="margin-top:14px">Verde</h4>
+      <p class="sm">A união do amarelo com o azul. Ali, diz ele, olho e alma descansam: não se quer ir além, e não se pode.</p>
+    </div>
+  </div>
+  <div class="note"><b>Preto e branco são cores.</b> Em Goethe, a cor nasce no limite entre luz e treva, atravessada por um meio turvo. A treva não é ausência: é o outro polo, sem o qual nenhuma cor existiria. As duas ferramentas aqui tratam luz e treva como participantes plenos, com matiz, papel e proporção próprios — e não como fundo neutro.</p></div>
+</section>
+
+<section>
+  <h2>Os três regimes de Goethe</h2>
+  <p class="lede">Antes do vocabulário moderno de esquemas, Goethe já classificava as combinações em três — e dava seu veredito sobre cada uma.</p>
+  <div class="grid3" style="margin-top:20px">
+    <div class="card"><h4>Harmônica</h4><p class="sm">Os opostos do círculo. O olho, forçado a uma só cor, produz por conta própria a oposta, e só então se sente completo. Carregam em si a condição de totalidade: é o par mais estável e o menos surpreendente.</p></div>
+    <div class="card"><h4>Característica</h4><p class="sm">Um espaço de distância no círculo — amarelo e azul, amarelo e vermelho, azul e vermelho. Dizem alguma coisa, ainda que não tudo. É onde mora quase todo trabalho interessante.</p></div>
+    <div class="card"><h4>Sem caráter</h4><p class="sm">Vizinhas no círculo. Não produzem efeito desagradável, mas ficam aquém: falta-lhes caráter. Servem quando outra coisa carrega o sistema.</p></div>
+  </div>
+</section>
+
+<section>
+  <h2>O vocabulário moderno de esquemas</h2>
+  <p class="lede">O que o século XX chamou de esquemas são relações geométricas no círculo. Todos estão no instrumento de cor, e a geometria é preservada enquanto você arrasta as bolas.</p>
+  <div id="schemeDemos" class="grid3" style="margin-top:20px;grid-template-columns:repeat(2,1fr)"></div>
+  <p class="sm" style="margin-top:14px">Monocromático varia luminosidade e croma num só matiz. Análogo fica em vizinhança. Complementar cruza o círculo. Tríade divide em três. Complementar dividido troca o oposto pelos dois vizinhos dele — mantém a tensão e reduz o choque. Tetrádico forma um retângulo e entrega dois pares opostos.</p>
+</section>
+
+<section>
+  <h2>Luz que soma, pigmento que subtrai</h2>
+  <p class="lede">Uma paleta se comporta de dois modos diferentes conforme o suporte, e confundir os dois é a origem de boa parte da frustração entre tela e impressão. Arraste os círculos abaixo: as sobreposições são calculadas de verdade pelo navegador, somando ou subtraindo.</p>
+  <div class="grid2" style="margin-top:20px">
+    <div>
+      <div id="vennAdd" class="venn"></div>
+      <div class="vennrow"><button class="mini" data-venn="add">Recolocar</button><span class="sm">Arraste os círculos.</span></div>
+      <h4 style="margin-top:10px">Aditiva — RGB</h4>
+      <p class="sm">Feixes de luz somados. Vermelho, verde e azul se sobrepõem e produzem ciano, magenta e amarelo; os três juntos dão branco. É o modelo da tela, do projetor, do LED. Somar luz clareia.</p>
+    </div>
+    <div>
+      <div id="vennSub" class="venn sub"></div>
+      <div class="vennrow"><button class="mini" data-venn="sub">Recolocar</button><span class="sm">Arraste os círculos.</span></div>
+      <h4 style="margin-top:10px">Subtrativa — CMYK</h4>
+      <p class="sm">Tintas que filtram a luz refletida pelo papel. Ciano, magenta e amarelo sobrepostos absorvem quase tudo e tendem ao preto — na prática um preto sujo, por isso a impressão acrescenta o K. Somar pigmento escurece.</p>
+    </div>
+  </div>
+  <div class="note"><b>Consequência prática.</b> Amarelos, verdes e azuis muito saturados que existem em tela não têm equivalente em tinta de escala. O instrumento de cor mostra o valor CMYK ao lado do RGB justamente para tornar essa perda visível antes de ela virar prova de gráfica.</div>
+</section>
+
+<section>
+  <h2>Por que OKLab</h2>
+  <p class="lede">HSL é fácil de calcular e mente sobre o olho: um amarelo e um azul com a mesma luminosidade declarada não parecem ter a mesma luminosidade. OKLab é um espaço perceptualmente uniforme — distâncias iguais no número correspondem a diferenças mais parecidas na percepção.</p>
+  <div id="okDemo" style="margin-top:18px"></div>
+  <p class="sm" style="margin-top:10px">Acima, a mesma sequência de matizes com luminosidade fixa em HSL e em OKLab. Toda interpolação, escala de tons e ajuste destas ferramentas acontece em OKLab, e o croma é reduzido até caber no sRGB em vez de ser cortado.</p>
+</section>
+
+<section>
+  <h2>Contraste não é gosto</h2>
+  <p class="lede">A razão de contraste do WCAG mede o que o olho consegue ler, não o que ele sente. Texto corrido pede 4.5, texto grande e elementos de interface pedem 3.0. As duas ferramentas calculam isso automaticamente para todos os pares e avisam quando a combinação bonita é ilegível.</p>
+</section>
+
+<section>
+  <h2>Classificação tipográfica</h2>
+  <p class="lede">A escolha de uma família começa por identificar a que família histórica ela pertence — porque é isso que define como ela se comporta em texto longo, em tamanho grande e em tela pequena.</p>
+  <div id="classGrid" class="grid3" style="margin-top:20px"></div>
+</section>
+
+<section>
+  <h2>Anatomia que importa na prática</h2>
+  <div class="grid3" style="margin-top:18px">
+    <div class="card"><h4>Altura de x</h4><p class="sm">A altura das minúsculas em relação às maiúsculas. Alta lê bem em tamanho pequeno e em tela; baixa tem elegância e pede corpo maior. Duas famílias com alturas de x muito diferentes brigam quando postas lado a lado.</p></div>
+    <div class="card"><h4>Contraste de traço</h4><p class="sm">A diferença entre a haste grossa e a fina. Alto contraste — as modernas, as didonas — brilha em título e some em corpo pequeno. Baixo contraste aguenta condições ruins de leitura.</p></div>
+    <div class="card"><h4>Abertura</h4><p class="sm">O quanto letras como c, e, s se fecham. Aberturas amplas mantêm as letras distinguíveis à distância e em corpo pequeno; fechadas dão densidade e ar editorial.</p></div>
+    <div class="card"><h4>Largura e ritmo</h4><p class="sm">Condensada economiza espaço e acelera; estendida ocupa e desacelera. O ritmo entre letra e contraforma é o que faz um parágrafo parecer uniforme ou manchado.</p></div>
+    <div class="card"><h4>Medida</h4><p class="sm">O comprimento da linha. Entre 45 e 75 caracteres é a faixa em que o olho encontra o início da próxima linha sem esforço. Linha longa demais exige mais entrelinha para compensar.</p></div>
+    <div class="card"><h4>Escala modular</h4><p class="sm">Os tamanhos derivam de uma razão constante — quarta justa, quinta, áurea. A hierarquia fica previsível e as decisões param de ser arbitrárias.</p></div>
+  </div>
+</section>
+
+<section>
+  <h2>Como combinar duas famílias</h2>
+  <p class="lede">O erro comum é buscar semelhança. Duas famílias parecidas não se harmonizam: elas competem, e a diferença pequena parece defeito.</p>
+  <div class="grid2" style="margin-top:18px">
+    <div>
+      <h4>Contraste de estrutura</h4>
+      <p class="sm">Uma serifada de alto contraste no título contra uma sem serifa humanista no corpo. A diferença é clara, a hierarquia se resolve sozinha e nenhuma das duas parece erro.</p>
+      <h4 style="margin-top:14px">Superfamília</h4>
+      <p class="sm">Famílias desenhadas juntas para conviver — a versão serifada, a sem serifa e a monoespaçada do mesmo projeto. Harmonia garantida, contraste menor, risco de monotonia.</p>
+    </div>
+    <div>
+      <h4>Uma só família</h4>
+      <p class="sm">Toda a hierarquia feita por peso, tamanho, largura e caixa. É a saída mais difícil de errar e a que mais depende de disciplina de espaçamento.</p>
+      <h4 style="margin-top:14px">Compatibilidade métrica</h4>
+      <p class="sm">Mesmo com estruturas diferentes, altura de x e largura próximas fazem as duas parecerem escolhidas juntas. É o critério que o instrumento usa para pontuar as combinações.</p>
+    </div>
+  </div>
+</section>
+
+<footer>
+  Base teórica: <i>Zur Farbenlehre</i> (1810), na parte dos efeitos sensíveis e morais da cor e nos capítulos sobre completude e combinações características. Conversões de cor em OKLab, com ajuste de croma para o gamut sRGB. Razões de contraste segundo WCAG 2.1. Famílias tipográficas de bancos abertos — Google Fonts, Fontshare, Fontsource — com licenças que permitem uso e hospedagem própria.
+</footer>
+</main>
+<!-- ══════════ CORES ══════════ -->
+<main class="page" id="p-cores">
+
+<div class="stage">
+  <div>
+    <svg class="wheel" id="wheel" viewBox="0 0 400 400" role="application" tabindex="0"
+      aria-label="Círculo de Goethe. Arraste as bolas para mudar as cores.">
+      <g id="disc"></g><g id="ticks"></g><g id="geo"></g><g id="balls"></g>
+    </svg>
+    <p class="wheelcap" id="wheelcap"></p>
+  </div>
+  <div>
+    <div class="ctl"><label for="emo">O que a peça precisa provocar</label><select id="emo"></select></div>
+    <div class="ctl"><label for="mkt">Campo de atuação</label><select id="mkt"></select></div>
+    <div class="ctl">
+      <label for="pos">Postura diante da convenção do campo</label>
+      <input type="range" id="pos" min="0" max="100" value="55">
+      <div class="scl"><span>Pertencer</span><span id="posval">55</span><span>Romper</span></div>
+    </div>
+    <div class="ctl"><label for="scheme">Esquema geométrico</label><select id="scheme"></select></div>
+    <div class="ctl">
+      <label>Quantas cores <b id="cntLbl">5</b></label>
+      <div class="seg" id="cnt" role="group" aria-label="Número de cores">
+        <button data-n="2">2</button><button data-n="3">3</button><button data-n="4">4</button>
+        <button data-n="5" aria-pressed="true">5</button><button data-n="6">6</button>
+      </div>
+    </div>
+    <div class="ctl"><label for="lens">Lente de estúdio</label><select id="lens"></select></div>
+    <div class="ctl"><label for="cult">Referência cultural</label><select id="cult"></select></div>
+    <div class="ctl"><label for="mus">Estilo musical</label><select id="mus"></select></div>
+    <div class="ctl"><label for="cvd">Simular visão de cor</label><select id="cvd"></select></div>
+    <div class="btnrow">
+      <button class="act" id="gen">Gerar · barra de espaço</button>
+      <button class="act ghost" id="undo" disabled>← Voltar</button>
+      <button class="act ghost" id="redo" disabled>Refazer →</button>
+      <button class="act ghost" id="expBtn">Exportar</button>
+      <button class="act ghost" id="scaleBtn">Ver em escala</button>
+      <button class="act ghost" id="save">Salvar</button>
+    </div>
+    <div class="btnrow" id="savedInline" style="margin-top:10px"></div>
+  </div>
+</div>
+
+<section>
+  <h2 id="palTitle">Paleta</h2>
+  <p class="lede" id="palSub"></p>
+  <div class="viewbar" id="viewbar" role="group" aria-label="Modo de visualização"></div>
+  <div class="vwrap" id="strip"></div>
+  <p class="sm" id="viewhint" style="margin-top:10px"></p>
+  <div class="propbar" id="prop"></div>
+  <p class="sm" id="propnote" style="margin-top:7px;max-width:66ch"></p>
+</section>
+
+<section id="detail" style="display:none">
+  <div id="dHead"></div>
+  <h2 id="dTitle">Cor</h2>
+  <div class="codes" id="dCodes"></div>
+  <h3 style="margin-top:22px;font-size:16px">Escala de tons</h3>
+  <div class="strip" id="dRamp" style="height:auto;flex-direction:row;flex-wrap:wrap"></div>
+  <div class="btnrow"><button class="mini" id="dClose">Fechar</button></div>
+</section>
+
+<section>
+  <div class="grid2">
+    <div>
+      <h2>A leitura de Goethe</h2>
+      <div id="goetheRead"></div>
+      <div class="note" id="verdict"></div>
+    </div>
+    <div>
+      <h2>Campo, lente, cultura e som</h2>
+      <div id="marketRead"></div>
+      <div class="note" id="caution"></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2>Legibilidade</h2>
+  <p class="lede">Uma paleta bonita pode ser ilegível, e o olho de quem a escolheu é o pior juiz disso. Esta grade responde a uma pergunta prática: se eu escrever com uma cor desta paleta sobre um fundo de outra, alguém consegue ler?</p>
+  <p class="lede" style="margin-top:10px">O número é a razão de contraste entre as duas — quanto maior, mais separadas elas estão para o olho. Cada célula está pintada com o par de verdade, então a própria grade mostra o resultado: onde o número some, o texto também some.</p>
+  <div class="seg" id="ctMode" role="group" aria-label="Exigência" style="margin-top:16px;max-width:520px">
+    <button data-t="4.5" aria-pressed="true">Texto corrido</button>
+    <button data-t="3">Texto grande</button>
+    <button data-t="7">Exigência máxima</button>
+  </div>
+  <p class="sm" id="ctLegend" style="margin-top:8px"></p>
+  <div class="ctwrap"><table class="ctgrid" id="ctGrid"></table></div>
+  <p class="sm" style="margin-top:8px">A linha é o fundo, a coluna é o texto. Toque numa célula para ver o par em tamanho real e corrigir o que não passa.</p>
+  <div id="ctPair"></div>
+  <h3 style="margin-top:28px;font-size:17px">Os pares que funcionam</h3>
+  <div class="ctbest" id="ctBest"></div>
+  <p class="sm" id="ctNone" style="display:none"></p>
+</section>
+
+<section>
+  <h2>Gradientes</h2>
+  <p class="lede">Arraste as paradas na régua. O espaço de interpolação muda tudo: em sRGB dois tons cruzados passam por um meio cinzento; em OKLab o caminho é perceptualmente reto e não afunda.</p>
+  <div class="grid2" style="margin-top:18px;grid-template-columns:1fr">
+    <div>
+      <div class="gradprev" id="gradPrev"></div>
+      <div class="gradbar" id="gradBar"></div>
+      <div class="btnrow">
+        <button class="mini" id="gAdd">Adicionar parada</button>
+        <button class="mini" id="gDel">Remover parada</button>
+        <button class="mini" id="gFromPal">Puxar da paleta</button>
+        <button class="mini" id="gRev">Inverter</button>
+      </div>
+    </div>
+  </div>
+  <div class="grid3" style="margin-top:18px">
+    <div class="ctl"><label for="gType">Tipo</label><select id="gType">
+      <option value="linear">Linear</option><option value="radial">Radial</option><option value="conic">Cônico</option></select></div>
+    <div class="ctl"><label for="gSpace">Espaço de interpolação</label><select id="gSpace">
+      <option value="oklab">OKLab — perceptual</option><option value="oklch">OKLCH — pelo arco do matiz</option>
+      <option value="srgb">sRGB — o padrão do CSS</option><option value="hsl">HSL</option></select></div>
+    <div class="ctl"><label for="gAngle">Ângulo <b id="gAngleV">90°</b></label><input type="range" id="gAngle" min="0" max="360" value="90"></div>
+  </div>
+  <div class="ctl"><label for="gEase">Distribuição das paradas</label><select id="gEase">
+    <option value="none">Nenhuma — como estão</option><option value="ease">Suave nas pontas</option>
+    <option value="in">Acelera no fim</option><option value="out">Acelera no começo</option></select></div>
+  <pre id="gradCss"></pre>
+  <div class="btnrow"><button class="mini" id="gCopy">Copiar CSS</button><button class="mini" id="gSvg">Baixar SVG</button><button class="mini" id="gPng">Baixar PNG</button></div>
+</section>
+
+<section>
+  <h2>Exportar</h2>
+  <p class="lede">Arquivos de imagem para apresentação, arquivos de troca para software de design, e código para implementação.</p>
+  <div class="btnrow" style="margin-top:16px">
+    <button class="mini" data-ex="svg">SVG</button><button class="mini" data-ex="png">PNG</button>
+    <button class="mini" data-ex="jpg">JPG</button><button class="mini" data-ex="ase">ASE · Adobe</button>
+    <button class="mini" data-ex="gpl">GPL · GIMP e Inkscape</button><button class="mini" data-ex="aco">Texto para Procreate e afins</button>
+  </div>
+  <div class="tabs2" id="codeTabs">
+    <button data-f="css" aria-pressed="true">CSS</button><button data-f="scss">SCSS</button>
+    <button data-f="json">JSON</button><button data-f="tw">Tailwind</button>
+    <button data-f="swift">SwiftUI</button><button data-f="android">Android XML</button>
+    <button data-f="flutter">Flutter</button><button data-f="hex">Hex puro</button>
+  </div>
+  <pre id="out"></pre>
+  <div class="btnrow"><button class="act" id="copy">Copiar</button><button class="mini" id="dlTxt">Baixar arquivo</button></div>
+  <h3 style="margin-top:30px;font-size:16px">Paletas salvas</h3>
+  <div class="btnrow" id="saved" style="margin-top:10px"></div>
+  <p class="sm" id="savedEmpty">Nada salvo ainda. Fica só neste navegador.</p>
+</section>
+</main>
+<!-- ══════════ TIPOGRAFIA ══════════ -->
+<main class="page" id="p-tipo">
+
+<div class="stage" style="grid-template-columns:1fr">
+  <div class="grid3" style="grid-template-columns:1fr">
+    <div>
+      <div class="ctl"><label for="tEmo">O que a peça precisa provocar</label><select id="tEmo"></select></div>
+      <div class="ctl"><label for="tUse">Uso principal</label><select id="tUse"></select></div>
+      <div class="ctl"><label for="tStrat">Estratégia de combinação</label><select id="tStrat"></select></div>
+    </div>
+    <div>
+      <div class="ctl"><label for="tClsD">Classe do título</label><select id="tClsD"></select></div>
+      <div class="ctl"><label for="tClsB">Classe do texto</label><select id="tClsB"></select></div>
+      <div class="ctl"><label for="tBank">Banco de fontes</label><select id="tBank"></select></div>
+    </div>
+    <div>
+      <div class="ctl"><label for="tWidth">Largura</label><select id="tWidth"></select></div>
+      <div class="ctl"><label for="tContr">Contraste de traço</label><select id="tContr"></select></div>
+      <div class="ctl"><label for="tFmt">Formato do arquivo</label><select id="tFmt">
+        <option value="woff2">woff2 — padrão da web</option><option value="woff">woff</option>
+        <option value="ttf">ttf</option><option value="otf">otf</option>
+        <option value="var">woff2 variável</option><option value="none">Nenhum — só a CDN</option></select></div>
+      <div class="ctl"><label>Quantas famílias <b id="tFamLbl">2</b></label>
+        <div class="seg" id="tFamN" role="group" aria-label="Número de famílias">
+          <button data-n="1">1</button><button data-n="2" aria-pressed="true">2</button>
+          <button data-n="3">3</button><button data-n="4">4</button><button data-n="5">5</button></div></div>
+    </div>
+  </div>
+  <div class="btnrow" style="margin-top:0">
+    <button class="act" id="tGen">Gerar combinação</button>
+    <button class="act ghost" id="tSwap">Trocar título e texto</button>
+    <button class="act ghost" id="tMono">Somar uma monoespaçada</button>
+    <button class="act ghost" id="tSave">Salvar</button>
+  </div>
+</div>
+
+<section>
+  <h2>A combinação</h2>
+  <p class="lede" id="tWhy"></p>
+  <div class="grid3" id="tCards" style="margin-top:18px"></div>
+  <div class="note" id="tScore"></div>
+</section>
+
+<section>
+  <h2>Hierarquia</h2>
+  <p class="lede">Cada nível tem família, peso, degrau da escala, entrelinha, entreletra, caixa e cor próprios. Toque num nível para ajustá-lo; use o botão da direita para ligar e desligar os que o projeto não usa.</p>
+  <div class="rolebar" id="tRoleBar"></div>
+  <div class="grid3" id="tRoleCtl" style="margin-top:16px"></div>
+  <div class="btnrow"><button class="mini" id="tRoleReset">Devolver este nível ao padrão</button><button class="mini" id="tRoleResetAll">Devolver todos</button></div>
+  <table class="roletable"><thead><tr><th>Nível</th><th>Família</th><th>Corpo</th><th>Peso</th><th>Entrelinha</th><th>Cor</th></tr></thead><tbody id="tRoleRows"></tbody></table>
+</section>
+
+<section>
+  <h2>Seu texto</h2>
+  <p class="lede">Cole aqui o texto real do projeto. Cada linha vira um nível da hierarquia, e a amostra abaixo se redesenha ao vivo com a paleta, o corpo e a escala escolhidos.</p>
+  <label for="tText" class="sm" style="display:block;margin-bottom:7px">Seu texto, uma linha por nível</label>
+  <textarea id="tText" spellcheck="false"></textarea>
+  <p class="sm" style="margin-top:8px">Comece a linha com <b>#</b> para título, <b>##</b> para subtítulo, <b>###</b> para rótulo, <b>&gt;</b> para citação, <b>!</b> para destaque, <b>--</b> para referência, e envolva em <b>[colchetes]</b> para botão. Linha sem prefixo vira parágrafo.</p>
+  <div class="btnrow"><button class="mini" id="tSample">Trazer texto de exemplo</button><button class="mini" id="tClear">Limpar</button><button class="mini" id="tSpecPng">Baixar a amostra em PNG</button></div>
+</section>
+
+<section>
+  <h2>Amostra</h2>
+  <div class="grid3" style="margin-top:4px">
+    <div class="ctl"><label for="tRatio">Escala modular</label><select id="tRatio">
+      <option value="1">Nenhuma — tudo no mesmo corpo</option>
+      <option value="1.2">1,200 — terça menor</option><option value="1.25">1,250 — terça maior</option>
+      <option value="1.333" selected>1,333 — quarta justa</option><option value="1.414">1,414 — trítono</option>
+      <option value="1.5">1,500 — quinta justa</option><option value="1.618">1,618 — áurea</option>
+      <option value="2">2,000 — oitava</option></select></div>
+    <div class="ctl"><label for="tBase">Corpo do texto <b id="tBaseV">17px</b></label><input type="range" id="tBase" min="13" max="24" value="17"></div>
+    <div class="ctl"><label for="tMeasure">Medida <b id="tMeasureV">66 caracteres</b></label><input type="range" id="tMeasure" min="30" max="95" value="66"></div>
+  </div>
+  <div class="grid3">
+    <div class="ctl"><label for="tLh">Entrelinha <b id="tLhV">1,60</b></label><input type="range" id="tLh" min="110" max="210" value="160"></div>
+    <div class="ctl"><label for="tTrack">Entreletra do título <b id="tTrackV">-0,02em</b></label><input type="range" id="tTrack" min="-60" max="40" value="-20"></div>
+    <div class="ctl"><label for="tPal">Cores da amostra</label><select id="tPal">
+      <option value="none">Nenhuma — preto sobre branco</option>
+      <option value="pal" selected>A paleta atual</option>
+      <option value="inv">A paleta invertida</option></select></div>
+  </div>
+  <div class="spec" id="spec"></div>
+  <div class="ratio" id="ratioList"></div>
+</section>
+
+<section>
+  <h2>Todos os códigos</h2>
+  <div class="tabs2" id="tTabs">
+    <button data-f="css" aria-pressed="true">CSS</button><button data-f="face">@font-face</button>
+    <button data-f="link">Link da CDN</button><button data-f="tw">Tailwind</button>
+    <button data-f="html">HTML completo</button><button data-f="dl">Onde baixar</button>
+  </div>
+  <pre id="tOut"></pre>
+  <div class="btnrow"><button class="act" id="tCopy">Copiar</button><button class="mini" id="tDl">Baixar arquivo</button></div>
+</section>
+
+<section>
+  <h2>Bancos de fontes livres</h2>
+  <p class="lede">Todas as famílias deste instrumento vêm de bancos que permitem baixar, hospedar e usar comercialmente. Vale conferir a licença de cada uma no próprio banco antes de distribuir.</p>
+  <table><thead><tr><th>Banco</th><th>O que é</th><th>Formato entregue</th></tr></thead><tbody id="banks"></tbody></table>
+</section>
+
+<section>
+  <h2>Combinações salvas</h2>
+  <div class="btnrow" id="tSaved" style="margin-top:6px"></div>
+  <p class="sm" id="tSavedEmpty">Nada salvo ainda.</p>
+</section>
+</main>
+</div>
+
+<!-- ══════════ CRIAÇÃO ══════════ -->
+<main class="page" id="p-criacao">
+
+<section style="padding-top:34px">
+  <h1>Criação</h1>
+  <p class="lede" style="margin-top:18px">Descreva o que você precisa fazer. O instrumento atravessa os dois anteriores — o círculo de Goethe do lado da cor, o banco de famílias do lado da tipografia — e devolve três propostas completas, cada uma com paleta, combinação tipográfica, aplicação desenhada e o raciocínio por trás.</p>
+  <p class="sm" style="margin-top:10px;max-width:62ch">As três nunca são variações da mesma ideia: a primeira lê a convenção do campo, a segunda a contraria, e a terceira entra por um caminho lateral. Tudo é calculado no seu navegador, sem consultar nada fora dele.</p>
+</section>
+
+<section>
+  <div class="grid3">
+    <div class="ctl"><label for="cPiece">O que você está criando</label><select id="cPiece"></select></div>
+    <div class="ctl"><label for="cSup">Onde isso vai existir</label><select id="cSup"></select></div>
+    <div class="ctl"><label for="cEmo">O que precisa provocar</label><select id="cEmo"></select></div>
+  </div>
+  <div class="grid3">
+    <div class="ctl"><label for="cMkt">Campo de atuação</label><select id="cMkt"></select></div>
+    <div class="ctl"><label for="cCult">Referência cultural</label><select id="cCult"></select></div>
+    <div class="ctl"><label for="cMus">Estilo musical</label><select id="cMus"></select></div>
+  </div>
+  <div class="grid3">
+    <div class="ctl"><label for="cPos">Postura diante da convenção</label>
+      <input type="range" id="cPos" min="0" max="100" value="50">
+      <div class="scl"><span>Pertencer</span><span id="cPosV">50</span><span>Romper</span></div></div>
+    <div class="ctl"><label>Quantas cores <b id="cNLbl">5</b></label>
+      <div class="seg" id="cN" role="group" aria-label="Número de cores">
+        <button data-n="3">3</button><button data-n="4">4</button>
+        <button data-n="5" aria-pressed="true">5</button><button data-n="6">6</button></div></div>
+    <div class="ctl"><label for="cFam">Quantas famílias tipográficas</label><select id="cFam">
+      <option value="0">Que o instrumento decida</option><option value="1">1</option>
+      <option value="2" selected>2</option><option value="3">3</option><option value="4">4</option></select></div>
+  </div>
+  <div class="ctl" style="margin-top:6px">
+    <label for="cBrief">Descreva em uma ou duas frases — quem é, para quem fala, que sensação precisa deixar</label>
+    <textarea id="cBrief" spellcheck="false" placeholder="Ex.: um relatório anual de uma cooperativa de café na Amazônia, sério mas quente, para investidores que não conhecem o setor"></textarea>
+  </div>
+  <p class="sm" id="cWords" style="margin-top:8px"></p>
+  <div class="btnrow">
+    <button class="act" id="cGo">Gerar três propostas</button>
+    <button class="act ghost" id="cAgain">Outras três</button>
+    <button class="act ghost" id="cClear">Limpar tudo</button>
+  </div>
+  <div class="note" id="cRead" style="display:none"></div>
+</section>
+
+<div id="cOut"></div>
+</main>
+
+<!-- ══════════ TENDÊNCIAS ══════════ -->
+<main class="page" id="p-tend">
+<section style="padding-top:34px">
+  <h1>Tendências</h1>
+  <p class="lede" style="margin-top:18px">Um compilado trimestral do que as casas de previsão, as fundições tipográficas e os observatórios de comportamento estão publicando — reduzido a quatro eixos: cor, tipografia, combinações e aplicações. Cada eixo vira um banner que você pode baixar, e a paleta e as famílias de cada edição abrem direto nos outros instrumentos.</p>
+  <div class="note" style="margin-top:18px">
+    <b>O que esta página é e o que não é.</b> Ela reúne o que foi publicado abertamente: comunicados de imprensa, anúncios de instituto de cor, relatórios de fundição e cobertura editorial, cada item com fonte e data. Não reproduz relatório de assinatura — previsões completas de WGSN, Coloro, Nelly Rodi, Peclers ou Monotype só existem para quem assina, e o que está aqui é o recorte público. Os valores em hex são <b>aproximações em sRGB</b> feitas a partir da descrição e da imagem divulgadas, não os códigos oficiais: para produção, use o código da própria fonte.
+  </div>
+</section>
+
+<section>
+  <div class="tabs2" id="edTabs" role="group" aria-label="Edições"></div>
+  <div id="edHead"></div>
+  <div id="edAxes"></div>
+</section>
+
+<section>
+  <h2>Banners</h2>
+  <p class="lede">Quatro resumos em formato de cartão, gerados a partir da edição escolhida. Saem em SVG vetorial ou PNG de 1200 por 630, que é a medida de pré-visualização de link.</p>
+  <div class="grid2" id="banners" style="margin-top:18px"></div>
+</section>
+
+<section>
+  <h2>Arquivo</h2>
+  <p class="lede">As edições anteriores continuam acessíveis. Nada é apagado quando entra uma nova.</p>
+  <div id="edArquivo" style="margin-top:14px"></div>
+</section>
+
+<section style="border-bottom:0">
+  <h2>Como esta página se atualiza</h2>
+  <p class="lede">Todo o conteúdo vive numa única estrutura de dados no código, a constante <code>TREND</code>, com uma entrada por trimestre. Acrescentar uma edição é inserir um objeto no começo da lista, com período, resumo, os quatro eixos e as fontes de cada um. Nada mais precisa ser tocado: as abas, os banners, o arquivo e os botões que levam aos instrumentos se montam sozinhos a partir dela.</p>
+  <div class="btnrow"><button class="mini" id="edSchema">Ver o formato de uma edição</button><button class="mini" id="edJson">Baixar as edições em JSON</button><button class="mini" id="edMd">Baixar a edição atual em Markdown</button></div>
+  <pre id="edSchemaOut" style="display:none"></pre>
+</section>
+</main>
+
+<div id="exp" role="dialog" aria-modal="true" aria-label="Exportar">
+  <div class="sheet">
+    <h3>Exportar a paleta</h3>
+    <p class="sm" id="expName"></p>
+    <h4 style="margin-top:18px">Imagem</h4>
+    <div class="btnrow" style="margin-top:8px">
+      <button class="mini" data-ex="svg">SVG vetorial</button><button class="mini" data-ex="png">PNG</button>
+      <button class="mini" data-ex="jpg">JPG</button><button class="mini" data-ex="poster">Pôster PNG 2000px</button>
+    </div>
+    <h4 style="margin-top:18px">Troca entre programas</h4>
+    <div class="btnrow" style="margin-top:8px">
+      <button class="mini" data-ex="ase">ASE · Adobe</button><button class="mini" data-ex="gpl">GPL · GIMP e Inkscape</button>
+      <button class="mini" data-ex="aco">Texto com todos os códigos</button><button class="mini" data-ex="csv">CSV para planilha</button>
+      <button class="mini" data-ex="md">Markdown para colar no Claude</button>
+    </div>
+    <h4 style="margin-top:18px">Código</h4>
+    <div class="btnrow" style="margin-top:8px" id="expCode"></div>
+    <h4 style="margin-top:22px">Vários de uma vez, num arquivo .zip</h4>
+    <p class="sm">Marque o que precisa e baixe tudo num pacote só.</p>
+    <div class="expgrid" id="expZip"></div>
+    <div class="btnrow" style="margin-top:12px">
+      <button class="act" id="zipGo">Baixar o .zip</button>
+      <button class="mini" id="zipAll">Selecionar tudo</button>
+      <button class="mini" id="zipNone">Limpar seleção</button>
+      <button class="mini" data-ex="all">Só um .txt com todos os códigos</button>
+    </div>
+    <div class="btnrow" style="margin-top:22px"><button class="act" id="expClose">Fechar</button></div>
+  </div>
+</div>
+<div id="scale" role="dialog" aria-modal="true" aria-label="Paleta em escala">
+  <button class="x" id="scaleX">Fechar</button>
+  <div class="cap2"><div class="big" id="scaleBig"></div><div class="sm" id="scaleSm" style="margin-top:10px"></div></div>
+</div>
+<div class="toast" id="toast"></div>
+<canvas id="cv" style="display:none"></canvas>
+</body>
+</html>
