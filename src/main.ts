@@ -1,3 +1,4 @@
+import { initMockupPages } from './mockups/pages';
 import './styles/tokens.css';
 import './styles/base.css';
 import './styles/components.css';
@@ -25,4 +26,5 @@ initType();
 initNav();
 initCreate();
 initTrends();
+initMockupPages();
 installTestHooks();

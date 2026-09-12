@@ -81,9 +81,23 @@ button:disabled{opacity:.45;cursor:not-allowed;transform:none!important}
 .homecard span{font-size:13px;color:var(--soft);line-height:1.5}
 .homecard:hover{border-color:var(--ink);transform:translateY(-2px);box-shadow:var(--sh)}
 .homecard:first-child{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
-.homecard:first-child span{color:var(--accent-ink);opacity:.8}
+.homecard:first-child span{color:var(--accent-ink)}
 @media(max-width:520px){#tabbar{gap:2px;padding:6px}#tabbar button{min-width:52px;padding:10px 4px;font-size:10px}}
 
 nav .gt+.gt{margin-left:6px}
 @media(max-width:520px){nav{gap:8px;padding:0 14px}nav .mk{font-size:18px}nav .here{display:none}nav .gt{padding:2px}nav .gt+.gt{margin-left:0}
   nav .gt button{padding:8px 9px;font-size:12px;min-height:40px}}
+
+/* ── Visualização de exemplos: pacotes de mockups ── */
+.mockctl{display:flex;flex-wrap:wrap;gap:12px 18px;margin-top:14px}
+.mockctl .lbl{flex:1 1 200px}
+.mockd{margin:10px 0 0}
+.mockitems{margin:12px 0 0}
+.mockitems .pill{cursor:pointer;font:inherit;font-size:12.5px;min-height:40px;padding:8px 14px;border:1px solid var(--rule);background:transparent;color:var(--soft)}
+.mockitems .pill[aria-pressed="true"]{background:var(--ink);color:var(--ground);border-color:var(--ink)}
+.mockgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:14px;margin-top:16px}
+.mock{margin:0;background:var(--card);border:1px solid var(--rule2);border-radius:var(--r);overflow:hidden}
+.mockimg{aspect-ratio:4/3;background:#E9E7E2}
+.mockimg svg{display:block;width:100%;height:100%}
+.mock figcaption{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;padding:10px 14px;font-size:13px}
+.mock figcaption .mini{min-height:40px;padding:8px 12px;font-size:12px}
