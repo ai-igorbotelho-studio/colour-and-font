@@ -7,9 +7,10 @@ import { S, hexOf, shown, proportions, hooks } from './state';
 
 export const RAMP_STEPS = [50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 950];
 /** Rampa de 11 degraus de uma cor, com o croma cedendo longe da luminosidade própria. */
-export function rampOf(c: { a: number; L: number; C: number }): string[] {
+export function rampOf(c: { a: number; L: number; C: number }): string[] { return rampLch(c.L, c.C, atAngle(c.a).H) }
+export function rampLch(Lc: number, Cc: number, Hc: number): string[] {
   const ramp: string[] = [];
-  for (let k = 0; k < 11; k++) { const L = .97 - k * .088; ramp.push(oklch2hex(L, c.C * (1 - Math.abs(L - c.L) * .5), atAngle(c.a).H)) }
+  for (let k = 0; k < 11; k++) { const L = .97 - k * .088; ramp.push(oklch2hex(L, Cc * (1 - Math.abs(L - Lc) * .5), Hc)) }
   return ramp;
 }
 

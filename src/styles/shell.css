@@ -64,3 +64,8 @@ button:disabled{opacity:.45;cursor:not-allowed;transform:none!important}
 }
 #scale{height:100dvh}
 #exp .sheet{max-height:calc(100dvh - env(safe-area-inset-bottom))}
+
+/* ── propostas da Criação: visualização e amostra por proposta ── */
+.prop .viewbar{margin-top:6px}
+.prop .spec{margin-top:12px}
+.prop h3{font-size:19px}

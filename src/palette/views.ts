@@ -1,10 +1,10 @@
 /* ── a tira: dez modos de visualização ── */
 import { hex2rgb, rgb2hex, rgb2cmyk, rgb2hsl, lum, ratio, readable, mixLch, simulate } from '../core/color';
-import { nameOf } from '../core/goethe';
+import { nameOf, atAngle } from '../core/goethe';
 import { $, $all, esc, copy } from '../core/dom';
 import { S, cur, hexOf, shown, proportions, hooks, type ViewKey } from './state';
 import { pushH } from './history';
-import { openDetail, rampOf, RAMP_STEPS } from './detail';
+import { openDetail, rampLch, RAMP_STEPS } from './detail';
 
 export interface View { v: ViewKey; n: string; d: string }
 export const VIEWS: View[] = [
@@ -26,78 +26,63 @@ export function initViews(): void {
     S.view = b.dataset.v as ViewKey; $all($('viewbar'), 'button').forEach(x => x.setAttribute('aria-pressed', String(x === b))); hooks.render() });
 }
 
-export function drawStrip(): void {
-  const pr = proportions(), v = S.view;
-  const wrap = $('strip'); wrap.className = 'vwrap';
-  const H = S.colors.map(hexOf), V = S.colors.map(shown);
-  const fg = (i: number) => readable(V[i]);
-  let html = '';
+/* Contexto de uma visualização: só dados — a página Cores o monta a partir de S,
+   a Criação monta um por proposta. tools liga os botões de cadeado/ordem das faixas. */
+export interface StripCtx { H: string[]; V: string[]; pr: number[]; names: string[]; locks: boolean[]; lch: { L: number; C: number; H: number }[]; schemeName: string; title: string; cvd: string; tools: boolean }
+export function ctxFromState(): StripCtx {
+  const { E, M, SC } = cur();
+  return { H: S.colors.map(hexOf), V: S.colors.map(shown), pr: proportions(), names: S.colors.map(c => nameOf(c.a)), locks: S.colors.map(c => c.lock),
+    lch: S.colors.map(c => ({ L: c.L, C: c.C, H: atAngle(c.a).H })),
+    schemeName: SC.n, title: E.a !== null ? E.n : (M.a !== null ? M.n : 'Paleta'), cvd: S.cvd, tools: true };
+}
 
-  if (v === 'faixas') {
-    wrap.className = 'strip';
-    // rótulos pequenos ganham um véu quando, já com a opacidade do rótulo (.8), o preto ou o
-    // branco não chega a 4,5:1 sobre a cor mostrada
-    const blend = (a: string, b: string, t: number) => { const x = hex2rgb(a), y = hex2rgb(b); return rgb2hex(x[0] * t + y[0] * (1 - t), x[1] * t + y[1] * (1 - t), x[2] * t + y[2] * (1 - t)) };
-    const lowc = (i: number) => ratio(blend(fg(i), V[i], .8), V[i]) < 4.5;
-    html = S.colors.map((c, i) => `<div class="cell${lowc(i) ? ' lowc' : ''}" draggable="true" data-i="${i}" style="background:${V[i]};color:${fg(i)}">
+/** HTML de um modo de visualização, mais a classe do contêiner. */
+export function viewHtml(v: ViewKey, x: StripCtx): { className: string; html: string } {
+  const { H, V, pr } = x, n = H.length;
+  const fg = (i: number) => readable(V[i]);
+  const blend = (a: string, b: string, t: number) => { const p = hex2rgb(a), q = hex2rgb(b); return rgb2hex(p[0] * t + q[0] * (1 - t), p[1] * t + q[1] * (1 - t), p[2] * t + q[2] * (1 - t)) };
+  const lowc = (i: number) => ratio(blend(fg(i), V[i], .8), V[i]) < 4.5;
+  const ramp = (i: number) => rampLch(x.lch[i].L, x.lch[i].C, x.lch[i].H);
+
+  if (v === 'faixas') return { className: 'strip', html: H.map((_h, i) => `<div class="cell${lowc(i) ? ' lowc' : ''}" ${x.tools ? 'draggable="true"' : ''} data-i="${i}" style="background:${V[i]};color:${fg(i)}">
       <div class="top"><span class="rl">${i + 1} · ${Math.round(pr[i])}%</span>
-        <span class="tools">
-          <button data-act="lock" title="Congelar">${c.lock ? '●' : '○'}</button>
+        ${x.tools ? `<span class="tools">
+          <button data-act="lock" title="Congelar">${x.locks[i] ? '●' : '○'}</button>
           <button data-act="left" title="Mover para trás">‹</button>
           <button data-act="right" title="Mover para frente">›</button>
           <button data-act="copy" title="Copiar">⧉</button>
           <button data-act="info" title="Abrir códigos">⋯</button>
-        </span></div>
+        </span>` : `<span class="tools"><button data-act="copy" title="Copiar">⧉</button></span>`}</div>
       <div class="hexbig">${H[i]}</div>
-      <div class="nmx">${nameOf(c.a)}</div>
+      <div class="nmx">${x.names[i]}</div>
       <div class="rgbx">rgb ${hex2rgb(H[i]).join(' · ')}</div>
-    </div>`).join('');
-  }
-  else if (v === 'proporcao') {
-    wrap.className = 'vwrap v-prop';
-    html = S.colors.map((_c, i) => `<button class="pick" data-i="${i}" style="flex:${pr[i].toFixed(2)};background:${V[i]};color:${fg(i)}">
+    </div>`).join('') };
+  if (v === 'proporcao') return { className: 'vwrap v-prop', html: H.map((_c, i) => `<button class="pick" data-i="${i}" style="flex:${pr[i].toFixed(2)};background:${V[i]};color:${fg(i)}">
       <span style="font-family:'Bodoni Moda',serif;font-size:18px">${H[i]}</span>
-      <span style="font-size:11px;opacity:.8">${Math.round(pr[i])}% · rgb ${hex2rgb(H[i]).join(' ')}</span></button>`).join('');
-  }
-  else if (v === 'cartoes') {
-    wrap.className = 'vwrap v-cards';
-    html = S.colors.map((c, i) => { const [r, g, b] = hex2rgb(H[i]), cm = rgb2cmyk(r, g, b), hs = rgb2hsl(r, g, b);
+      <span style="font-size:11px;opacity:.8">${Math.round(pr[i])}% · rgb ${hex2rgb(H[i]).join(' ')}</span></button>`).join('') };
+  if (v === 'cartoes') return { className: 'vwrap v-cards', html: H.map((_c, i) => { const [r, g, b] = hex2rgb(H[i]), cm = rgb2cmyk(r, g, b), hs = rgb2hsl(r, g, b);
       return `<button class="pick" data-i="${i}"><span class="sw" style="background:${V[i]}"></span>
-      <span class="meta"><b>${H[i]}</b>${nameOf(c.a)}<br>rgb ${r} ${g} ${b}<br>hsl ${hs.map(x => Math.round(x)).join(' ')}<br>cmyk ${cm.map(x => Math.round(x)).join(' ')}<br>${Math.round(pr[i])}% da área</span></button>` }).join('');
-  }
-  else if (v === 'circulos') {
-    wrap.className = 'vwrap v-circles';
-    const mx = Math.max(...pr);
-    html = S.colors.map((_c, i) => { const d = Math.round(70 + Math.sqrt(pr[i] / mx) * 130);
-      return `<button class="pick" data-i="${i}" style="width:${d}px;height:${d}px;background:${V[i]};color:${fg(i)}">${d > 96 ? H[i] : ''}</button>` }).join('');
-  }
-  else if (v === 'aneis') {
-    wrap.className = 'vwrap v-rings';
-    const n = S.colors.length, R = 170;
-    html = `<svg viewBox="0 0 380 380" style="width:100%;max-width:380px;height:auto">`
-      + S.colors.map((_c, i) => { const r = R - (i * (R - 26) / n);
+      <span class="meta"><b>${H[i]}</b>${x.names[i]}<br>rgb ${r} ${g} ${b}<br>hsl ${hs.map(y => Math.round(y)).join(' ')}<br>cmyk ${cm.map(y => Math.round(y)).join(' ')}<br>${Math.round(pr[i])}% da área</span></button>` }).join('') };
+  if (v === 'circulos') { const mx = Math.max(...pr);
+    return { className: 'vwrap v-circles', html: H.map((_c, i) => { const d = Math.round(70 + Math.sqrt(pr[i] / mx) * 130);
+      return `<button class="pick" data-i="${i}" style="width:${d}px;height:${d}px;background:${V[i]};color:${fg(i)}">${d > 96 ? H[i] : ''}</button>` }).join('') } }
+  if (v === 'aneis') { const R = 170;
+    return { className: 'vwrap v-rings', html: `<svg viewBox="0 0 380 380" style="width:100%;max-width:380px;height:auto">`
+      + H.map((_c, i) => { const r = R - (i * (R - 26) / n);
         return `<circle class="pick" data-i="${i}" cx="190" cy="190" r="${r}" fill="${V[i]}" style="cursor:pointer"/>` }).join('')
-      + S.colors.map((_c, i) => { const r = R - (i * (R - 26) / n) - ((R - 26) / n) / 2;
+      + H.map((_c, i) => { const r = R - (i * (R - 26) / n) - ((R - 26) / n) / 2;
         return `<text x="190" y="${190 - r + 18}" text-anchor="middle" font-size="12" font-family="IBM Plex Sans,sans-serif" fill="${fg(i)}" style="pointer-events:none">${H[i]}</text>` }).join('')
-      + `</svg>`;
-  }
-  else if (v === 'escalas') {
-    wrap.className = 'vwrap v-ramps';
-    html = S.colors.map((c, i) => { let row = `<div class="row"><span class="lab">${H[i]}</span>`;
-      rampOf(c).forEach((x, k) => { row += `<button class="pick" data-i="${i}" data-h="${x}" style="background:${simulate(x, S.cvd)};color:${readable(x)}">${RAMP_STEPS[k]}</button>` });
-      return row + '</div>' }).join('');
-  }
-  else if (v === 'mosaico') {
-    wrap.className = 'vwrap v-mosaic';
-    html = S.colors.map((_c, i) => { const big = pr[i] >= Math.max(...pr) * .7;
-      return `<button class="pick" data-i="${i}" style="flex:${Math.max(6, pr[i]).toFixed(2)} 1 ${big ? '55%' : '26%'};background:${V[i]};color:${fg(i)}">${H[i]} · ${Math.round(pr[i])}%</button>` }).join('');
-  }
-  else if (v === 'interface') {
-    wrap.className = 'vwrap';
+      + `</svg>` } }
+  if (v === 'escalas') return { className: 'vwrap v-ramps', html: H.map((_c, i) => { let row = `<div class="row"><span class="lab">${H[i]}</span>`;
+      ramp(i).forEach((y, k) => { row += `<button class="pick" data-i="${i}" data-h="${y}" style="background:${simulate(y, x.cvd)};color:${readable(y)}">${RAMP_STEPS[k]}</button>` });
+      return row + '</div>' }).join('') };
+  if (v === 'mosaico') return { className: 'vwrap v-mosaic', html: H.map((_c, i) => { const big = pr[i] >= Math.max(...pr) * .7;
+      return `<button class="pick" data-i="${i}" style="flex:${Math.max(6, pr[i]).toFixed(2)} 1 ${big ? '55%' : '26%'};background:${V[i]};color:${fg(i)}">${H[i]} · ${Math.round(pr[i])}%</button>` }).join('') };
+  if (v === 'interface') {
     const ls = H.map(lum), bg = H[ls.indexOf(Math.max(...ls))], ink = H[ls.indexOf(Math.min(...ls))];
-    const ac = H.find(x => x !== bg && x !== ink && ratio(x, bg) >= 3) || ink;
+    const ac = H.find(y => y !== bg && y !== ink && ratio(y, bg) >= 3) || ink;
     const soft = mixLch(bg, ink, .12);
-    html = `<div class="v-ui" style="background:${bg};color:${ink}">
+    return { className: 'vwrap', html: `<div class="v-ui" style="background:${bg};color:${ink}">
       <div class="side" style="background:${soft}">
         ${['Painel', 'Coleções', 'Histórico', 'Ajustes'].map((t, k) =>
           `<span class="it" style="${k === 0 ? `background:${ac};color:${readable(ac)}` : ''}">${t}</span>`).join('')}
@@ -105,32 +90,37 @@ export function drawStrip(): void {
       <div class="main">
         <div class="hero" style="background:${ink};color:${readable(ink)}"><h4>Um título dentro de uma interface</h4>
           <span style="font-size:13px;opacity:.85">O contraste aqui é ${ratio(ink, readable(ink)).toFixed(1)} para 1.</span></div>
-        <div class="tiles">${H.map((x, i) => `<button class="pick tile" data-i="${i}" style="background:${V[i]};color:${fg(i)}">
-          <span>${nameOf(S.colors[i].a)}</span><span style="font-size:14px">${x}</span></button>`).join('')}</div>
+        <div class="tiles">${H.map((y, i) => `<button class="pick tile" data-i="${i}" style="background:${V[i]};color:${fg(i)}">
+          <span>${x.names[i]}</span><span style="font-size:14px">${y}</span></button>`).join('')}</div>
         <div style="display:flex;gap:9px;flex-wrap:wrap">
           <span style="background:${ac};color:${readable(ac)};padding:9px 16px;border-radius:2px;font-size:13px">Ação principal</span>
           <span style="border:1px solid ${ink};padding:9px 16px;border-radius:2px;font-size:13px">Secundária</span>
         </div>
-      </div></div>`;
+      </div></div>` };
   }
-  else if (v === 'poster') {
-    wrap.className = 'vwrap v-poster';
+  if (v === 'poster') {
     const ls = H.map(lum), bg = H[ls.indexOf(Math.max(...ls))], ink = H[ls.indexOf(Math.min(...ls))];
-    const { E, M } = cur();
-    html = `<div class="inner" style="background:${bg};color:${ink}">
-      <div style="font-size:12px;opacity:.7">${esc(cur().SC.n)}</div>
-      <div class="big">${esc(E.a !== null ? E.n : (M.a !== null ? M.n : 'Paleta'))}</div>
-      <div class="marks">${H.map((x, i) => `<button class="pick" data-i="${i}" style="background:${V[i]}" title="${x}"></button>`).join('')}</div>
-      <div style="font-size:12px;opacity:.75;display:flex;gap:14px;flex-wrap:wrap">${H.map(x => `<span>${x}</span>`).join('')}</div>
-    </div>`;
+    return { className: 'vwrap v-poster', html: `<div class="inner" style="background:${bg};color:${ink}">
+      <div style="font-size:12px;opacity:.7">${esc(x.schemeName)}</div>
+      <div class="big">${esc(x.title)}</div>
+      <div class="marks">${H.map((y, i) => `<button class="pick" data-i="${i}" style="background:${V[i]}" title="${y}"></button>`).join('')}</div>
+      <div style="font-size:12px;opacity:.75;display:flex;gap:14px;flex-wrap:wrap">${H.map(y => `<span>${y}</span>`).join('')}</div>
+    </div>` };
   }
-  else { /* degradê */
-    wrap.className = 'vwrap';
-    const stops = H.map((_x, i) => `${V[i]} ${Math.round(i / (H.length - 1 || 1) * 100)}%`);
-    html = `<div class="v-blend" style="background:linear-gradient(90deg,${stops.join(',')})">
-      ${H.map((x, i) => `<button class="pick hit" data-i="${i}" title="${x}" style="left:${i / (H.length || 1) * 100}%;width:${100 / (H.length || 1)}%;background:transparent"></button>`).join('')}
-    </div>`;
-  }
+  /* degradê */
+  const stops = H.map((_y, i) => `${V[i]} ${Math.round(i / (n - 1 || 1) * 100)}%`);
+  return { className: 'vwrap', html: `<div class="v-blend" style="background:linear-gradient(90deg,${stops.join(',')})">
+      ${H.map((y, i) => `<button class="pick hit" data-i="${i}" title="${y}" style="left:${i / (n || 1) * 100}%;width:${100 / (n || 1)}%;background:transparent"></button>`).join('')}
+    </div>` };
+}
+
+export function drawStrip(): void {
+  const pr = proportions(), v = S.view;
+  const wrap = $('strip');
+  const V = S.colors.map(shown);
+  const fg = (i: number) => readable(V[i]);
+  const out = viewHtml(v, ctxFromState());
+  wrap.className = out.className; const html = out.html;
   wrap.innerHTML = html;
 
   $all<HTMLElement>(wrap, '.pick').forEach(el => {

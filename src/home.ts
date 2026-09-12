@@ -3,7 +3,7 @@ import { oklch2hex, hslHex } from './core/color';
 import { ANCHORS, hexAt } from './core/goethe';
 import { $, $all } from './core/dom';
 import { CLS, FONTS } from './data/fonts';
-import { fam } from './type/pairing';
+import { famAttr } from './type/pairing';
 import { loadFont } from './type/loader';
 
 export function wheelSvg(marks: number[], size: number, showLabels: boolean): string {
@@ -45,7 +45,7 @@ export function drawHome(): void {
   const reps: Record<string, string> = { 'serif-old': 'EB Garamond', 'serif-trans': 'Lora', 'serif-mod': 'Playfair Display', 'serif-slab': 'Roboto Slab',
     'sans-grot': 'Space Grotesk', 'sans-neo': 'Inter', 'sans-geo': 'Poppins', 'sans-hum': 'IBM Plex Sans', 'mono': 'JetBrains Mono', 'display': 'Syne' };
   $('classGrid').innerHTML = (Object.keys(CLS) as (keyof typeof CLS)[]).map(k => { const f = FONTS.find(x => x.n === reps[k]); if (f) loadFont(f);
-    return `<div class="card"><div style="font-family:${f ? fam(f) : 'serif'};font-size:32px;line-height:1.1;margin-bottom:6px">Aa Gg</div>
+    return `<div class="card"><div style="font-family:${f ? famAttr(f) : 'serif'};font-size:32px;line-height:1.1;margin-bottom:6px">Aa Gg</div>
       <h4>${CLS[k].n}</h4><p class="sm">${CLS[k].d}</p><p class="sm" style="margin-top:6px">Exemplo: ${reps[k]}</p></div>` }).join('');
 }
 

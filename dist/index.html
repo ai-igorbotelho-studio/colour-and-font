@@ -20,8 +20,8 @@
 <link rel="preload" href="/fonts/bodoni-moda-latin-opsz-normal.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="manifest" href="/manifest.webmanifest">
 <link rel="apple-touch-icon" href="/icons/icon-192.png">
-  <script type="module" crossorigin src="/assets/index-CcyROnsm.js"></script>
-  <link rel="stylesheet" crossorigin href="/assets/index-CJY6I3pg.css">
+  <script type="module" crossorigin src="/assets/index-D0mFK60r.js"></script>
+  <link rel="stylesheet" crossorigin href="/assets/index-Bkr6Secx.css">
 </head>
 <body>
 <a class="skip" href="#conteudo">Ir para o conteúdo</a>
@@ -464,6 +464,33 @@
     <button class="act ghost" id="cClear">Limpar tudo</button>
   </div>
   <div class="note" id="cRead" style="display:none"></div>
+</section>
+
+<section id="cSpecCtl">
+  <h2>Seu texto e a amostra</h2>
+  <p class="lede">Cole o texto real do projeto: cada proposta abaixo o redesenha ao vivo com a própria paleta e as próprias famílias. Corpo, escala, medida, entrelinha e entreletra valem para as três, e mudam na hora.</p>
+  <label for="cText" class="sm" style="display:block;margin:14px 0 7px">Seu texto, uma linha por nível</label>
+  <textarea id="cText" spellcheck="false"></textarea>
+  <p class="sm" style="margin-top:8px">Comece a linha com <b>#</b> para título, <b>##</b> para subtítulo, <b>###</b> para rótulo, <b>&gt;</b> para citação, <b>!</b> para destaque, <b>--</b> para referência e <b>[texto]</b> para botão.</p>
+  <div class="btnrow"><button class="mini" id="cSample">Trazer texto de exemplo</button><button class="mini" id="cTextClear">Limpar</button></div>
+  <div class="grid3" style="margin-top:18px">
+    <div class="ctl"><label for="cRatio">Escala modular</label><select id="cRatio">
+      <option value="1">Nenhuma — tudo no mesmo corpo</option>
+      <option value="1.2">1,200 — terça menor</option><option value="1.25">1,250 — terça maior</option>
+      <option value="1.333" selected>1,333 — quarta justa</option><option value="1.414">1,414 — trítono</option>
+      <option value="1.5">1,500 — quinta justa</option><option value="1.618">1,618 — áurea</option>
+      <option value="2">2,000 — oitava</option></select></div>
+    <div class="ctl"><label for="cBase">Corpo do texto <b id="cBaseV">17px</b></label><input type="range" id="cBase" min="13" max="24" value="17"></div>
+    <div class="ctl"><label for="cMeasure">Medida <b id="cMeasureV">66 caracteres</b></label><input type="range" id="cMeasure" min="30" max="95" value="66"></div>
+  </div>
+  <div class="grid3">
+    <div class="ctl"><label for="cLh">Entrelinha <b id="cLhV">1,60</b></label><input type="range" id="cLh" min="110" max="210" value="160"></div>
+    <div class="ctl"><label for="cTrack">Entreletra do título <b id="cTrackV">-0,02em</b></label><input type="range" id="cTrack" min="-60" max="40" value="-20"></div>
+    <div class="ctl"><label for="cPal">Cores da amostra</label><select id="cPal">
+      <option value="none">Nenhuma — preto sobre branco</option>
+      <option value="pal" selected>A paleta da proposta</option>
+      <option value="inv">A paleta invertida</option></select></div>
+  </div>
 </section>
 
 <div id="cOut"></div>

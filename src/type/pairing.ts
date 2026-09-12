@@ -8,6 +8,9 @@ import { T } from './state';
 export const isSerif = (c: FontClass | string): boolean => c.startsWith('serif');
 /** Pilha CSS da família, com a reserva declarada. */
 export const fam = (f: Font): string => `"${f.n}", ${f.cls === 'mono' ? 'ui-monospace, monospace' : isSerif(f.cls) ? 'Georgia, serif' : 'system-ui, sans-serif'}`;
+/** A mesma pilha para atributos style="…" em HTML: aspas simples, senão a aspa dupla encerra o atributo
+    e todo o estilo inline se perde — era o que acontecia com a amostra do arquivo original. */
+export const famAttr = (f: Font): string => fam(f).replace(/"/g, "'");
 export function describe(f: Font): string {
   const p = [CLS[f.cls].n.toLowerCase()];
   p.push(f.x >= .54 ? 'altura de x alta' : f.x <= .45 ? 'altura de x baixa' : 'altura de x média');

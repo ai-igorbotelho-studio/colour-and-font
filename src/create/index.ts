@@ -1,6 +1,8 @@
 /* ═══════════ CRIAÇÃO — montagem ═══════════ */
 import { hex2rgb, rgb2cmyk, readable } from '../core/color';
-import { $, $all, $set, esc, slug, copy, download, toast, fillSel } from '../core/dom';
+import { nameOf, atAngle } from '../core/goethe';
+import { $, $v, $n, $all, $set, esc, slug, copy, download, toast, fillSel } from '../core/dom';
+import { SAMPLE_TXT } from '../data/fonts';
 import { createStore } from '../core/state';
 import { EMO } from '../data/emotions';
 import { MKT } from '../data/markets';
@@ -12,26 +14,55 @@ import { PIECES, SUPS, ANGLES } from '../data/lexicon';
 import { S, syncControls } from '../palette/state';
 import { render, pushH } from '../palette/index';
 import { makeZip } from '../palette/zip';
+import { VIEWS, viewHtml, type StripCtx } from '../palette/views';
+import { type ViewKey } from '../palette/state';
+import { specHtml } from '../type/specimen';
+import { type TypeEnv } from '../type/hierarchy';
 import { setFamilies } from '../type/index';
 import { fam } from '../type/pairing';
 import { goto } from '../nav';
 import { readBrief, buildBrief } from './brief';
 import { makeProposal, roleOf, titleFor, why, type Proposal } from './proposals';
-import { mock } from './mocks';
 import { mdProposal } from './markdown';
 
-export const createStoreCR = createStore({ props: [] as Proposal[], seed: .4, n: 5 });
+export const createStoreCR = createStore({ props: [] as Proposal[], seed: .4, n: 5, views: [] as ViewKey[] });
 const CR = createStoreCR.state;
 
+/* ambiente da amostra de uma proposta: famílias e paleta dela, controles da página */
+const envOf = (p: Proposal): TypeEnv => ({ fams: p.fonts, ov: {}, off: {}, hs: p.hs, mode: $v('cPal'), base: $n('cBase'), rt: $n('cRatio'), lh: $n('cLh') / 100, tr: $n('cTrack') / 1000, meas: $n('cMeasure') });
+const ctxOf = (p: Proposal): StripCtx => ({ H: p.hs, V: p.hs, pr: p.areas, names: p.cols.map(x => nameOf(x.a)), locks: p.cols.map(() => false),
+  lch: p.cols.map(x => ({ L: x.L, C: x.C, H: atAngle(x.a).H })), schemeName: SCH[p.si].n, title: titleFor(p.br), cvd: 'none', tools: false });
+
+/** Só a amostra de cada proposta — chamada a cada movimento dos controles. */
+function drawSpecimens(): void {
+  $('cBaseV').textContent = $n('cBase') + 'px'; $('cMeasureV').textContent = $n('cMeasure') + ' caracteres';
+  $('cLhV').textContent = ($n('cLh') / 100).toFixed(2).replace('.', ',');
+  $('cTrackV').textContent = ($n('cTrack') / 1000).toFixed(3).replace('.', ',') + 'em';
+  CR.props.forEach((p, i) => { const el = $('cSpec' + i); if (!el) return; const sp = specHtml(envOf(p), $v('cText'));
+    el.setAttribute('style', sp.style); el.innerHTML = sp.html });
+}
+/** Só a visualização da paleta de uma proposta. */
+function drawView(i: number): void {
+  const p = CR.props[i], v = CR.views[i] || 'faixas', out = viewHtml(v, ctxOf(p));
+  const wrap = $('cView' + i); wrap.className = out.className; wrap.innerHTML = out.html;
+  $all<HTMLElement>(wrap, '.pick, .cell button[data-act="copy"]').forEach(el => { el.onclick = ev => { ev.stopPropagation();
+    const h = el.dataset.h || p.hs[+(el.dataset.i ?? (el.closest('.cell') as HTMLElement).dataset.i!)]; copy(h, h + ' copiado') } });
+  $('cHint' + i).textContent = VIEWS.find(x => x.v === v)!.d;
+  $all<HTMLButtonElement>($('cBar' + i), 'button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.v === v)));
+}
+
 function drawProposals(): void {
-  $('cOut').innerHTML = CR.props.map((p, i) => {
-    return `<section class="prop" data-p="${i}">
+  $('cOut').innerHTML = CR.props.map((p, i) => `<section class="prop" data-p="${i}">
       <div class="prophead">
         <div><h2 style="margin:0">${esc(p.ang.n)}</h2>
           <p class="sm" style="margin:4px 0 0">${esc(titleFor(p.br))} · ${esc(SCH[p.si].n)} · ${esc(LENS[p.li].n.split(' — ')[0])}${p.u !== p.br.u ? ' · dinâmica de ' + esc(MUS[p.u].n.toLowerCase()) : ''} · ${p.fonts.map(f => esc(f.n)).join(' + ')}</p></div>
         <div class="propstrip">${p.hs.map((h, j) => `<button data-h="${h}" style="background:${h};color:${readable(h)}" title="${h}">${Math.round(p.areas[j])}%</button>`).join('')}</div>
       </div>
-      ${mock(p)}
+      <div class="viewbar" id="cBar${i}" role="group" aria-label="Modo de visualização">${VIEWS.map(x => `<button data-v="${x.v}" aria-pressed="${x.v === (CR.views[i] || 'faixas')}">${x.n}</button>`).join('')}</div>
+      <div class="vwrap" id="cView${i}"></div>
+      <p class="sm" id="cHint${i}" style="margin-top:10px"></p>
+      <h3 style="margin-top:22px">Amostra — ${p.fonts.map(f => esc(f.n)).join(' + ')}</h3>
+      <div class="spec" id="cSpec${i}"></div>
       <div class="grid2" style="margin-top:18px">
         <div>${why(p)}</div>
         <div>
@@ -49,7 +80,10 @@ function drawProposals(): void {
           </div>
         </div>
       </div>
-    </section>` }).join('');
+    </section>`).join('');
+  CR.props.forEach((_p, i) => { drawView(i);
+    $all<HTMLButtonElement>($('cBar' + i), 'button').forEach(b => b.onclick = () => { CR.views[i] = b.dataset.v as ViewKey; drawView(i) }) });
+  drawSpecimens();
   $all<HTMLElement>($('cOut'), '.prop').forEach(sec => {
     const p = CR.props[+sec.dataset.p!];
     $all<HTMLButtonElement>(sec, '.propstrip button').forEach(b => b.onclick = () => copy(b.dataset.h!, b.dataset.h + ' copiado'));
@@ -96,7 +130,7 @@ export function initCreate(): void {
       : 'Ainda não reconheci nenhuma palavra do léxico. Escreva à vontade: os campos acima já bastam para gerar.' };
   $('cGo').onclick = () => {
     CR.seed = Math.random(); const br = buildBrief(CR.n);
-    CR.props = ANGLES.map((a, i) => makeProposal(a, br, (CR.seed * (i + 1) * 7.13) % 1));
+    CR.props = ANGLES.map((a, i) => makeProposal(a, br, (CR.seed * (i + 1) * 7.13) % 1)); CR.views = CR.props.map((_p, i) => CR.views[i] || 'faixas');
     $('cRead').style.display = 'block';
     $('cRead').innerHTML = `<b>O que eu li do seu pedido.</b> `
       + `Peça: ${(PIECES.find(x => x.v === br.piece) || { n: 'não definida' }).n.toLowerCase()}. `
@@ -110,6 +144,13 @@ export function initCreate(): void {
     setTimeout(() => { try { $('cOut').scrollIntoView({ behavior: 'smooth', block: 'start' }) } catch (_) {} }, 120);
   };
   $('cAgain').onclick = () => $('cGo').click();
+  // texto e controles da amostra: valem para as três propostas e mudam ao vivo
+  ($('cText') as HTMLTextAreaElement).value = SAMPLE_TXT;
+  $('cText').oninput = drawSpecimens;
+  $('cSample').onclick = () => { $set('cText', SAMPLE_TXT); drawSpecimens() };
+  $('cTextClear').onclick = () => { $set('cText', ''); $('cText').focus(); drawSpecimens() };
+  ['cRatio', 'cPal'].forEach(id => $(id).onchange = drawSpecimens);
+  ['cBase', 'cMeasure', 'cLh', 'cTrack'].forEach(id => $(id).oninput = drawSpecimens);
   $('cClear').onclick = () => { ['cPiece', 'cSup', 'cEmo', 'cMkt', 'cCult', 'cMus'].forEach(id => $set(id, 0));
     $set('cPiece', 'none'); $set('cSup', 'none'); $set('cFam', '2');
     $set('cPos', 50); $('cPosV').textContent = '50'; $set('cBrief', ''); $('cWords').textContent = '';

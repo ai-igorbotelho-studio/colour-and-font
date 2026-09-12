@@ -3,8 +3,8 @@ import { lum, ratio, mixLch } from '../core/color';
 import { $, $v, $n, $all, esc, toast } from '../core/dom';
 import { ROLES, CASES, STEPS, type Font, type Role, type WeightKind, type RoleSlot, type CaseKind } from '../data/fonts';
 import { palette } from '../palette/state';
-import { T, typeHooks } from './state';
-import { fam } from './pairing';
+import { T, typeHooks, type RoleOverride } from './state';
+import { famAttr } from './pairing';
 
 export function slotIndex(slot: RoleSlot, n: number): number {
   if (n <= 1) return 0;
@@ -22,10 +22,16 @@ export function weightOf(f: Font, kind: WeightKind): number {
 }
 export const roleDef = (k: string): Role => ROLES.find(r => r.k === k)!;
 export interface RoleCfg { f: Font; fi: number; wt: number; step: number; lh: number; tr: number; it: boolean; cs: CaseKind; col: string }
-export function roleCfg(k: string): RoleCfg {
-  const d = roleDef(k), o = T.ov[k] || {}, n = T.fams.length;
+
+/* Ambiente de uma amostra: famílias, ajustes por nível, paleta e os controles.
+   O instrumento de tipografia monta o seu a partir de T e dos campos; a Criação monta um por proposta. */
+export interface TypeEnv { fams: Font[]; ov: Record<string, RoleOverride>; off: Record<string, boolean>; hs: string[]; mode: string; base: number; rt: number; lh: number; tr: number; meas: number }
+export const envFromT = (): TypeEnv => ({ fams: T.fams, ov: T.ov, off: T.off, hs: palette(), mode: $v('tPal'), base: $n('tBase'), rt: $n('tRatio'), lh: $n('tLh') / 100, tr: $n('tTrack') / 1000, meas: $n('tMeasure') });
+
+export function roleCfgE(k: string, env: TypeEnv): RoleCfg {
+  const d = roleDef(k), o = env.ov[k] || {}, n = env.fams.length;
   const fi = o.fam !== undefined ? Math.min(o.fam, n - 1) : slotIndex(d.slot, n);
-  const f = T.fams[fi] || T.fams[0];
+  const f = env.fams[fi] || env.fams[0];
   return { f, fi, wt: o.wt !== undefined ? o.wt : weightOf(f, d.wt),
     step: o.step !== undefined ? o.step : d.step,
     lh: o.lh !== undefined ? o.lh : d.lh,
@@ -34,31 +40,34 @@ export function roleCfg(k: string): RoleCfg {
     cs: o.cs !== undefined ? o.cs : d.cs,
     col: o.col !== undefined ? o.col : 'auto' };
 }
+export const roleCfg = (k: string): RoleCfg => roleCfgE(k, envFromT());
 export interface RoleColors { bg: string; fg: string; ac: string; mut: string; pal: string[] }
-export function roleColors(): RoleColors {
-  const mode = $v('tPal'), hs = palette(), ls = hs.map(lum);
+export function roleColorsE(env: TypeEnv): RoleColors {
+  const mode = env.mode, hs = env.hs, ls = hs.map(lum);
   if (mode === 'none') return { bg: '#FFFFFF', fg: '#111111', ac: '#111111', mut: '#6B6B6B', pal: hs };
   let bg = hs[ls.indexOf(Math.max(...ls))], fg = hs[ls.indexOf(Math.min(...ls))];
   if (mode === 'inv') { const t = bg; bg = fg; fg = t }
   const ac = hs.find(h => h !== bg && h !== fg && ratio(h, bg) >= 3) || fg;
   return { bg, fg, ac, mut: mixLch(fg, bg, .42), pal: hs };
 }
+export const roleColors = (): RoleColors => roleColorsE(envFromT());
 export function autoColor(k: string, C: RoleColors): string {
   return ({ rotulo: C.mut, titulo: C.fg, subtitulo: C.mut, paragrafo: C.fg,
     destaque: ratio(C.ac, C.bg) >= 4.5 ? C.ac : C.fg, citacao: C.ac, referencia: C.mut, botao: C.bg } as Record<string, string>)[k] || C.fg;
 }
 export interface RoleStyle { size: number; col: string; lh: number; tr: number; c: RoleCfg; style: string }
-export function roleCss(k: string): RoleStyle {
-  const c = roleCfg(k), C = roleColors(), base = $n('tBase'), rt = $n('tRatio');
+export function roleCssE(k: string, env: TypeEnv): RoleStyle {
+  const c = roleCfgE(k, env), C = roleColorsE(env), base = env.base, rt = env.rt;
   const size = Math.round(base * Math.pow(rt, c.step) * 10) / 10;
   const col = c.col === 'auto' ? autoColor(k, C) : C.pal[+c.col] || C.fg;
-  const lhAdj = k === 'paragrafo' ? $n('tLh') / 100 : c.lh;
-  const trAdj = k === 'titulo' ? $n('tTrack') / 1000 : c.tr;
+  const lhAdj = k === 'paragrafo' ? env.lh : c.lh;
+  const trAdj = k === 'titulo' ? env.tr : c.tr;
   return { size, col, lh: lhAdj, tr: trAdj, c,
-    style: `font-family:${fam(c.f)};font-weight:${c.wt};font-size:${size}px;line-height:${lhAdj};`
+    style: `font-family:${famAttr(c.f)};font-weight:${c.wt};font-size:${size}px;line-height:${lhAdj};`
       + `letter-spacing:${trAdj}em;color:${col};font-style:${c.it ? 'italic' : 'normal'};`
       + `text-transform:${c.cs === 'upper' ? 'uppercase' : c.cs === 'lower' ? 'lowercase' : c.cs === 'cap' ? 'capitalize' : 'none'};` };
 }
+export const roleCss = (k: string): RoleStyle => roleCssE(k, envFromT());
 
 /* ── texto do usuário, com marcação ── */
 export interface Block { r: string; t: string }

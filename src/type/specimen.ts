@@ -4,21 +4,15 @@ import { $, $v, $n, esc, slug, download } from '../core/dom';
 import { ROLES, SAMPLE_TXT, type Font } from '../data/fonts';
 import { palette } from '../palette/state';
 import { T } from './state';
-import { fam, isSerif, describe } from './pairing';
-import { roleColors, roleCss, roleCfg, parseText, drawRoleBar, drawRoleCtl, drawRoleRows } from './hierarchy';
+import { famAttr, isSerif, describe } from './pairing';
+import { roleColors, roleCss, roleCfg, roleColorsE, roleCssE, envFromT, parseText, drawRoleBar, drawRoleCtl, drawRoleRows, type TypeEnv } from './hierarchy';
 import { drawTOut } from './export';
 
-export function renderSpec(): void {
-  if (!T.fams.length) return;
-  const C = roleColors(), base = $n('tBase'), meas = $n('tMeasure');
-  $('tBaseV').textContent = base + 'px'; $('tMeasureV').textContent = meas + ' caracteres';
-  $('tLhV').textContent = ($n('tLh') / 100).toFixed(2).replace('.', ',');
-  $('tTrackV').textContent = ($n('tTrack') / 1000).toFixed(3).replace('.', ',') + 'em';
-  drawRoleBar(); drawRoleCtl(); drawRoleRows();
-  const blocks = parseText($v('tText') || SAMPLE_TXT);
-  $('spec').setAttribute('style', `background:${C.bg};color:${C.fg}`);
-  $('spec').innerHTML = blocks.map(b => {
-    const s = roleCss(b.r), mw = ['titulo', 'subtitulo'].includes(b.r) ? '20ch' : meas + 'ch';
+/** A amostra como HTML, para qualquer ambiente: instrumento de tipografia ou proposta da Criação. */
+export function specHtml(env: TypeEnv, text: string): { style: string; html: string } {
+  const C = roleColorsE(env), meas = env.meas, blocks = parseText(text || SAMPLE_TXT, env.off);
+  const html = blocks.map(b => {
+    const s = roleCssE(b.r, env), mw = ['titulo', 'subtitulo'].includes(b.r) ? '20ch' : meas + 'ch';
     if (b.r === 'botao') return `<p style="margin:0 0 16px"><span style="${s.style}background:${C.ac};color:${readable(C.ac)};display:inline-block;padding:.7em 1.3em;border-radius:2px">${esc(b.t)}</span></p>`;
     if (b.r === 'citacao') return `<blockquote style="${s.style}margin:0 0 18px;padding-left:18px;border-left:2px solid ${s.col};max-width:${meas}ch">${esc(b.t)}</blockquote>`;
     if (b.r === 'titulo') return `<h1 style="${s.style}margin:0 0 14px;max-width:${mw}">${esc(b.t)}</h1>`;
@@ -27,15 +21,28 @@ export function renderSpec(): void {
     if (b.r === 'destaque') return `<p style="${s.style}margin:0 0 16px;max-width:${meas}ch">${esc(b.t)}</p>`;
     if (b.r === 'referencia') return `<p style="${s.style}margin:14px 0 0;max-width:${meas}ch">${esc(b.t)}</p>`;
     return `<p style="${s.style}margin:0 0 13px;max-width:${meas}ch">${esc(b.t)}</p>` }).join('');
+  return { style: `background:${C.bg};color:${C.fg}`, html };
+}
+
+export function renderSpec(): void {
+  if (!T.fams.length) return;
+  const base = $n('tBase'), meas = $n('tMeasure');
+  $('tBaseV').textContent = base + 'px'; $('tMeasureV').textContent = meas + ' caracteres';
+  $('tLhV').textContent = ($n('tLh') / 100).toFixed(2).replace('.', ',');
+  $('tTrackV').textContent = ($n('tTrack') / 1000).toFixed(3).replace('.', ',') + 'em';
+  drawRoleBar(); drawRoleCtl(); drawRoleRows();
+  const sp = specHtml(envFromT(), $v('tText'));
+  $('spec').setAttribute('style', sp.style);
+  $('spec').innerHTML = sp.html;
   const labels: [string, string][] = [['Referência', 'referencia'], ['Parágrafo', 'paragrafo'], ['Destaque', 'destaque'], ['Citação', 'citacao'], ['Subtítulo', 'subtitulo'], ['Título', 'titulo']];
   $('ratioList').innerHTML = labels.map(([lb, k]) => { const s = roleCss(k), c = roleCfg(k);
-    return `<div><span>${s.size}px</span><span style="font-family:${fam(c.f)};font-weight:${c.wt};font-size:${Math.min(s.size, 54)}px;line-height:1.1;font-style:${c.it ? 'italic' : 'normal'}">${lb}</span></div>` }).join('');
+    return `<div><span>${s.size}px</span><span style="font-family:${famAttr(c.f)};font-weight:${c.wt};font-size:${Math.min(s.size, 54)}px;line-height:1.1;font-style:${c.it ? 'italic' : 'normal'}">${lb}</span></div>` }).join('');
   drawCards(); drawTOut();
 }
 export function drawCards(): void {
   const roleOf = (f: Font) => ROLES.filter(r => !T.off[r.k] && roleCfg(r.k).f === f).map(r => r.n).join(', ') || 'sem nível atribuído';
   $('tCards').innerHTML = T.fams.map(f => `<div class="fontcard">
-    <div class="big" style="font-family:${fam(f)}">${esc(f.n)}</div>
+    <div class="big" style="font-family:${famAttr(f)}">${esc(f.n)}</div>
     <div class="meta">${roleOf(f)}</div>
     <div class="meta">${f.src === 'google' ? 'Google Fonts' : 'Fontshare'} · pesos ${f.wts.replace(/;/g, ', ')}</div>
     <div class="meta">${describe(f)}</div>
