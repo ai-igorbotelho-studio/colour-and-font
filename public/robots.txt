@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://colour-and-font.pages.dev/sitemap.xml

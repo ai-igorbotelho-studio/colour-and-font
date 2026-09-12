@@ -20,7 +20,7 @@ for (const w of [390, 768, 1440]) {
   for (const g of ['luz', 'treva']) {
     await p.click(g === 'luz' ? '#gLuz' : '#gTreva');
     await p.waitForTimeout(150);
-    for (const t of ['home', 'cores', 'tipo', 'criacao', 'tend', 'fund']) {
+    for (const t of ['home', 'cores', 'tipo', 'criacao', 'tend', 'cont', 'fund']) {
       await p.click(`.tab[data-p="${t}"]`);
       await p.waitForTimeout(250);
       await p.screenshot({ path: `${out}/${t}-${g}-${w}.png`, fullPage: true });

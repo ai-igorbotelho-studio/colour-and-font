@@ -1,6 +1,6 @@
 # Auge — instrumentos de cor e tipografia
 
-Paletas derivadas do círculo cromático de Goethe, combinação de famílias tipográficas com hierarquia, legibilidade medida em WCAG 2.1 e um compilado trimestral de tendências. Sem servidor, sem framework de interface, sem chamada de rede na página Criação.
+Paletas derivadas do círculo cromático de Goethe, combinação de famílias tipográficas com hierarquia, legibilidade medida em WCAG 2.1, mockups vetoriais por campo de aplicação, um compilado trimestral de tendências e uma revista de artigos para ler ou ouvir. Interface em inglês (primário) e português. Sem servidor, sem framework de interface, sem chamada de rede na página Criação.
 
 ## Desenvolver
 
@@ -28,18 +28,21 @@ npm run assets          # regenera public/og.png e os ícones a partir da ediç�
 ## Estrutura
 
 ```
-index.html                 casca: nav, tabbar, os cinco <main>
-public/                    og.png, icons/, fonts/ (Bodoni Moda e IBM Plex Sans, latino, woff2), _headers, manifest
+index.html                 casca: nav, tabbar, os sete <main> (Início, Cores, Tipografia, Criação, Tendências, Conteúdos, Teoria)
+public/                    og.png, icons/, fonts/ (DM Serif Display, Mulish e Roboto Mono, latino, woff2), _headers, manifest, sitemap, robots
 src/
   core/    color.ts goethe.ts codes.ts rng.ts state.ts store.ts dom.ts
-  data/    emotions markets schemes lenses cultures music fonts lexicon trends
+  data/    emotions markets schemes lenses cultures music fonts lexicon trends articles
   palette/ state generate history wheel views detail reads contrast scale saved gradient zip export index
   type/    state loader pairing hierarchy specimen export saved index
   create/  brief proposals mocks markdown index
   trends/  banner render
+  mockups/ data draw index pages — Visualização de exemplos (36 peças vetoriais em seis pacotes)
+  contents/ index — Conteúdos: lista, busca, filtros, artigo, voz, downloads, partilha, SEO
+  i18n/    index ui-en data-en — inglês primário, português segundo
   home.ts nav.ts main.ts testing.ts
-  styles/  tokens.css base.css components.css views.css
-tests/     color goethe zip tokens options (.test.ts) · reference.json · tools/ (harness de navegador)
+  styles/  tokens.css base.css components.css views.css shell.css flat.css (sem bordas)
+tests/     color goethe zip tokens options i18n (.test.ts) · reference.json · tools/ (harness de navegador)
 reference/ farbenkreis-original.html — o arquivo único de onde tudo saiu
 ```
 

@@ -1,0 +1,22 @@
+/* ═══════════ SUPERFÍCIES SEM BORDA ═══════════
+   Carregado por último: retira todas as bordas de blocos, botões, campos e
+   layout. A separação vem de fundo, raio e sombra, nunca de linha. */
+section,nav,.stage,.hero{border:0}
+nav .here{border-left:0}
+nav{box-shadow:0 1px 0 rgba(0,0,14,.04)}
+.gt,.seg{border:0;background:var(--panel)}
+#tabbar{border:0}
+select,input[type=text],input[type=number],input[type=search],textarea,.magsearch input{border:0;background:var(--field)}
+button.act,button.ghost,button.mini,.mini,.tabs2 button,.viewbar button,.rolebar button,.propstrip button,.trendpal button,#magTopics .pill,.mockitems .pill,.mag .magmeta .pill{border:0}
+button.ghost,button.mini,.mini,.tabs2 button,.viewbar button,.rolebar button,#magTopics .pill,.mockitems .pill,.mag .magmeta .pill{background:var(--panel)}
+button.mini:hover,.tabs2 button:hover,.viewbar button:hover,.rolebar button:hover,button.ghost:hover{background:var(--card)}
+.code,.card,.note,#detail,#exp .sheet,.v-prop,.v-circles,.v-rings,.v-mosaic,.v-ui,.v-poster,.v-blend,.gradprev,.ctpair,.spec,.fontcard,.mock,.venn,.magopen,.homecard,.magmusic,.magseo,.artaudio,.mockctl,.magdisc,.magrefs,.prop{border:0}
+.card,.note,.fontcard,.ctpair,#detail,.code{background:var(--panel);border-radius:var(--r2)}
+.ctpair .foot,.ratio div,th,td{border-bottom:0;border-top:0}
+tbody tr:nth-child(odd) td{background:var(--panel)}
+th{color:var(--soft);font-weight:500}
+.card:hover,.homecard:hover,.magopen:hover{box-shadow:var(--sh)}
+.magbody .pull{border-left:0;padding-left:0;color:var(--deep)}
+.magdisc{background:var(--panel);border-radius:var(--r2)}
+#exp .sheet{box-shadow:var(--sh);border-radius:var(--r)}
+@media print{.magmusic{border:0}.magbody .pull{color:#000}}

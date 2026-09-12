@@ -5,8 +5,8 @@ import { T, newPair, renderSpec } from './type/index';
 import { drawHome } from './home';
 import { t, getLang, setLang } from './i18n';
 
-export type Page = 'home' | 'cores' | 'tipo' | 'criacao' | 'tend' | 'fund';
-const LABEL: Record<Page, string> = { home: 'Início', cores: 'Cores', tipo: 'Tipografia', criacao: 'Criação', tend: 'Tendências', fund: 'Fundamentação' };
+export type Page = 'home' | 'cores' | 'tipo' | 'criacao' | 'tend' | 'cont' | 'fund';
+const LABEL: Record<Page, string> = { home: 'Início', cores: 'Cores', tipo: 'Tipografia', criacao: 'Criação', tend: 'Tendências', cont: 'Conteúdos', fund: 'Teoria' };
 const label = (p: Page): string => t(LABEL[p]);
 
 export function goto(p: Page | string): void {
