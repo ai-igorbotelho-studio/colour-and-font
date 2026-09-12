@@ -1,4 +1,4 @@
-# Farbenkreis — relatório de auditoria da migração
+# Auge — relatório de auditoria da migração
 
 Emitido em 11 de setembro de 2026, ao fim das Etapas 1 a 7 do plano em `PASSAGEM-CLAUDE-CODE.md`. Números medidos, não adjetivos. Cada medida diz como foi colhida e com que ferramenta, para que possa ser repetida com os scripts de `tests/tools/`.
 

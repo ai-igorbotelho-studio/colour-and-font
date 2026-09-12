@@ -19,6 +19,6 @@ export function bannerSvg(e: Edition, axk: AxisKey): string {
   ${lines.map((l, i) => `<text x="72" y="${208 + i * 74}" font-family="Georgia,serif" font-size="64" fill="${ink}">${esc2(l)}</text>`).join('')}
   ${bars}
   <text x="72" y="${H - 40}" font-family="Helvetica,Arial,sans-serif" font-size="19" fill="${ink}" opacity=".65">${esc2(a.fontes.map(f => f.n.split(',')[0]).join(' · ').slice(0, 88))}</text>
-  <text x="${W - 72}" y="112" text-anchor="end" font-family="Helvetica,Arial,sans-serif" font-size="19" fill="${ink}" opacity=".55">Farbenkreis</text>
+  <text x="${W - 72}" y="112" text-anchor="end" font-family="Helvetica,Arial,sans-serif" font-size="19" fill="${ink}" opacity=".55">Auge</text>
 </svg>`;
 }

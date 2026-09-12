@@ -1,4 +1,4 @@
-# Farbenkreis — instrumentos de cor e tipografia
+# Auge — instrumentos de cor e tipografia
 
 Paletas derivadas do círculo cromático de Goethe, combinação de famílias tipográficas com hierarquia, legibilidade medida em WCAG 2.1 e um compilado trimestral de tendências. Sem servidor, sem framework de interface, sem chamada de rede na página Criação.
 

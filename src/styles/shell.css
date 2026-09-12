@@ -77,11 +77,11 @@ button:disabled{opacity:.45;cursor:not-allowed;transform:none!important}
 .homecard{display:flex;flex-direction:column;align-items:flex-start;gap:8px;text-align:left;font:inherit;cursor:pointer;
   background:var(--card);color:var(--ink);border:1px solid var(--rule2);border-radius:var(--r);padding:22px 20px 20px;min-height:170px}
 .homecard svg{width:26px;height:26px;stroke:currentColor;fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;margin-bottom:6px}
-.homecard b{font-family:"Bodoni Moda",serif;font-weight:400;font-size:24px;line-height:1}
+.homecard b{font-family:"DM Serif Display",serif;font-weight:400;font-size:24px;line-height:1}
 .homecard span{font-size:13px;color:var(--soft);line-height:1.5}
 .homecard:hover{border-color:var(--ink);transform:translateY(-2px);box-shadow:var(--sh)}
-.homecard:first-child{background:var(--ink);color:var(--ground);border-color:var(--ink)}
-.homecard:first-child span{color:var(--ground);opacity:.8}
+.homecard:first-child{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.homecard:first-child span{color:var(--accent-ink);opacity:.8}
 @media(max-width:520px){#tabbar{gap:2px;padding:6px}#tabbar button{min-width:52px;padding:10px 4px;font-size:10px}}
 
 nav .gt+.gt{margin-left:6px}

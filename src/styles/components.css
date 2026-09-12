@@ -3,7 +3,7 @@
 .code{background:var(--field);border:1px solid var(--rule2);padding:13px 15px;cursor:pointer;display:flex;justify-content:space-between;gap:10px;font-size:12.5px;
   border-radius:var(--r2);min-height:50px;align-items:center}
 .code b{font-weight:500;color:var(--soft);flex:none}
-.code span{font-family:ui-monospace,Menlo,monospace;font-size:11.5px;text-align:right;word-break:break-all}
+.code span{font-family:"Roboto Mono",ui-monospace,Menlo,monospace;font-size:11.5px;text-align:right;word-break:break-all}
 
 .propbar{display:flex;height:40px;margin-top:20px;border:1px solid var(--rule);border-radius:var(--pill);overflow:hidden}
 .propbar div{display:flex;align-items:center;justify-content:center;font-size:11px;overflow:hidden;white-space:nowrap;transition:flex var(--tw),background var(--tw)}
@@ -14,7 +14,7 @@ th{font-weight:500;color:var(--soft);font-size:12px}
 td.r{font-variant-numeric:tabular-nums}
 
 pre{background:var(--field);border:1px solid var(--rule);border-radius:var(--r);padding:13px;overflow:auto;
-  font-size:12.5px;line-height:1.55;margin:12px 0 0;font-family:ui-monospace,Menlo,monospace}
+  font-size:12.5px;line-height:1.55;margin:12px 0 0;font-family:"Roboto Mono",ui-monospace,Menlo,monospace}
 .card{border:1px solid var(--rule);padding:16px}
 .note{border:1px solid var(--rule);padding:13px 14px;margin-top:14px;font-size:13px;color:var(--soft);max-width:64ch}
 .note b{color:var(--ink);font-weight:500}

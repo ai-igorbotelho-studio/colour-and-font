@@ -1,16 +1,17 @@
 /* ═══════════ BASE — reset, tipografia, navegação, campos e botões ═══════════ */
 *{box-sizing:border-box}
 html,body{margin:0;padding:0}
-body{background:var(--ground);color:var(--ink);font-family:"IBM Plex Sans",system-ui,sans-serif;
+body{background:var(--ground);color:var(--ink);font-family:"Mulish",system-ui,sans-serif;
   font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased;transition:background .5s,color .5s;padding-bottom:104px}
 .wrap{max-width:1180px;margin:0 auto;padding:0 20px 34px}
-h1,h2,h3,h4{font-family:"Bodoni Moda",Didot,Georgia,serif;font-weight:400;margin:0}
+h1,h2,h3,h4{font-family:"DM Serif Display",Georgia,serif;font-weight:400;margin:0}
 h1{font-size:clamp(38px,10vw,76px);line-height:.9;letter-spacing:-.018em}
 h2{font-size:clamp(21px,4.6vw,30px);line-height:1.1;margin-bottom:10px}
 h3{font-size:19px;margin-bottom:6px}
 h4{font-size:16px;margin-bottom:4px}
 p{margin:0 0 11px}
-a{color:inherit}
+a{color:var(--deep)}
+nav a,.homecard a,#tabbar a{color:inherit}
 .lede{max-width:58ch;color:var(--soft);margin:0}
 .sm{font-size:12.5px;color:var(--soft)}
 section{padding:34px 0;border-bottom:1px solid var(--rule)}
@@ -20,7 +21,7 @@ footer{padding:26px 0 0;font-size:12.5px;color:var(--soft);max-width:66ch}
 /* ── navegação ── */
 nav{position:sticky;top:0;z-index:40;background:var(--ground);border-bottom:1px solid var(--rule);
   display:flex;align-items:center;gap:12px;padding:0 20px;margin:0 auto;max-width:1180px;height:66px;transition:background .5s}
-nav .mk{font-family:"Bodoni Moda",serif;font-size:21px;margin-right:0;flex:none}
+nav .mk{font-family:"DM Serif Display",serif;font-size:21px;margin-right:0;flex:none}
 nav .here{flex:1;font-size:13px;color:var(--soft);padding-left:14px;border-left:1px solid var(--rule)}
 .gt{display:flex;border:1px solid var(--rule);border-radius:var(--pill);overflow:hidden;flex:none;padding:3px}
 .gt button{font:inherit;font-size:13px;padding:8px 15px;border:0;cursor:pointer;background:transparent;color:var(--soft);border-radius:var(--pill);min-height:38px}
@@ -51,7 +52,7 @@ select,input[type=text],input[type=number]{width:100%;font:inherit;padding:15px 
 select{appearance:none;background-image:linear-gradient(45deg,transparent 50%,currentColor 50%),linear-gradient(135deg,currentColor 50%,transparent 50%);
   background-position:calc(100% - 21px) 50%,calc(100% - 16px) 50%;background-size:6px 6px,6px 6px;background-repeat:no-repeat}
 textarea{width:100%;font:inherit;font-size:15.5px;line-height:1.5;padding:15px 17px;background:var(--field);color:var(--ink);
-  border:1px solid var(--rule);border-radius:var(--r2);min-height:54px;resize:vertical;font-family:ui-monospace,Menlo,monospace}
+  border:1px solid var(--rule);border-radius:var(--r2);min-height:54px;resize:vertical;font-family:"Roboto Mono",ui-monospace,Menlo,monospace}
 input[type=range]{width:100%;appearance:none;height:34px;background:transparent;cursor:pointer}
 input[type=range]::-webkit-slider-runnable-track{height:3px;background:var(--rule);border-radius:9px}
 input[type=range]::-moz-range-track{height:3px;background:var(--rule);border-radius:9px}
@@ -63,7 +64,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border:0;border-radiu
   background:transparent;color:var(--soft);cursor:pointer}
 .seg button[aria-pressed="true"]{background:var(--ink);color:var(--ground)}
 .btnrow{display:flex;gap:9px;flex-wrap:wrap;margin-top:16px}
-button.act{font:inherit;font-size:15px;padding:15px 26px;cursor:pointer;border-radius:var(--pill);background:var(--ink);color:var(--ground);border:1px solid var(--ink);min-height:54px;box-shadow:var(--sh)}
+button.act{font:inherit;font-size:15px;padding:15px 26px;cursor:pointer;border-radius:var(--pill);background:var(--accent);color:var(--accent-ink);border:1px solid var(--accent);min-height:54px;box-shadow:var(--sh)}
 button.ghost{background:transparent;color:var(--ink);border:1px solid var(--rule)}
 button.act.ghost{box-shadow:none}
 button.mini{font:inherit;font-size:13.5px;padding:11px 18px;cursor:pointer;border-radius:var(--pill);background:transparent;color:var(--ink);border:1px solid var(--rule);min-height:44px}
