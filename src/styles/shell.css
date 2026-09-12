@@ -169,3 +169,6 @@ nav .gt+.gt{margin-left:6px}
   .maghead h1{font-size:26pt}.magbody .pull{border-left-color:#000}.magrefs a{color:#000}
   .magmusic{border:1px solid #000;background:none}
 }
+html[data-ground="treva"] .magcard[data-tone="ink"] .magopen{background:#FFFDF9;color:#00000E}
+html[data-ground="treva"] .magcard[data-tone="ink"] .kicker{color:#700034}
+html[data-ground="treva"] .magcard[data-tone="ink"] .magdek,html[data-ground="treva"] .magcard[data-tone="ink"] .magmeta{color:#00000E;opacity:.85}
