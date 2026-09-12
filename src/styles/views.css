@@ -110,7 +110,7 @@ svg.wheel .ball.lk{cursor:not-allowed}
 .prophead{display:flex;justify-content:space-between;gap:18px;flex-wrap:wrap;align-items:flex-start;margin-bottom:16px}
 .propstrip{display:flex;gap:5px;flex:none}
 .propstrip button{width:58px;height:58px;border:0;cursor:pointer;font:inherit;font-size:10.5px;display:flex;align-items:flex-end;justify-content:center;padding-bottom:4px;border-radius:var(--r2)}
-.mk{border:1px solid var(--rule);padding:clamp(18px,4vw,30px);min-height:240px;display:flex;flex-direction:column;box-shadow:var(--sh)}
+.mock{border:1px solid var(--rule);padding:clamp(18px,4vw,30px);min-height:240px;display:flex;flex-direction:column;box-shadow:var(--sh)}
 .mk-top{display:flex;justify-content:space-between;gap:14px;align-items:baseline;padding-bottom:12px;margin-bottom:14px;flex-wrap:wrap}
 .mk-hero{padding:22px;border-radius:var(--r2)}
 .mk-tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(92px,1fr));gap:8px;margin-top:12px}
@@ -139,5 +139,5 @@ svg.wheel .ball.lk{cursor:not-allowed}
 
 /* superfícies arredondadas — declarado por último de propósito: em telas estreitas,
    a folha de exportação também recebe o raio cheio, como sempre recebeu */
-.card,.fontcard,.mk,.note,.caution,pre,.spec,.ctpair,#detail,#exp .sheet,.v-prop,.v-circles,.v-rings,
+.card,.fontcard,.mock,.note,.caution,pre,.spec,.ctpair,#detail,#exp .sheet,.v-prop,.v-circles,.v-rings,
 .v-mosaic,.v-ui,.v-poster,.v-blend,.venn,.gradprev,.roletable{border-radius:var(--r);overflow:hidden}
