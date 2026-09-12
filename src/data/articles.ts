@@ -4,7 +4,7 @@
    em branco, **negrito**, *itálico* e [n] para a referência de número n.
    As referências são obras publicadas, com editor e ano; os links apontam para
    páginas institucionais ou DOIs. As datas são as de publicação nesta revista. */
-export type Topic = 'cor' | 'tipografia' | 'percepcao' | 'educacao' | 'cultura';
+export type Topic = 'cor' | 'tipografia' | 'percepcao' | 'educacao' | 'cultura' | 'espirito';
 export interface Ref { n: string; u?: string }
 export interface Music { title: string; artist: string; why: string; q: string }
 export interface Seo { kw: string; title: string; desc: string; outline: string[]; links: string[] }
@@ -13,10 +13,11 @@ export interface Article { slug: string; date: string; min: number; topics: Topi
 
 export const TOPICS: { k: Topic; pt: string; en: string }[] = [
   { k: 'cor', pt: 'Cor', en: 'Colour' }, { k: 'tipografia', pt: 'Tipografia', en: 'Typography' }, { k: 'percepcao', pt: 'Percepção', en: 'Perception' },
-  { k: 'educacao', pt: 'Educação', en: 'Education' }, { k: 'cultura', pt: 'Cultura', en: 'Culture' }
+  { k: 'educacao', pt: 'Educação', en: 'Education' }, { k: 'cultura', pt: 'Cultura', en: 'Culture' }, { k: 'espirito', pt: 'Espírito', en: 'Spirit' }
 ];
 
-export const ARTICLES: Article[] = [
+import { ARTICLES_2 } from './articles-2';
+const ARTICLES_1: Article[] = [
 { slug: 'goethe-e-as-cores', date: '2026-08-14', min: 7, topics: ['cor', 'percepcao', 'cultura'],
   pt: { kicker: 'Origens', title: 'Quem é Goethe e o que ele tem a ver com as cores?',
     dek: 'O autor de Fausto passou vinte anos olhando para prismas, sombras e céus. O que ele viu ainda organiza a roda que gira dentro deste instrumento.',
@@ -441,3 +442,4 @@ That blue is safe, and that safety has a price. A blue palette will be accepted,
       outline: ['A colour without a name', 'What Goethe saw in blue', 'Why it unites', 'What this says to anyone who designs'], links: ['Colour', 'Trends'] },
     music: { title: 'Kind of Blue', artist: 'Miles Davis', why: 'The most listened-to record in jazz, and the bluest. Modal, calm, deep: everything the text says about the colour.', q: 'Miles Davis Kind of Blue' } } }
 ];
+export const ARTICLES: Article[] = [...ARTICLES_1, ...ARTICLES_2];
