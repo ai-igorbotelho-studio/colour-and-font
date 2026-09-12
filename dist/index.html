@@ -20,13 +20,13 @@
 <link rel="preload" href="/fonts/dm-serif-display-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="manifest" href="/manifest.webmanifest">
 <link rel="apple-touch-icon" href="/icons/icon-192.png">
-  <script type="module" crossorigin src="/assets/index-38zn1yrM.js"></script>
-  <link rel="stylesheet" crossorigin href="/assets/index-CmIuQyz8.css">
+  <script type="module" crossorigin src="/assets/index-BfT8lsAX.js"></script>
+  <link rel="stylesheet" crossorigin href="/assets/index-JH-ZsVrs.css">
 </head>
 <body>
 <a class="skip" href="#conteudo">Ir para o conteúdo</a>
 <nav>
-  <div class="mk">Auge</div>
+  <button class="mk" data-goto="home" aria-label="Início">Auge</button>
   <div class="here" id="hereLbl">Início</div>
   <div class="gt" role="group" aria-label="Idioma">
     <button id="lEn" aria-pressed="true" lang="en">ENG</button><button id="lPt" aria-pressed="false" lang="pt">PORT</button>
@@ -177,14 +177,53 @@
 
 <section id="t-oklab" class="chap">
   <span class="chno">05</span><h2>Por que OKLab</h2>
-  <p class="lede">HSL é fácil de calcular e mente sobre o olho: um amarelo e um azul com a mesma luminosidade declarada não parecem ter a mesma luminosidade. OKLab é um espaço perceptualmente uniforme — distâncias iguais no número correspondem a diferenças mais parecidas na percepção.</p>
-  <div id="okDemo" style="margin-top:18px"></div>
-  <p class="sm" style="margin-top:10px">Acima, a mesma sequência de matizes com luminosidade fixa em HSL e em OKLab. Toda interpolação, escala de tons e ajuste destas ferramentas acontece em OKLab, e o croma é reduzido até caber no sRGB em vez de ser cortado.</p>
+  <p class="lede">Todo espaço de cor é um sistema de coordenadas. A diferença está em o que as coordenadas medem: números convenientes para a máquina, ou distâncias que o olho reconhece. HSL é do primeiro tipo. OKLab, do segundo. Estas ferramentas calculam tudo em OKLab, e o que vem abaixo mostra por quê.</p>
+  <div class="acc" style="margin-top:18px">
+    <details open><summary><b>01</b> A luminosidade que mente</summary><p class="sm">Em HSL, "luminosidade 55%" é a média entre o canal mais forte e o mais fraco, sem nenhuma relação com o brilho que o olho vê. Um amarelo e um azul declarados com a mesma luminosidade parecem um claro e um escuro. Em OKLab, o L é calibrado sobre medições de percepção: dois tons com o mesmo L parecem igualmente claros, seja qual for o matiz. Mova o controle abaixo e compare as duas fileiras.</p></details>
+    <details><summary><b>02</b> A mistura que passa pelo cinza</summary><p class="sm">Ao misturar duas cores, a máquina desenha uma linha reta entre elas. Em RGB e HSL, essa linha atravessa uma zona morta: o meio do caminho entre um azul e um amarelo é um cinza sujo. Em OKLab a linha passa por tons que ainda têm vida, porque o espaço foi desenhado para que a reta pareça uma transição. É o que faz o degradê e as escalas de tom destas ferramentas.</p></details>
+    <details><summary><b>03</b> O croma que se reduz em vez de se cortar</summary><p class="sm">Nem toda cor que o OKLab descreve existe em sRGB: um azul muito claro e muito saturado não cabe na tela. A saída fácil é cortar os canais que passam de 255, e o resultado muda de matiz. A saída certa, que estas ferramentas usam, é reduzir o croma por busca binária até a cor caber, mantendo o L e o matiz. A cor fica menos intensa, mas continua sendo a mesma cor.</p></details>
+    <details><summary><b>04</b> De onde vem</summary><p class="sm">OKLab foi publicado por Björn Ottosson em 2020 como uma correção prática dos espaços CIELAB e IPT, ajustada para que as distâncias e os matizes batessem melhor com os dados perceptivos. Entrou no CSS Color 4 e é hoje o espaço recomendado para interpolar cor no navegador.</p></details>
+  </div>
+  <div class="okctl">
+    <label class="lbl"><span>Luminosidade declarada <b id="okLv">55</b></span><input id="okL" type="range" min="20" max="90" value="55"></label>
+  </div>
+  <div id="okDemo" style="margin-top:12px"></div>
+  <p class="sm" style="margin-top:8px">A mesma sequência de oito matizes, com a luminosidade fixada no valor do controle. Em HSL o brilho salta de um matiz para o outro; em OKLab fica estável.</p>
+  <div class="okmix" style="margin-top:22px">
+    <div class="okmixhead"><span class="sm">Mistura entre <button class="okc" id="okA" style="background:#2E4E9E" aria-label="Cor A"></button> e <button class="okc" id="okB" style="background:#F2C14E" aria-label="Cor B"></button></span>
+      <label class="lbl" style="flex:1"><span>Posição na mistura <b id="okTv">50</b>%</span><input id="okT" type="range" min="0" max="100" value="50"></label></div>
+    <div id="okMix"></div>
+    <p class="sm" style="margin-top:8px">A faixa de cima é a mistura em RGB, a de baixo em OKLab. O marcador mostra a cor no ponto escolhido em cada uma. Toque nas duas bolinhas para trocar as cores de partida pelas da sua paleta.</p>
+  </div>
 </section>
 
 <section id="t-contraste" class="chap">
   <span class="chno">06</span><h2>Contraste não é gosto</h2>
-  <p class="lede">A razão de contraste do WCAG mede o que o olho consegue ler, não o que ele sente. Texto corrido pede 4.5, texto grande e elementos de interface pedem 3.0. As duas ferramentas calculam isso automaticamente para todos os pares e avisam quando a combinação bonita é ilegível.</p>
+  <p class="lede">Uma combinação pode ser bonita e ilegível ao mesmo tempo. A razão de contraste do WCAG não mede beleza: mede a diferença de luminância entre o texto e o fundo, que é o que decide se uma pessoa com visão comum, cansada ou reduzida consegue ler. Experimente abaixo.</p>
+  <div class="ctlab">
+    <div class="ctinputs">
+      <label class="lbl"><span>Texto</span><span class="ctfield"><input type="color" id="ctFg" value="#00000E" aria-label="Cor do texto"><input type="text" id="ctFgHex" value="#00000E" maxlength="7" spellcheck="false" aria-label="Hex do texto"></span></label>
+      <button class="mini" id="ctSwap" aria-label="Trocar texto e fundo">⇄</button>
+      <label class="lbl"><span>Fundo</span><span class="ctfield"><input type="color" id="ctBg" value="#D4E7FA" aria-label="Cor do fundo"><input type="text" id="ctBgHex" value="#D4E7FA" maxlength="7" spellcheck="false" aria-label="Hex do fundo"></span></label>
+      <button class="mini" id="ctPal">Usar a paleta atual</button>
+    </div>
+    <div class="ctresult">
+      <div class="ctbig"><b id="ctRatio">—</b><span class="sm">para 1</span></div>
+      <div class="ctverdicts" id="ctVerdicts"></div>
+    </div>
+    <div class="ctsample" id="ctSample">
+      <p class="ctp">O olho pede totalidade: diante de uma cor, produz por conta própria a que falta.</p>
+      <p class="ctl">Texto grande, 24 px em negrito — pede 3,0 para 1.</p>
+      <p class="cts">Texto corrido, 16 px — pede 4,5 para 1. Este parágrafo é o que mais importa, porque é o que as pessoas leem por mais tempo.</p>
+      <p class="ctui">Interface e ícones — 3,0 para 1</p>
+    </div>
+  </div>
+  <div class="acc" style="margin-top:18px">
+    <details open><summary><b>01</b> Como se calcula</summary><p class="sm">Cada cor vira uma luminância relativa, de 0 (preto) a 1 (branco), com os canais RGB linearizados e ponderados pela sensibilidade do olho (o verde pesa 71%, o vermelho 21%, o azul 7%). A razão é (L clara + 0,05) dividido por (L escura + 0,05). Vai de 1 (mesma cor) a 21 (preto sobre branco).</p></details>
+    <details><summary><b>02</b> Os limiares</summary><p class="sm">Texto corrido: 4,5 para 1 (nível AA) ou 7 para 1 (AAA). Texto grande, a partir de 24 px ou 19 px em negrito: 3,0 (AA) ou 4,5 (AAA). Elementos de interface e ícones: 3,0. Abaixo de 3,0 nada é legível para uma parte grande das pessoas, mesmo que pareça nítido para você.</p></details>
+    <details><summary><b>03</b> Por que a cor bonita falha</summary><p class="sm">O azul pesa pouco na luminância, por isso um azul saturado sobre branco passa e um laranja igualmente saturado falha: o laranja carrega muito verde e vermelho, que são claros para o olho. Duas cores de matizes opostos e mesmo brilho, as mais vibrantes lado a lado, costumam ter razão perto de 1: elas vibram exatamente porque o olho não consegue separá-las por luminância.</p></details>
+    <details><summary><b>04</b> O que a razão não mede</summary><p class="sm">Ela não vê tamanho, peso, espaçamento nem o cansaço. Um texto que passa com 4,6 em corpo 16 e peso fino continua difícil. E a fórmula não distingue daltonismo: para isso, as ferramentas simulam as três formas de visão de cor reduzida. A razão é o mínimo, não o suficiente.</p></details>
+  </div>
 </section>
 
 <blockquote class="edquote"><p>O olho pede totalidade: diante de uma cor, produz por conta própria a que falta.</p><cite>Goethe, <i>Zur Farbenlehre</i>, § 805</cite></blockquote>
@@ -211,10 +250,10 @@
   <p class="lede">O erro comum é buscar semelhança. Duas famílias parecidas não se harmonizam: elas competem, e a diferença pequena parece defeito.</p>
   <div class="carousel" data-carousel style="margin-top:18px">
   <div class="track" tabindex="0">
-    <article class="poster plain"><span class="pno">01</span><h3>Contraste de estrutura</h3><p class="sm">Uma serifada de alto contraste no título contra uma sem serifa humanista no corpo. A diferença é clara, a hierarquia se resolve sozinha e nenhuma das duas parece erro.</p></article>
-    <article class="poster plain"><span class="pno">02</span><h3>Superfamília</h3><p class="sm">Famílias desenhadas juntas para conviver — a versão serifada, a sem serifa e a monoespaçada do mesmo projeto. Harmonia garantida, contraste menor, risco de monotonia.</p></article>
-    <article class="poster plain"><span class="pno">03</span><h3>Uma só família</h3><p class="sm">Toda a hierarquia feita por peso, tamanho, largura e caixa. É a saída mais difícil de errar e a que mais depende de disciplina de espaçamento.</p></article>
-    <article class="poster plain"><span class="pno">04</span><h3>Compatibilidade métrica</h3><p class="sm">Mesmo com estruturas diferentes, altura de x e largura próximas fazem as duas parecerem escolhidas juntas. É o critério que o instrumento usa para pontuar as combinações.</p></article>
+    <article class="poster plain pairposter" data-pair="estrutura"><span class="pno">01</span><h3>Contraste de estrutura</h3><p class="sm">Uma serifada de alto contraste no título contra uma sem serifa humanista no corpo. A diferença é clara, a hierarquia se resolve sozinha e nenhuma das duas parece erro.</p><div class="pairex" aria-hidden="true"></div></article>
+    <article class="poster plain pairposter" data-pair="superfamilia"><span class="pno">02</span><h3>Superfamília</h3><p class="sm">Famílias desenhadas juntas para conviver — a versão serifada, a sem serifa e a monoespaçada do mesmo projeto. Harmonia garantida, contraste menor, risco de monotonia.</p><div class="pairex" aria-hidden="true"></div></article>
+    <article class="poster plain pairposter" data-pair="uma"><span class="pno">03</span><h3>Uma só família</h3><p class="sm">Toda a hierarquia feita por peso, tamanho, largura e caixa. É a saída mais difícil de errar e a que mais depende de disciplina de espaçamento.</p><div class="pairex" aria-hidden="true"></div></article>
+    <article class="poster plain pairposter" data-pair="metrica"><span class="pno">04</span><h3>Compatibilidade métrica</h3><p class="sm">Mesmo com estruturas diferentes, altura de x e largura próximas fazem as duas parecerem escolhidas juntas. É o critério que o instrumento usa para pontuar as combinações.</p><div class="pairex" aria-hidden="true"></div></article>
   </div>
   <div class="carnav"><button class="mini" data-car="prev" aria-label="Anterior">←</button><div class="dots" role="tablist"></div><button class="mini" data-car="next" aria-label="Seguinte">→</button></div>
 </div>

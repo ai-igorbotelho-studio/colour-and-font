@@ -14,6 +14,7 @@ import { initNav } from './nav';
 import { installTestHooks } from './testing';
 import { initI18n } from './i18n';
 import { initEditorial } from './editorial';
+import { initTheory } from './theory';
 import { LEX } from './data/lexicon';
 import { LEX_EN } from './i18n/data-en';
 
@@ -30,6 +31,7 @@ initCreate();
 initTrends();
 installTestHooks();
 initEditorial();
+initTheory();
 
 /* Conteúdos e Visualização de exemplos são pedaços separados do pacote:
    entram quando o navegador está ocioso, ou na hora se o endereço já pede

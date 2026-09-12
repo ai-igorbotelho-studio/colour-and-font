@@ -1,5 +1,5 @@
 /* ═══════════ DEMONSTRAÇÕES DA PÁGINA INICIAL ═══════════ */
-import { oklch2hex, hslHex } from './core/color';
+import { oklch2hex } from './core/color';
 import { ANCHORS, hexAt } from './core/goethe';
 import { $, $all } from './core/dom';
 import { t } from './i18n';
@@ -36,12 +36,6 @@ export function drawHome(): void {
      <div class="sm" style="text-align:center;margin-top:4px">${t(n)}</div></div>`).join('');
 
   drawVenn('add'); drawVenn('sub');
-
-  const hues = [30, 60, 90, 150, 210, 260, 300, 340];
-  const row = (f: (h: number) => string, lbl: string) => `<div style="display:flex;align-items:center;gap:10px;margin-bottom:4px">
-    <span class="sm" style="width:62px;flex:none">${lbl}</span>
-    <span style="display:flex;flex:1">${hues.map(h => `<i style="flex:1;height:46px;background:${f(h)};display:block"></i>`).join('')}</span></div>`;
-  $('okDemo').innerHTML = row(h => hslHex(h, 70, 55), 'HSL') + row(h => oklch2hex(.65, .13, h), 'OKLab');
 
   const reps: Record<string, string> = { 'serif-old': 'EB Garamond', 'serif-trans': 'Lora', 'serif-mod': 'Playfair Display', 'serif-slab': 'Roboto Slab',
     'sans-grot': 'Space Grotesk', 'sans-neo': 'Inter', 'sans-geo': 'Poppins', 'sans-hum': 'IBM Plex Sans', 'mono': 'JetBrains Mono', 'display': 'Syne' };

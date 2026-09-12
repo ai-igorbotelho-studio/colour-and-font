@@ -1,7 +1,8 @@
 /* ── Markdown: paleta, proposta ── */
 import { hex2rgb, rgb2hsl, rgb2cmyk, hex2lch, lum, ratio } from '../core/color';
 import { $v } from '../core/dom';
-import { t, locale } from '../i18n';
+import { t, locale, isEn } from '../i18n';
+import { colourName } from '../core/names';
 import { EMO } from '../data/emotions';
 import { MKT } from '../data/markets';
 import { SCH } from '../data/schemes';
@@ -19,9 +20,9 @@ import { titleFor, type Proposal } from './proposals';
 export function mdBlock(name: string, hs: string[], areas: number[] | null, fonts: Font[] | null, extra?: string): string {
   let s = `# ${name}\n\n`;
   if (extra) s += extra + '\n\n';
-  s += t('## Paleta') + `\n\n` + t('| # | HEX | RGB | HSL | CMYK | OKLCH | Área |') + `\n|---|---|---|---|---|---|---|\n`;
+  s += t('## Paleta') + `\n\n` + t('| # | Nome | HEX | RGB | HSL | CMYK | OKLCH | Área |') + `\n|---|---|---|---|---|---|---|---|\n`;
   hs.forEach((h, i) => { const [r, g, b] = hex2rgb(h), hl = rgb2hsl(r, g, b), cm = rgb2cmyk(r, g, b), o = hex2lch(h);
-    s += `| ${i + 1} | \`${h}\` | ${r}, ${g}, ${b} | ${hl.map(x => Math.round(x)).join(', ')} | ${cm.map(x => Math.round(x)).join(', ')} | ${Math.round(o.L * 100)}% ${o.C.toFixed(3)} ${Math.round(o.H)} | ${areas ? Math.round(areas[i]) + '%' : '—'} |\n` });
+    s += `| ${i + 1} | ${colourName(h)[isEn() ? 1 : 0]} | \`${h}\` | ${r}, ${g}, ${b} | ${hl.map(x => Math.round(x)).join(', ')} | ${cm.map(x => Math.round(x)).join(', ')} | ${Math.round(o.L * 100)}% ${o.C.toFixed(3)} ${Math.round(o.H)} | ${areas ? Math.round(areas[i]) + '%' : '—'} |\n` });
   const ls = hs.map(lum), bg = hs[ls.indexOf(Math.max(...ls))], ink = hs[ls.indexOf(Math.min(...ls))];
   s += `\n` + t('Fundo sugerido `{bg}`, texto `{ink}`, contraste {r} para 1.', { bg, ink, r: ratio(ink, bg).toFixed(2) }) + `\n`;
   const ok: string[] = []; hs.forEach((b2, i) => hs.forEach((t, j) => { if (i !== j && ratio(t, b2) >= 4.5) ok.push(`\`${t}\` sobre \`${b2}\` (${ratio(t, b2).toFixed(2)})`) }));

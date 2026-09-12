@@ -24,7 +24,7 @@ button:disabled{opacity:.45;cursor:not-allowed;transform:none!important}
 @media(prefers-reduced-motion:reduce){.page{animation:none}}
 
 /* ── as duas metades da roda e os controles viram cartões ── */
-.stage>div{background:var(--card);border:1px solid var(--rule2);border-radius:var(--r);padding:clamp(16px,2.6vw,26px)}
+.stage>div{background:var(--panel);border:1px solid var(--rule2);border-radius:var(--r);padding:clamp(16px,2.6vw,26px)}
 .stage:not(.stage-1)>div:first-child{display:flex;flex-direction:column;justify-content:center}
 .stage{border-bottom:0;padding:22px 0 8px}
 .stage-1{grid-template-columns:1fr}
@@ -231,3 +231,40 @@ html[data-ground="treva"] .magcard[data-tone="ink"] .magdek,html[data-ground="tr
 .blobs{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:-1}
 .blob{position:absolute;border-radius:50%;filter:blur(60px);opacity:.35;transform:translate3d(0,var(--plx,0px),0)}
 .hero{position:relative;isolation:isolate}
+
+/* ── Teoria: OKLab, contraste e pares ── */
+.okctl{margin-top:18px;max-width:420px}
+.okrow{display:flex;align-items:center;gap:10px;margin-bottom:6px}
+.okrow .lab{width:62px;flex:none;font-size:12.5px;color:var(--soft)}
+.okrow .sw{display:flex;flex:1;border-radius:var(--r2);overflow:hidden}
+.okrow .sw i{flex:1;height:52px;display:block}
+.okmixhead{display:flex;align-items:center;gap:18px;flex-wrap:wrap}
+.okc{width:40px;height:40px;border-radius:50%;border:0;cursor:pointer;vertical-align:middle;box-shadow:0 2px 8px rgba(0,0,14,.25);margin:0 4px}
+.okband{position:relative;height:44px;border-radius:var(--r2);margin-top:8px;overflow:visible}
+.okband .lab{position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:11.5px;padding:2px 8px;border-radius:6px;background:rgba(0,0,14,.55);color:#FFFDF9}
+.okband .mk{position:absolute;top:-6px;width:34px;height:56px;border-radius:10px;transform:translateX(-50%);box-shadow:0 0 0 3px var(--ground),0 6px 16px rgba(0,0,14,.3)}
+.ctlab{display:grid;grid-template-columns:1fr;gap:16px;margin-top:18px}
+@media(min-width:900px){.ctlab{grid-template-columns:1fr auto;align-items:start}.ctsample{grid-column:1/-1}}
+.ctinputs{display:flex;flex-wrap:wrap;gap:12px;align-items:end}
+.ctinputs .lbl{flex:1 1 150px}
+.ctfield{display:flex;gap:8px;align-items:center}
+.ctfield input[type=color]{width:52px;height:52px;padding:0;border:0;border-radius:var(--r2);background:none;cursor:pointer}
+.ctfield input[type=text]{flex:1;min-width:0;font-family:"Roboto Mono",ui-monospace,monospace;font-size:15px;padding:13px 14px;border:0;border-radius:var(--r2);background:var(--field);color:var(--ink)}
+.ctresult{display:flex;align-items:center;gap:18px;flex-wrap:wrap;padding:16px 20px;border-radius:var(--r);background:var(--panel)}
+.ctbig{display:flex;align-items:baseline;gap:8px}
+.ctbig b{font-family:"DM Serif Display",Georgia,serif;font-weight:400;font-size:clamp(40px,6vw,64px);line-height:1;font-variant-numeric:tabular-nums}
+.ctverdicts{display:grid;grid-template-columns:auto auto;gap:6px 14px;font-size:13px}
+.ctverdicts span{display:inline-flex;align-items:center;gap:6px}
+.ctverdicts i{width:10px;height:10px;border-radius:50%;background:#B00020}
+.ctverdicts .ok i{background:#0A7A3B}
+.ctsample{padding:clamp(18px,4vw,34px);border-radius:var(--r);transition:background .3s,color .3s}
+.ctsample p{margin:0 0 14px}
+.ctsample .ctp{font-family:"DM Serif Display",Georgia,serif;font-size:clamp(26px,4vw,40px);line-height:1.1}
+.ctsample .ctl{font-size:24px;font-weight:700;line-height:1.2}
+.ctsample .cts{font-size:16px;max-width:60ch}
+.ctsample .ctui{display:inline-block;font-size:13px;padding:8px 14px;border-radius:var(--pill);border:2px solid currentColor;margin:0}
+.pairposter{min-height:0}
+.pairex{margin-top:14px;padding:16px;border-radius:var(--r2);background:var(--ground);color:var(--ink)}
+.pairex .d{font-size:26px;line-height:1.05;margin:0 0 6px}
+.pairex .b{font-size:14px;line-height:1.5;margin:0;color:var(--soft)}
+.pairex .n{font-family:"Roboto Mono",ui-monospace,monospace;font-size:11px;color:var(--deep);margin:10px 0 0}

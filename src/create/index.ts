@@ -2,7 +2,8 @@
 import { hex2rgb, rgb2cmyk, readable } from '../core/color';
 import { nameOf, atAngle } from '../core/goethe';
 import { $, $v, $n, $all, $set, esc, slug, copy, download, toast, fillSel } from '../core/dom';
-import { t, dec } from '../i18n';
+import { t, dec, isEn } from '../i18n';
+import { colourName } from '../core/names';
 import { createStore } from '../core/state';
 import { EMO } from '../data/emotions';
 import { MKT } from '../data/markets';
@@ -30,7 +31,7 @@ const CR = createStoreCR.state;
 
 /* ambiente da amostra de uma proposta: famílias e paleta dela, controles da página */
 const envOf = (p: Proposal): TypeEnv => ({ fams: p.fonts, ov: {}, off: {}, hs: p.hs, mode: $v('cPal'), base: $n('cBase'), rt: $n('cRatio'), lh: $n('cLh') / 100, tr: $n('cTrack') / 1000, meas: $n('cMeasure') });
-const ctxOf = (p: Proposal): StripCtx => ({ H: p.hs, V: p.hs, pr: p.areas, names: p.cols.map(x => nameOf(x.a)), locks: p.cols.map(() => false),
+const ctxOf = (p: Proposal): StripCtx => ({ H: p.hs, V: p.hs, pr: p.areas, names: p.hs.map((h, i) => colourName(h)[isEn() ? 1 : 0] + ' · ' + nameOf(p.cols[i].a)), locks: p.cols.map(() => false),
   lch: p.cols.map(x => ({ L: x.L, C: x.C, H: atAngle(x.a).H })), schemeName: SCH[p.si].n, title: titleFor(p.br), cvd: 'none', tools: false });
 
 /** Só a amostra de cada proposta — chamada a cada movimento dos controles. */

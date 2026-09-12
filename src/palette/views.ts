@@ -2,7 +2,8 @@
 import { hex2rgb, rgb2hex, rgb2cmyk, rgb2hsl, lum, ratio, readable, mixLch, simulate } from '../core/color';
 import { nameOf, atAngle } from '../core/goethe';
 import { $, $all, esc, copy } from '../core/dom';
-import { t, dec } from '../i18n';
+import { t, dec, isEn } from '../i18n';
+import { colourName } from '../core/names';
 import { S, cur, hexOf, shown, proportions, hooks, type ViewKey } from './state';
 import { pushH } from './history';
 import { openDetail, rampLch, RAMP_STEPS } from './detail';
@@ -33,7 +34,7 @@ export function initViews(): void {
 export interface StripCtx { H: string[]; V: string[]; pr: number[]; names: string[]; locks: boolean[]; lch: { L: number; C: number; H: number }[]; schemeName: string; title: string; cvd: string; tools: boolean }
 export function ctxFromState(): StripCtx {
   const { E, M, SC } = cur();
-  return { H: S.colors.map(hexOf), V: S.colors.map(shown), pr: proportions(), names: S.colors.map(c => nameOf(c.a)), locks: S.colors.map(c => c.lock),
+  return { H: S.colors.map(hexOf), V: S.colors.map(shown), pr: proportions(), names: S.colors.map(c => colourName(hexOf(c))[isEn() ? 1 : 0] + ' · ' + nameOf(c.a)), locks: S.colors.map(c => c.lock),
     lch: S.colors.map(c => ({ L: c.L, C: c.C, H: atAngle(c.a).H })),
     schemeName: SC.n, title: E.a !== null ? E.n : (M.a !== null ? M.n : 'Paleta'), cvd: S.cvd, tools: true };
 }
@@ -73,8 +74,8 @@ export function viewHtml(v: ViewKey, x: StripCtx): { className: string; html: st
       + H.map((_c, i) => { const r = R - (i * (R - 26) / n);
         return `<circle class="pick" data-i="${i}" cx="190" cy="190" r="${r}" fill="${V[i]}" style="cursor:pointer"/>` }).join('')
       + H.map((_c, i) => { const r = R - (i * (R - 26) / n) - ((R - 26) / n) / 2;
-        return `<text x="190" y="${190 - r + 18}" text-anchor="middle" font-size="12" font-family="Mulish,sans-serif" fill="${fg(i)}" style="pointer-events:none">${H[i]}</text>` }).join('')
-      + `</svg>` } }
+        return `<text x="190" y="${(190 - r + 4).toFixed(1)}" text-anchor="middle" font-size="11" font-family="Mulish,sans-serif" fill="${fg(i)}" style="pointer-events:none">${H[i]}</text>` }).join('')
+      + `</svg><div class="ringlegend">` + H.map((_c, i) => `<button class="pick" data-i="${i}"><i style="background:${V[i]}"></i>${H[i]} <span>${Math.round(pr[i])}%</span></button>`).join('') + `</div>` } }
   if (v === 'escalas') return { className: 'vwrap v-ramps', html: H.map((_c, i) => { let row = `<div class="row"><span class="lab">${H[i]}</span>`;
       ramp(i).forEach((y, k) => { row += `<button class="pick" data-i="${i}" data-h="${y}" style="background:${simulate(y, x.cvd)};color:${readable(y)}">${RAMP_STEPS[k]}</button>` });
       return row + '</div>' }).join('') };

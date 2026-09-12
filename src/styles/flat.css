@@ -20,3 +20,7 @@ th{color:var(--soft);font-weight:500}
 .magdisc{background:var(--panel);border-radius:var(--r2)}
 #exp .sheet{box-shadow:var(--sh);border-radius:var(--r)}
 @media print{.magmusic{border:0}.magbody .pull{color:#000}}
+/* distribuição da paleta: 57% fundo, 22% tinta, 11% acento, 6% azul, 3% vinho.
+   O azul (#D4E7FA) fica só nas superfícies de destaque; as de trabalho são o painel. */
+.card,.note,.fontcard,.ctpair,#detail,.code,.mockctl,.artaudio,.magseo,.acc details{background:var(--panel)}
+.homecard:not(:first-child),.magcard[data-tone="card"] .magopen,.mock,.magmusic,.poster.plain,#classGrid .card:nth-child(3n+1){background:var(--card)}
