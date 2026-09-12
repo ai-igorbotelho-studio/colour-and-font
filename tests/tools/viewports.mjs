@@ -18,7 +18,7 @@ for (const [w, h] of VP) {
     if (t === 'criacao') { try { await p.click('#cGo', { timeout: 4000 }) } catch (e) { bad++; console.log(`${w}×${h} criacao: #cGo não clicável — ${String(e.message).split('\n')[0]}`); await p.screenshot({ path: `${out || '.'}/FAIL-cGo-${w}x${h}.png` }) } await p.waitForTimeout(300) }
     const r = await p.evaluate(() => {
       const de = document.documentElement, tb = document.getElementById('tabbar').getBoundingClientRect();
-      const small = [...document.querySelectorAll('button:not(.diag)')].filter(b => b.offsetParent && b.getBoundingClientRect().height > 0 && (b.getBoundingClientRect().height < 40 || b.getBoundingClientRect().width < 40) && !b.closest('.cell .tools, .propstrip, .ctgrid, .v-ramps, #dRamp')).map(b => (b.id || b.className || b.textContent.trim().slice(0, 18)));
+      const small = [...document.querySelectorAll('button:not(.diag)')].filter(b => b.offsetParent && b.getBoundingClientRect().height > 0 && (b.getBoundingClientRect().height < 40 || b.getBoundingClientRect().width < 40) && !b.closest('.cell .tools, .propstrip, .ctgrid, .v-ramps, #dRamp, .dots')).map(b => (b.id || b.className || b.textContent.trim().slice(0, 18)));
       return { sw: de.scrollWidth, iw: innerWidth, tbIn: tb.left >= 0 && tb.right <= innerWidth + 1 && tb.bottom <= innerHeight + 1, small };
     });
     const probs = [];

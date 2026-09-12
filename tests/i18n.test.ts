@@ -20,7 +20,7 @@ beforeAll(async () => {
   await import('../src/main');
 });
 
-const NAMES = new Set(['Auge','ENG','PORT','Zur Farbenlehre','HSL','SVG','PNG','JPG','CSS','SCSS','JSON','Tailwind','SwiftUI','Android XML','Flutter','woff','ttf','otf','@font-face','TREND']);
+const NAMES = new Set(['Auge','ENG','PORT','Zur Farbenlehre','HSL','SVG','PNG','JPG','CSS','SCSS','JSON','Tailwind','SwiftUI','Android XML','Flutter','woff','ttf','otf','@font-face','TREND','WOFF2','WOFF','OTF','TTF','EOT, SVG','font-display: swap','unicode-range']);
 const PT_MARKERS = /\b(cores|paleta|tipografia|fam[ií]lia|esquema|gerar|salvar|copiar|baixar|texto|fundo|contraste)\b/i;
 
 describe('inglês como língua primária', () => {

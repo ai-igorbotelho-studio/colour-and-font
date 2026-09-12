@@ -13,7 +13,7 @@ export function initMotion(): void {
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
   initZoom();
   if (reduce) return;
-  initReveal(); initParallax(); initTilt();
+  initReveal(); initParallax(); initTilt(); initBlobs(); initMagnet();
 }
 
 /* ── revelação ── */
@@ -86,4 +86,20 @@ function initZoom(): void {
   const up = (ev: PointerEvent): void => { pts.delete(ev.pointerId); if (pts.size < 2) d0 = 0 };
   wrap.addEventListener('pointerup', up); wrap.addEventListener('pointercancel', up);
   wrap.addEventListener('dblclick', () => { if (s > 1.01) { s = 1; x = 0; y = 0; apply() } else setS(2) });
+}
+
+/* ── formas de cor atrás dos títulos, em camadas com velocidades diferentes ── */
+function initBlobs(): void {
+  const cols = ['#DE3D7D', '#D4E7FA', '#700034', '#F2C14E'];
+  document.querySelectorAll<HTMLElement>('.hero').forEach(h => { if (h.querySelector('.blobs')) return;
+    const w = document.createElement('div'); w.className = 'blobs';
+    w.innerHTML = [[.05, 62, -6, 180, 0], [.12, 68, 30, 140, 1], [.2, 18, 60, 120, 2]].map(([f, l, t, sz, ci]) => `<i class="blob" data-plx="${-f}" style="left:${l}%;top:${t}%;width:${sz}px;height:${sz}px;background:${cols[ci as number]}"></i>`).join('');
+    h.insertBefore(w, h.firstChild) });
+}
+/* ── botões principais seguem levemente o ponteiro ── */
+function initMagnet(): void {
+  if (!matchMedia('(hover: hover) and (pointer: fine)').matches) return;
+  document.addEventListener('pointermove', ev => { const b = (ev.target as Element).closest<HTMLElement>('button.act'); if (!b) return;
+    const r = b.getBoundingClientRect(); b.style.transform = `translate(${((ev.clientX - r.left) / r.width - .5) * 8}px,${((ev.clientY - r.top) / r.height - .5) * 6}px) scale(1.02)` }, { passive: true });
+  document.addEventListener('pointerout', ev => { const b = (ev.target as Element).closest<HTMLElement>('button.act'); if (b && !b.contains(ev.relatedTarget as Node)) b.style.transform = '' }, { passive: true });
 }

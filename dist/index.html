@@ -20,8 +20,8 @@
 <link rel="preload" href="/fonts/dm-serif-display-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="manifest" href="/manifest.webmanifest">
 <link rel="apple-touch-icon" href="/icons/icon-192.png">
-  <script type="module" crossorigin src="/assets/index-CCtbxmbz.js"></script>
-  <link rel="stylesheet" crossorigin href="/assets/index-MqVCwRer.css">
+  <script type="module" crossorigin src="/assets/index-BwfTEvxG.js"></script>
+  <link rel="stylesheet" crossorigin href="/assets/index-CmIuQyz8.css">
 </head>
 <body>
 <a class="skip" href="#conteudo">Ir para o conteúdo</a>
@@ -92,14 +92,16 @@
 <!-- ══════════ FUNDAMENTAÇÃO ══════════ -->
 <main class="page" id="p-fund">
 
-<section style="padding-top:38px">
+<section class="hero edhero">
   <p class="sm eyebrow">Teoria</p>
   <h1>O que está por trás<br>dos instrumentos</h1>
   <p class="lede" style="margin-top:20px">Duas ferramentas e uma base teórica comum. A de cor deriva paletas a partir do círculo de Goethe, de intenções, de setores, de métodos de estúdio, de referências culturais e de dinâmicas musicais. A de tipografia faz o mesmo com famílias tipográficas e combinações. Esta página explica o que está por trás das duas.</p>
 </section>
+<nav class="chapters" aria-label="Capítulos"><div class="chaptrack"><a href="#t-circulo"><b>01</b><span>O círculo</span></a><a href="#t-regimes"><b>02</b><span>Três regimes</span></a><a href="#t-esquemas"><b>03</b><span>Esquemas</span></a><a href="#t-luz"><b>04</b><span>Luz e pigmento</span></a><a href="#t-oklab"><b>05</b><span>OKLab</span></a><a href="#t-contraste"><b>06</b><span>Contraste</span></a><a href="#t-classes"><b>07</b><span>Classes</span></a><a href="#t-anatomia"><b>08</b><span>Anatomia</span></a><a href="#t-combinar"><b>09</b><span>Combinar</span></a><a href="#t-formatos"><b>10</b><span>Formatos</span></a></div></nav>
 
-<section>
-  <h2>O círculo de Goethe</h2>
+
+<section id="t-circulo" class="chap">
+  <span class="chno">01</span><h2>O círculo de Goethe</h2>
   <p class="lede">Em 1810, Goethe recusou a explicação de Newton e colocou o olho no centro: o que vemos depende do objeto, da iluminação e da percepção. Daí ele deriva um círculo de seis matizes, um lado positivo e um negativo, uma intensificação em direção ao purpúreo, e três regimes de combinação.</p>
   <div class="grid2" style="margin-top:22px;align-items:center">
     <svg id="homeWheel" viewBox="0 0 400 400" style="width:100%;height:auto;max-width:400px"></svg>
@@ -117,25 +119,44 @@
   <div class="note"><b>Preto e branco são cores.</b> Em Goethe, a cor nasce no limite entre luz e treva, atravessada por um meio turvo. A treva não é ausência: é o outro polo, sem o qual nenhuma cor existiria. As duas ferramentas aqui tratam luz e treva como participantes plenos, com matiz, papel e proporção próprios — e não como fundo neutro.</p></div>
 </section>
 
-<section>
-  <h2>Os três regimes de Goethe</h2>
+<blockquote class="edquote"><p>As cores são atos da luz, atos e sofrimentos.</p><cite>Goethe, <i>Zur Farbenlehre</i>, prefácio, 1810</cite></blockquote>
+<section id="t-regimes" class="chap">
+  <span class="chno">02</span><h2>Os três regimes de Goethe</h2>
   <p class="lede">Antes do vocabulário moderno de esquemas, Goethe já classificava as combinações em três — e dava seu veredito sobre cada uma.</p>
-  <div class="grid3" style="margin-top:20px">
-    <div class="card"><h4>Harmônica</h4><p class="sm">Os opostos do círculo. O olho, forçado a uma só cor, produz por conta própria a oposta, e só então se sente completo. Carregam em si a condição de totalidade: é o par mais estável e o menos surpreendente.</p></div>
-    <div class="card"><h4>Característica</h4><p class="sm">Um espaço de distância no círculo — amarelo e azul, amarelo e vermelho, azul e vermelho. Dizem alguma coisa, ainda que não tudo. É onde mora quase todo trabalho interessante.</p></div>
-    <div class="card"><h4>Sem caráter</h4><p class="sm">Vizinhas no círculo. Não produzem efeito desagradável, mas ficam aquém: falta-lhes caráter. Servem quando outra coisa carrega o sistema.</p></div>
+  <div class="carousel" data-carousel style="margin-top:20px">
+  <div class="track" tabindex="0">
+    <article class="poster" style="--p1:#F2C14E;--p2:#2E4E9E">
+      <div class="pswatch"><i></i><i></i></div>
+      <span class="pno">01</span>
+      <h3>Harmônica</h3><p class="sm psub">opostos no círculo</p>
+      <p class="sm">Os opostos do círculo. O olho, forçado a uma só cor, produz por conta própria a oposta, e só então se sente completo. Carregam em si a condição de totalidade: é o par mais estável e o menos surpreendente.</p>
+    </article>
+    <article class="poster" style="--p1:#F2C14E;--p2:#C4003F">
+      <div class="pswatch"><i></i><i></i></div>
+      <span class="pno">02</span>
+      <h3>Característica</h3><p class="sm psub">um espaço de distância</p>
+      <p class="sm">Um espaço de distância no círculo — amarelo e azul, amarelo e vermelho, azul e vermelho. Dizem alguma coisa, ainda que não tudo. É onde mora quase todo trabalho interessante.</p>
+    </article>
+    <article class="poster" style="--p1:#F2C14E;--p2:#E8842A">
+      <div class="pswatch"><i></i><i></i></div>
+      <span class="pno">03</span>
+      <h3>Sem caráter</h3><p class="sm psub">vizinhas no círculo</p>
+      <p class="sm">Vizinhas no círculo. Não produzem efeito desagradável, mas ficam aquém: falta-lhes caráter. Servem quando outra coisa carrega o sistema.</p>
+    </article>
   </div>
+  <div class="carnav"><button class="mini" data-car="prev" aria-label="Anterior">←</button><div class="dots" role="tablist"></div><button class="mini" data-car="next" aria-label="Seguinte">→</button></div>
+</div>
 </section>
 
-<section>
-  <h2>O vocabulário moderno de esquemas</h2>
+<section id="t-esquemas" class="chap">
+  <span class="chno">03</span><h2>O vocabulário moderno de esquemas</h2>
   <p class="lede">O que o século XX chamou de esquemas são relações geométricas no círculo. Todos estão no instrumento de cor, e a geometria é preservada enquanto você arrasta as bolas.</p>
   <div id="schemeDemos" class="grid3" style="margin-top:20px;grid-template-columns:repeat(2,1fr)"></div>
   <p class="sm" style="margin-top:14px">Monocromático varia luminosidade e croma num só matiz. Análogo fica em vizinhança. Complementar cruza o círculo. Tríade divide em três. Complementar dividido troca o oposto pelos dois vizinhos dele — mantém a tensão e reduz o choque. Tetrádico forma um retângulo e entrega dois pares opostos.</p>
 </section>
 
-<section>
-  <h2>Luz que soma, pigmento que subtrai</h2>
+<section id="t-luz" class="chap">
+  <span class="chno">04</span><h2>Luz que soma, pigmento que subtrai</h2>
   <p class="lede">Uma paleta se comporta de dois modos diferentes conforme o suporte, e confundir os dois é a origem de boa parte da frustração entre tela e impressão. Arraste os círculos abaixo: as sobreposições são calculadas de verdade pelo navegador, somando ou subtraindo.</p>
   <div class="grid2" style="margin-top:20px">
     <div>
@@ -154,53 +175,73 @@
   <div class="note"><b>Consequência prática.</b> Amarelos, verdes e azuis muito saturados que existem em tela não têm equivalente em tinta de escala. O instrumento de cor mostra o valor CMYK ao lado do RGB justamente para tornar essa perda visível antes de ela virar prova de gráfica.</div>
 </section>
 
-<section>
-  <h2>Por que OKLab</h2>
+<section id="t-oklab" class="chap">
+  <span class="chno">05</span><h2>Por que OKLab</h2>
   <p class="lede">HSL é fácil de calcular e mente sobre o olho: um amarelo e um azul com a mesma luminosidade declarada não parecem ter a mesma luminosidade. OKLab é um espaço perceptualmente uniforme — distâncias iguais no número correspondem a diferenças mais parecidas na percepção.</p>
   <div id="okDemo" style="margin-top:18px"></div>
   <p class="sm" style="margin-top:10px">Acima, a mesma sequência de matizes com luminosidade fixa em HSL e em OKLab. Toda interpolação, escala de tons e ajuste destas ferramentas acontece em OKLab, e o croma é reduzido até caber no sRGB em vez de ser cortado.</p>
 </section>
 
-<section>
-  <h2>Contraste não é gosto</h2>
+<section id="t-contraste" class="chap">
+  <span class="chno">06</span><h2>Contraste não é gosto</h2>
   <p class="lede">A razão de contraste do WCAG mede o que o olho consegue ler, não o que ele sente. Texto corrido pede 4.5, texto grande e elementos de interface pedem 3.0. As duas ferramentas calculam isso automaticamente para todos os pares e avisam quando a combinação bonita é ilegível.</p>
 </section>
 
-<section>
-  <h2>Classificação tipográfica</h2>
+<blockquote class="edquote"><p>O olho pede totalidade: diante de uma cor, produz por conta própria a que falta.</p><cite>Goethe, <i>Zur Farbenlehre</i>, § 805</cite></blockquote>
+<section id="t-classes" class="chap">
+  <span class="chno">07</span><h2>Classificação tipográfica</h2>
   <p class="lede">A escolha de uma família começa por identificar a que família histórica ela pertence — porque é isso que define como ela se comporta em texto longo, em tamanho grande e em tela pequena.</p>
   <div id="classGrid" class="grid3" style="margin-top:20px"></div>
 </section>
 
-<section>
-  <h2>Anatomia que importa na prática</h2>
-  <div class="grid3" style="margin-top:18px">
-    <div class="card"><h4>Altura de x</h4><p class="sm">A altura das minúsculas em relação às maiúsculas. Alta lê bem em tamanho pequeno e em tela; baixa tem elegância e pede corpo maior. Duas famílias com alturas de x muito diferentes brigam quando postas lado a lado.</p></div>
-    <div class="card"><h4>Contraste de traço</h4><p class="sm">A diferença entre a haste grossa e a fina. Alto contraste — as modernas, as didonas — brilha em título e some em corpo pequeno. Baixo contraste aguenta condições ruins de leitura.</p></div>
-    <div class="card"><h4>Abertura</h4><p class="sm">O quanto letras como c, e, s se fecham. Aberturas amplas mantêm as letras distinguíveis à distância e em corpo pequeno; fechadas dão densidade e ar editorial.</p></div>
-    <div class="card"><h4>Largura e ritmo</h4><p class="sm">Condensada economiza espaço e acelera; estendida ocupa e desacelera. O ritmo entre letra e contraforma é o que faz um parágrafo parecer uniforme ou manchado.</p></div>
-    <div class="card"><h4>Medida</h4><p class="sm">O comprimento da linha. Entre 45 e 75 caracteres é a faixa em que o olho encontra o início da próxima linha sem esforço. Linha longa demais exige mais entrelinha para compensar.</p></div>
-    <div class="card"><h4>Escala modular</h4><p class="sm">Os tamanhos derivam de uma razão constante — quarta justa, quinta, áurea. A hierarquia fica previsível e as decisões param de ser arbitrárias.</p></div>
-  </div>
+<section id="t-anatomia" class="chap">
+  <span class="chno">08</span><h2>Anatomia que importa na prática</h2>
+  <div class="acc" style="margin-top:18px">
+  <details open><summary><b>01</b> Altura de x</summary><p class="sm">A altura das minúsculas em relação às maiúsculas. Alta lê bem em tamanho pequeno e em tela; baixa tem elegância e pede corpo maior. Duas famílias com alturas de x muito diferentes brigam quando postas lado a lado.</p></details>
+  <details><summary><b>02</b> Contraste de traço</summary><p class="sm">A diferença entre a haste grossa e a fina. Alto contraste — as modernas, as didonas — brilha em título e some em corpo pequeno. Baixo contraste aguenta condições ruins de leitura.</p></details>
+  <details><summary><b>03</b> Abertura</summary><p class="sm">O quanto letras como c, e, s se fecham. Aberturas amplas mantêm as letras distinguíveis à distância e em corpo pequeno; fechadas dão densidade e ar editorial.</p></details>
+  <details><summary><b>04</b> Largura e ritmo</summary><p class="sm">Condensada economiza espaço e acelera; estendida ocupa e desacelera. O ritmo entre letra e contraforma é o que faz um parágrafo parecer uniforme ou manchado.</p></details>
+  <details><summary><b>05</b> Medida</summary><p class="sm">O comprimento da linha. Entre 45 e 75 caracteres é a faixa em que o olho encontra o início da próxima linha sem esforço. Linha longa demais exige mais entrelinha para compensar.</p></details>
+  <details><summary><b>06</b> Escala modular</summary><p class="sm">Os tamanhos derivam de uma razão constante — quarta justa, quinta, áurea. A hierarquia fica previsível e as decisões param de ser arbitrárias.</p></details>
+</div>
 </section>
 
-<section>
-  <h2>Como combinar duas famílias</h2>
+<section id="t-combinar" class="chap">
+  <span class="chno">09</span><h2>Como combinar duas famílias</h2>
   <p class="lede">O erro comum é buscar semelhança. Duas famílias parecidas não se harmonizam: elas competem, e a diferença pequena parece defeito.</p>
-  <div class="grid2" style="margin-top:18px">
-    <div>
-      <h4>Contraste de estrutura</h4>
-      <p class="sm">Uma serifada de alto contraste no título contra uma sem serifa humanista no corpo. A diferença é clara, a hierarquia se resolve sozinha e nenhuma das duas parece erro.</p>
-      <h4 style="margin-top:14px">Superfamília</h4>
-      <p class="sm">Famílias desenhadas juntas para conviver — a versão serifada, a sem serifa e a monoespaçada do mesmo projeto. Harmonia garantida, contraste menor, risco de monotonia.</p>
-    </div>
-    <div>
-      <h4>Uma só família</h4>
-      <p class="sm">Toda a hierarquia feita por peso, tamanho, largura e caixa. É a saída mais difícil de errar e a que mais depende de disciplina de espaçamento.</p>
-      <h4 style="margin-top:14px">Compatibilidade métrica</h4>
-      <p class="sm">Mesmo com estruturas diferentes, altura de x e largura próximas fazem as duas parecerem escolhidas juntas. É o critério que o instrumento usa para pontuar as combinações.</p>
-    </div>
+  <div class="carousel" data-carousel style="margin-top:18px">
+  <div class="track" tabindex="0">
+    <article class="poster plain"><span class="pno">01</span><h3>Contraste de estrutura</h3><p class="sm">Uma serifada de alto contraste no título contra uma sem serifa humanista no corpo. A diferença é clara, a hierarquia se resolve sozinha e nenhuma das duas parece erro.</p></article>
+    <article class="poster plain"><span class="pno">02</span><h3>Superfamília</h3><p class="sm">Famílias desenhadas juntas para conviver — a versão serifada, a sem serifa e a monoespaçada do mesmo projeto. Harmonia garantida, contraste menor, risco de monotonia.</p></article>
+    <article class="poster plain"><span class="pno">03</span><h3>Uma só família</h3><p class="sm">Toda a hierarquia feita por peso, tamanho, largura e caixa. É a saída mais difícil de errar e a que mais depende de disciplina de espaçamento.</p></article>
+    <article class="poster plain"><span class="pno">04</span><h3>Compatibilidade métrica</h3><p class="sm">Mesmo com estruturas diferentes, altura de x e largura próximas fazem as duas parecerem escolhidas juntas. É o critério que o instrumento usa para pontuar as combinações.</p></article>
   </div>
+  <div class="carnav"><button class="mini" data-car="prev" aria-label="Anterior">←</button><div class="dots" role="tablist"></div><button class="mini" data-car="next" aria-label="Seguinte">→</button></div>
+</div>
+</section>
+
+<section id="t-formatos" class="chap">
+  <span class="chno">10</span><h2>Formatos de arquivo de fonte</h2>
+  <p class="lede">Uma família tipográfica chega em vários formatos, e cada um serve a um lugar. Confundi-los custa peso na página, licenças mal usadas ou recursos que não aparecem. O essencial cabe numa tabela.</p>
+  <div class="tblwrap" style="margin-top:18px"><table class="fmttable">
+    <thead><tr><th>Formato</th><th>Ano</th><th>Onde usar</th><th>Tamanho relativo</th><th>O que é</th></tr></thead>
+    <tbody>
+      <tr><td><b>WOFF2</b></td><td>2014</td><td>Web, sempre</td><td>1×</td><td>O padrão da web. Compressão Brotli, cerca de 30% menor que WOFF. Todo navegador atual lê.</td></tr>
+      <tr><td><b>WOFF</b></td><td>2009</td><td>Web, só como reserva</td><td>1,4×</td><td>O primeiro empacotamento para a web, com compressão zlib. Só faz sentido para navegadores muito antigos.</td></tr>
+      <tr><td><b>OTF</b></td><td>1996</td><td>Desktop, impressão, apps</td><td>2×</td><td>OpenType: um contêiner que pode trazer curvas cúbicas (CFF) e recursos como ligaturas, versaletes e algarismos alternativos.</td></tr>
+      <tr><td><b>TTF</b></td><td>1991</td><td>Desktop, apps, Android</td><td>2×</td><td>TrueType: curvas quadráticas e instruções de ajuste de pixel. Universal, mas costuma ser maior que o OTF equivalente.</td></tr>
+      <tr><td><b>Variável</b></td><td>2016</td><td>Web e desktop</td><td>1 arquivo em vez de 6 a 18</td><td>Um só arquivo com eixos contínuos: peso, largura, tamanho óptico, inclinação. Substitui a família inteira e anima entre pesos.</td></tr>
+      <tr><td><b>EOT, SVG</b></td><td>1997, 2008</td><td>Nenhum lugar</td><td>—</td><td>Formatos do Internet Explorer e do iOS antigo. Não devem mais ser publicados.</td></tr>
+    </tbody>
+  </table></div>
+  <div class="acc" style="margin-top:22px">
+    <details open><summary><b>01</b> O que publicar na web</summary><p class="sm">Só WOFF2, com um subconjunto latino (e latino estendido se houver acentos além do português). Se a família tem três pesos ou mais, a versão variável em WOFF2 costuma pesar menos do que dois arquivos estáticos e dá acesso a todos os pesos intermediários. Declare <code>font-display: swap</code> e pré-carregue apenas a fonte do texto principal.</p></details>
+    <details><summary><b>02</b> O que instalar no computador</summary><p class="sm">OTF quando existir, porque traz os recursos OpenType completos e curvas mais leves; TTF quando o software pede. Para impressão e PDF, os dois se incorporam sem problema.</p></details>
+    <details><summary><b>03</b> Subconjuntos e alcance</summary><p class="sm">Uma fonte completa pode trazer cirílico, grego e vietnamita que a peça nunca vai usar. Os bancos entregam subconjuntos por escrita; no CSS, <code>unicode-range</code> faz o navegador baixar só o bloco necessário. É a maior economia depois do WOFF2.</p></details>
+    <details><summary><b>04</b> Fontes coloridas e ícones</summary><p class="sm">Emoji e famílias de exibição em várias cores usam as tabelas COLR/CPAL ou OpenType-SVG, dentro de um arquivo OTF ou WOFF2 normal. Ícones como fonte foram substituídos por SVG inline na maioria dos projetos.</p></details>
+    <details><summary><b>05</b> Licença muda com o formato</summary><p class="sm">Uma licença de desktop não cobre a publicação de WOFF2 num site, e a de web costuma limitar visitas por mês. Famílias livres (SIL Open Font License, Apache) permitem os dois usos e a conversão entre formatos; as comerciais precisam ser lidas uma a uma.</p></details>
+  </div>
+  <p class="sm" style="margin-top:14px">A página de Tipografia gera o <code>@font-face</code> para cada formato e o link da CDN do Fontsource, que serve WOFF2 já subconjuntado.</p>
 </section>
 
 <footer>
