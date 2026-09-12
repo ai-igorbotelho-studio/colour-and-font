@@ -1,0 +1,41 @@
+/* ═══════════ FLUIDEZ ═══════════
+   Espaço, tipo e grades em função da largura, sem degraus: clamp() e
+   auto-fit com min(100%, …). No celular tudo vira uma coluna que respira. */
+:root{--sp:clamp(14px,3.5vw,34px);--sp2:clamp(20px,5vw,48px)}
+.wrap{padding-left:clamp(16px,4.5vw,40px);padding-right:clamp(16px,4.5vw,40px)}
+section{padding:var(--sp2) 0}
+h1{font-size:clamp(34px,8.5vw,76px)}
+h2{font-size:clamp(22px,4.2vw,32px)}
+.lede{font-size:clamp(15px,1.6vw,17px)}
+.grid2,.grid3,.homegrid,.mockgrid,.maglist,.magact{gap:var(--sp)}
+.grid3{grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr))}
+.homegrid{grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr))}
+.stage{gap:var(--sp)}
+/* faixas de botões: no celular ocupam a largura toda, em colunas iguais */
+.tabs2,.viewbar,.rolebar,.propstrip,#tTabs,#codeTabs,#ctMode{flex-wrap:wrap;overflow:visible;padding-bottom:0}
+.propstrip{flex:1 1 100%;min-width:0}
+.propstrip button{flex:1 1 40px;min-width:0}
+@media(max-width:560px){
+  .btnrow>button,.btnrow>a{flex:1 1 calc(50% - 9px);min-width:0;text-align:center;justify-content:center}
+  .btnrow>button.act{flex-basis:100%}
+  .tabs2 button,.viewbar button,.rolebar button{flex:1 1 calc(33.33% - 7px);min-width:0;text-align:center}
+  .seg button{padding-left:8px;padding-right:8px;font-size:13.5px}
+  .artaudio{grid-template-columns:1fr 1fr}
+  .arttools{flex-direction:column;align-items:stretch}.arttools .mini{width:100%}.artread{justify-content:stretch}.artread .mini{flex:1}
+  .mockctl{gap:10px}
+  .magopen{padding:22px 18px}
+  .mock figcaption{flex-direction:column;align-items:stretch}.mock figcaption .btnrow{width:100%}
+  table{font-size:12.5px}th,td{padding:7px 4px}
+  .maghead .magmeta{gap:4px}
+}
+@media(max-width:400px){
+  .btnrow>button,.btnrow>a{flex-basis:100%}
+  .tabs2 button,.viewbar button,.rolebar button{flex-basis:calc(50% - 7px)}
+  .artaudio{grid-template-columns:1fr}
+}
+/* tabelas nunca estouram: rolam dentro da própria caixa */
+table{display:block;overflow-x:auto;-webkit-overflow-scrolling:touch;max-width:100%}
+@media(min-width:720px){table{display:table}}
+/* imagens e caixas de proporção nunca passam da coluna */
+img,svg,canvas,video{max-width:100%}
+.mockimg,.bnr,.venn,.gradprev{max-width:100%}

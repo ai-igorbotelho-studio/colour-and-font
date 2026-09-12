@@ -38,7 +38,7 @@ function drawList(): void {
   $('magTopics').innerHTML = TOPICS.map(tp => `<button class="pill" data-k="${tp.k}" aria-pressed="${ST.topics.has(tp.k)}">${esc(isEn() ? tp.en : tp.pt)}</button>`).join('');
   $all<HTMLButtonElement>($('magTopics'), 'button').forEach(b => b.onclick = () => { const k = b.dataset.k as Topic; if (ST.topics.has(k)) ST.topics.delete(k); else ST.topics.add(k); drawList() });
   $('magCount').textContent = list.length === 1 ? t('1 artigo') : t('{n} artigos', { n: list.length });
-  $('magList').innerHTML = list.length ? list.map((a, i) => { const x = L(a); return `<article class="magcard${i === 0 ? ' lead' : ''}">
+  $('magList').innerHTML = list.length ? list.map((a, i) => { const x = L(a); return `<article class="magcard${i === 0 ? ' lead' : ''}" data-tone="${['accent', 'card', 'deep', 'ink', 'card'][i % 5]}">
       <button class="magopen" data-s="${a.slug}">
         <span class="kicker">${esc(x.kicker)}</span>
         <span class="magtitle">${esc(x.title)}</span>

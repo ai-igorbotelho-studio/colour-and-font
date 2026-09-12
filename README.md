@@ -17,9 +17,9 @@ npm run preview    # serve dist/ em http://localhost:4173
 ### Auditorias no navegador (precisam do `preview` no ar)
 
 ```bash
-npm run audit:smoke     # cinco páginas, todos os <select> em todas as opções, todos os botões — zero erros JS
+npm run audit:smoke     # sete páginas, todos os <select> em todas as opções, todos os botões — zero erros JS
 npm run audit:ref       # compara paletas, pares e propostas com o instantâneo do arquivo original (tests/reference.json)
-npm run audit:axe       # axe-core nas cinco páginas, luz e treva — 0 críticas e 0 sérias
+npm run audit:axe       # axe-core nas sete páginas, luz e treva — 0 críticas e 0 sérias
 npm run audit:shots -- <pasta>            # capturas em 390, 768 e 1440, luz e treva
 npm run audit:diff  -- <antes> <depois>   # comparação pixel a pixel de duas pastas de capturas
 npm run assets          # regenera public/og.png e os ícones a partir da edição em vigor
@@ -41,7 +41,8 @@ src/
   contents/ index — Conteúdos: lista, busca, filtros, artigo, voz, downloads, partilha, SEO
   i18n/    index ui-en data-en — inglês primário, português segundo
   home.ts nav.ts main.ts testing.ts
-  styles/  tokens.css base.css components.css views.css shell.css flat.css (sem bordas)
+  styles/  tokens.css base.css components.css views.css shell.css flat.css (sem bordas) fluid.css (celular fluido) motion.css
+  motion.ts revelação ao rolar, paralaxe, inclinação, lupa com zoom — desligado por prefers-reduced-motion
 tests/     color goethe zip tokens options i18n (.test.ts) · reference.json · tools/ (harness de navegador)
 reference/ farbenkreis-original.html — o arquivo único de onde tudo saiu
 ```

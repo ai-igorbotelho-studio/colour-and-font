@@ -507,4 +507,9 @@ export const UI: Record<string, string> = {
   'Ligações internas': 'Internal links',
   'Dados estruturados': 'Structured data',
   'Este texto foi cocriado entre uma pessoa e uma ferramenta de IA, como parte de um experimento de aprendizagem, criação e desenvolvimento. Não guardamos nenhum dado e nada daqui será usado como fonte de marketing.': 'This text was co-created between a human and an AI tool, as part of an experiment in learning, creation and development. We keep no data, and nothing here will be used as a source of marketing.',
+  /* lupa */
+  'Ampliar': 'Zoom in',
+  'Reduzir': 'Zoom out',
+  'Tamanho original': 'Original size',
+  'Escalas de tom': 'Tone scales',
 };

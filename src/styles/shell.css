@@ -114,6 +114,15 @@ nav .gt+.gt{margin-left:6px}
 .magopen{display:flex;flex-direction:column;align-items:flex-start;gap:10px;text-align:left;width:100%;height:100%;font:inherit;cursor:pointer;
   background:var(--card);color:var(--ink);border:1px solid var(--rule2);border-radius:var(--r);padding:26px 24px}
 .magopen:hover{border-color:var(--ink);transform:translateY(-2px);box-shadow:var(--sh)}
+/* cartões nas cores da paleta da identidade */
+.magcard[data-tone="accent"] .magopen{background:var(--accent);color:var(--accent-ink)}
+.magcard[data-tone="accent"] .kicker,.magcard[data-tone="accent"] .magdek,.magcard[data-tone="accent"] .magmeta{color:var(--accent-ink)}
+.magcard[data-tone="deep"] .magopen{background:#700034;color:#FFFDF9}
+.magcard[data-tone="deep"] .kicker,.magcard[data-tone="deep"] .magdek,.magcard[data-tone="deep"] .magmeta{color:#FFFDF9}
+.magcard[data-tone="ink"] .magopen{background:#00000E;color:#FFFDF9}
+.magcard[data-tone="ink"] .kicker{color:var(--accent)}
+.magcard[data-tone="ink"] .magdek,.magcard[data-tone="ink"] .magmeta{color:#FFFDF9;opacity:.85}
+.magcard[data-tone="card"] .kicker{color:var(--deep)}
 .kicker{font-family:"Roboto Mono",ui-monospace,monospace;font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--deep);margin:0}
 .magtitle{font-family:"DM Serif Display",Georgia,serif;font-size:clamp(24px,3vw,34px);line-height:1.08;max-width:22ch}
 .magcard.lead .magtitle{font-size:clamp(30px,4.6vw,54px);max-width:18ch}

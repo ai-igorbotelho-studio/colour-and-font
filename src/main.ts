@@ -1,11 +1,10 @@
-import { initContents } from './contents/index';
-import { initMockupPages } from './mockups/pages';
 import './styles/tokens.css';
 import './styles/base.css';
 import './styles/components.css';
 import './styles/views.css';
 import './styles/shell.css';
 import './styles/flat.css';
+import './styles/fluid.css';
 import { initHome } from './home';
 import { initPalette } from './palette/index';
 import { initType } from './type/index';
@@ -28,6 +27,16 @@ initType();
 initNav();
 initCreate();
 initTrends();
-initMockupPages();
-initContents();
 installTestHooks();
+
+/* Conteúdos e Visualização de exemplos são pedaços separados do pacote:
+   entram quando o navegador está ocioso, ou na hora se o endereço já pede
+   um artigo (#c/…) ou se é uma sessão de teste. */
+const lazy = (): Promise<unknown> => Promise.all([
+  import('./mockups/pages').then(m => m.initMockupPages()),
+  import('./contents/index').then(m => m.initContents())
+]);
+const w = window as Window & { requestIdleCallback?: (cb: () => void, o?: { timeout: number }) => number };
+if (location.hash.startsWith('#c') || location.search.includes('test') || typeof w.requestIdleCallback !== 'function') void lazy();
+else w.requestIdleCallback(() => { void lazy() }, { timeout: 1500 });
+import('./motion').then(m => m.initMotion());
