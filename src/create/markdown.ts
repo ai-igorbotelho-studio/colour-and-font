@@ -10,7 +10,7 @@ import { LENS } from '../data/lenses';
 import { CULT } from '../data/cultures';
 import { MUS } from '../data/music';
 import { PIECES, SUPS } from '../data/lexicon';
-import type { Font } from '../data/fonts';
+import { bankName, type Font } from '../data/fonts';
 import { S, cur, palette, proportions, palName } from '../palette/state';
 import { T, hasFams } from '../type/state';
 import { fam, describe } from '../type/pairing';
@@ -30,7 +30,7 @@ export function mdBlock(name: string, hs: string[], areas: number[] | null, font
   if (fonts && fonts.length) {
     s += `\n` + t('## Tipografia') + `\n\n` + t('| Papel | Família | Banco | Pesos | Característica |') + `\n|---|---|---|---|---|\n`;
     const papel = [t('Título'), t('Texto'), t('Apoio'), t('Citação'), t('Acento')];
-    fonts.forEach((f, i) => s += `| ${papel[i] || t('Extra')} | ${f.n} | ${f.src === 'google' ? 'Google Fonts' : 'Fontshare'} | ${f.wts.replace(/;/g, ', ')} | ${describe(f)} |\n`);
+    fonts.forEach((f, i) => s += `| ${papel[i] || t('Extra')} | ${f.n} | ${bankName(f)} | ${f.wts.replace(/;/g, ', ')} | ${describe(f)} |\n`);
     s += `\n\`\`\`html\n` + fonts.map(f => `<link rel="stylesheet" href="${cdnLink(f)}">`).join('\n') + `\n\`\`\`\n`;
   }
   s += `\n` + t('## Variáveis CSS') + `\n\n\`\`\`css\n:root{\n`

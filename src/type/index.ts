@@ -46,7 +46,7 @@ function setFamN(n: number): void { T.nFam = n; $('tFamLbl').textContent = Strin
 
 export function initType(): void {
   const clsOpts = [{ v: 'none', n: t('Nenhuma') }].concat(Object.keys(CLS).map(k => ({ v: k, n: CLS[k as keyof typeof CLS].n })));
-  const bankOpts = [{ v: 'none', n: t('Nenhum — todos') }, { v: 'google', n: 'Google Fonts' }, { v: 'fontshare', n: 'Fontshare' }];
+  const bankOpts = [{ v: 'none', n: t('Nenhum — todos') }, { v: 'google', n: 'Google Fonts' }, { v: 'fontshare', n: 'Fontshare' }, { v: 'fontsource', n: 'Fontsource' }, { v: 'velvetyne', n: 'Velvetyne' }];
   fillSel($('tEmo'), EMO); fillSel($('tUse'), USES, 'v'); fillSel($('tStrat'), STRATS, 'v');
   fillSel($('tClsD'), clsOpts, 'v'); fillSel($('tClsB'), clsOpts, 'v'); fillSel($('tBank'), bankOpts, 'v');
   fillSel($('tWidth'), WIDTHS, 'v'); fillSel($('tContr'), CONTRS, 'v');

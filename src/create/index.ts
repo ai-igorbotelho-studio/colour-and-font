@@ -1,5 +1,5 @@
 /* ═══════════ CRIAÇÃO — montagem ═══════════ */
-import { hex2rgb, rgb2cmyk, readable } from '../core/color';
+import { hex2rgb, rgb2cmyk, readable, hex2lch } from '../core/color';
 import { nameOf, atAngle } from '../core/goethe';
 import { $, $v, $n, $all, $set, esc, slug, copy, download, toast, fillSel } from '../core/dom';
 import { t, dec, isEn } from '../i18n';
@@ -131,7 +131,16 @@ export function initCreate(): void {
       : t('Ainda não reconheci nenhuma palavra do léxico. Escreva à vontade: os campos acima já bastam para gerar.') };
   $('cGo').onclick = () => {
     CR.seed = Math.random(); const br = buildBrief(CR.n);
-    CR.props = ANGLES.map((a, i) => makeProposal(a, br, (CR.seed * (i + 1) * 7.13) % 1)); CR.views = CR.props.map((_p, i) => CR.views[i] || 'faixas');
+    // três propostas de verdade distintas: reamostra a semente enquanto a família de título
+    // ou a paleta repetirem uma proposta anterior
+    const tooClose = (a: Proposal, b: Proposal): boolean => a.fonts[0].n === b.fonts[0].n
+      || (a.fonts[1] && b.fonts[1] && a.fonts[1].n === b.fonts[1].n && a.si === b.si)
+      || a.hs.reduce((d, h, i) => d + Math.abs(hex2lch(h).H - hex2lch(b.hs[i] || h).H) % 360, 0) / a.hs.length < 14;
+    CR.props = [];
+    ANGLES.forEach((a, i) => { let p = makeProposal(a, br, (CR.seed * (i + 1) * 7.13) % 1), tries = 0;
+      while (CR.props.some(q => tooClose(p, q)) && tries < 8) { tries++; p = makeProposal(a, br, (CR.seed * (i + 1) * 7.13 + tries * .173) % 1) }
+      CR.props.push(p) });
+    CR.views = CR.props.map(() => 'faixas'); $('cOut').innerHTML = '';
     $('cRead').style.display = 'block';
     $('cRead').innerHTML = `<b>${t('O que eu li do seu pedido.')}</b> `
       + t('Peça: {p}.', { p: (PIECES.find(x => x.v === br.piece) || { n: t('não definida') }).n.toLowerCase() }) + ' '

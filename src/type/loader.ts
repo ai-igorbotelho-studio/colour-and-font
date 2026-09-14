@@ -3,7 +3,7 @@
    Se a rede falhar, a reserva declarada em fam() já está em uso — avisa uma vez e segue. */
 import { slug, toast } from '../core/dom';
 import { t } from '../i18n';
-import type { Font } from '../data/fonts';
+import { fontsourceId, type Font } from '../data/fonts';
 
 const loaded = new Set<string>();
 const failed = new Set<string>();
@@ -11,9 +11,10 @@ let warned = false;
 export const FONT_TIMEOUT = 6000;
 
 export function cdnLink(f: Font): string {
-  return f.src === 'google'
-    ? `https://fonts.googleapis.com/css2?family=${f.n.replace(/ /g, '+')}:wght@${f.wts}&display=swap`
-    : `https://api.fontshare.com/v2/css?f[]=${slug(f.n)}@${f.wts.replace(/;/g, ',')}&display=swap`;
+  if (f.src === 'google') return `https://fonts.googleapis.com/css2?family=${f.n.replace(/ /g, '+')}:wght@${f.wts}&display=swap`;
+  if (f.src === 'fontshare') return `https://api.fontshare.com/v2/css?f[]=${slug(f.n)}@${f.wts.replace(/;/g, ',')}&display=swap`;
+  // Fontsource e Velvetyne: a folha "latin" traz todos os pesos e estilos do subconjunto latino
+  return `https://cdn.jsdelivr.net/fontsource/css/${fontsourceId(f)}@latest/latin.css`;
 }
 
 export function loadFont(f: Font | null | undefined): Promise<boolean> {

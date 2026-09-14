@@ -3,7 +3,7 @@ import { $v, norm } from '../core/dom';
 import { t } from '../i18n';
 import { lcg } from '../core/rng';
 import { EMO } from '../data/emotions';
-import { FONTS, CLS, type Font, type FontClass } from '../data/fonts';
+import { pool, CLS, type Font, type FontClass } from '../data/fonts';
 import { T } from './state';
 
 export const isSerif = (c: FontClass | string): boolean => c.startsWith('serif');
@@ -29,7 +29,7 @@ export const filtersFromUI = (): Filters => ({ bank: $v('tBank'), wf: $v('tWidth
 
 export function candidates(slot: Slot, F: Filters = filtersFromUI()): Font[] {
   const cls = slot === 'disp' ? F.clsD : F.clsB, use = F.use;
-  return FONTS.filter(f => {
+  return pool().filter(f => {
     if (f.cls === 'mono' && slot !== 'mono') return false;
     if (slot === 'mono' && f.cls !== 'mono') return false;
     if (F.bank !== 'none' && f.src !== F.bank) return false;
@@ -78,6 +78,7 @@ export function pickSet(n: number): Font[] | null {
   else out.push(p.d, p.b);
   if (n >= 3) { const ms = candidates('mono');
     out.push(ms.find(m => m.sf && (m.sf === p.d.sf || m.sf === p.b.sf)) || ms[Math.floor(Math.random() * ms.length)] || p.b) }
+  const FONTS = pool();
   if (n >= 4) { const qs = FONTS.filter(f => f.cls !== 'mono' && out.indexOf(f) < 0 && f.role !== 'body' && isSerif(f.cls) !== isSerif(p.b.cls));
     out.push(qs[Math.floor(Math.random() * qs.length)] || FONTS.find(f => out.indexOf(f) < 0)!) }
   if (n >= 5) { const as = FONTS.filter(f => f.cls !== 'mono' && out.indexOf(f) < 0 && Math.abs(f.x - p.b.x) <= .06);

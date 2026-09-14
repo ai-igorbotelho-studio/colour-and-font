@@ -29,7 +29,7 @@ npm run assets          # regenera public/og.png e os ícones a partir da ediç�
 
 ```
 index.html                 casca: nav, tabbar, os sete <main> (Início, Cores, Tipografia, Criação, Tendências, Conteúdos, Teoria)
-public/                    og.png, icons/, fonts/ (DM Serif Display, Mulish e Roboto Mono, latino, woff2), _headers, manifest, sitemap, robots
+public/                    og.png, icons/, fonts/ (DM Serif Display, Mulish e Roboto Mono, latino, woff2), _headers (CSP libera Google, Fontshare e a CDN do Fontsource/jsDelivr), manifest, sitemap, robots
 src/
   core/    color.ts goethe.ts codes.ts rng.ts state.ts store.ts dom.ts
   data/    emotions markets schemes lenses cultures music fonts lexicon trends articles
@@ -52,6 +52,10 @@ Um store por domínio (`createStore` em `core/state.ts`): o instrumento de cor n
 ## O que não muda
 
 As decisões listadas na seção 7 de `PASSAGEM-CLAUDE-CODE.md` são o conteúdo da ferramenta: as seis âncoras de Goethe e seus opostos a 180°, a interpolação em OKLab com croma reduzido por busca binária, os três regimes, preto e branco como cores plenas, o contraste sobre as cores reais, a nota sobre referência cultural, a declaração de que os hex das Tendências são aproximações, a Criação sem rede e a ausência da palavra "marca" na interface. `tests/goethe.test.ts` e `tests/options.test.ts` vigiam as que dá para vigiar por código.
+
+## Bancos de fontes
+
+Quatro bancos no campo Biblioteca: Google Fonts e Fontshare (APIs próprias), Fontsource e Velvetyne (ambos servidos pela CDN do Fontsource em `cdn.jsdelivr.net/fontsource/css/<id>@latest/latin.css`). Os ids do Fontsource vêm de `fontsourceId()` em `src/data/fonts.ts`; as famílias novas entram em `FRAW` com o código de banco `s` ou `v`. O harness de referência (`tests/reference.json`) compara com o arquivo original, que só conhecia os dois primeiros bancos: `setLegacyPool(true)` restringe os sorteios a eles durante a comparação, sem afetar o uso normal.
 
 ## Atualizar as Tendências
 

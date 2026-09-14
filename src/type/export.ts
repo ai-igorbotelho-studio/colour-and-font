@@ -3,19 +3,16 @@ import { readable } from '../core/color';
 import { $, $v, $n, $all, esc, slug, copy, download } from '../core/dom';
 import { t } from '../i18n';
 import { sampleText } from './specimen';
-import { ROLES, SAMPLE_TXT, type Font } from '../data/fonts';
+import { ROLES, SAMPLE_TXT, bankName, bankPage, fontsourceId, type Font } from '../data/fonts';
 import { T, hasFams, type TypeFmt } from './state';
 import { fam } from './pairing';
 import { roleColors, roleCss, roleCfg, parseText } from './hierarchy';
 export { cdnLink } from './loader';
 import { cdnLink } from './loader';
 
-export function dlLink(f: Font): string {
-  return f.src === 'google' ? `https://fonts.google.com/specimen/${f.n.replace(/ /g, '+')}`
-    : `https://www.fontshare.com/fonts/${slug(f.n)}`;
-}
+export const dlLink = (f: Font): string => bankPage(f);
 export function fontsourceUrl(f: Font, fmt: string): string {
-  const s = slug(f.n);
+  const s = fontsourceId(f);
   if (fmt === 'var') return `https://cdn.jsdelivr.net/fontsource/fonts/${s}:vf@latest/latin-wght-normal.woff2`;
   return `https://cdn.jsdelivr.net/fontsource/fonts/${s}@latest/latin-400-normal.${fmt === 'woff' ? 'woff' : 'woff2'}`;
 }
@@ -48,7 +45,7 @@ export function drawTOut(): void {
       const ex = fmt === 'var' ? 'woff2' : fmt;
       return t('/* {n} — baixe em {u} */', { n: x.n, u: dlLink(x) }) + `\n@font-face{\n  font-family:"${x.n}";\n  src:url("/fonts/${slug(x.n)}-400.${ex}") format("${ff}"${fmt === 'var' ? ' supports variations' : ''});\n  font-weight:${fmt === 'var' ? '300 900' : '400'};\n  font-style:normal;\n  font-display:swap;\n}` }).join('\n\n')
       + '\n\n' + t('/* mesma família pela CDN do Fontsource, sem hospedar nada */') + '\n'
-      + list.filter(x => x.src === 'google').map(x => `/* ${x.n}: ${fontsourceUrl(x, fmt)} */`).join('\n');
+      + list.filter(x => x.src !== 'fontshare').map(x => `/* ${x.n}: ${fontsourceUrl(x, fmt)} */`).join('\n');
   } else if (f === 'link') {
     s = list.map(x => `<link rel="stylesheet" href="${cdnLink(x)}">`).join('\n')
      + '\n\n' + t('<!-- pré-conexão, acelera a primeira renderização -->') + '\n<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>';
@@ -78,8 +75,8 @@ export function drawTOut(): void {
         return `<${tg}>${esc(bk.t)}</${tg.split(' ')[0]}>` }).join('\n')
      + `\n</body>\n</html>`;
   } else {
-    s = list.map(x => `${x.n}\n` + t('  Banco: {b}', { b: x.src === 'google' ? 'Google Fonts' : 'Fontshare' }) + `\n` + t('  Página: {u}', { u: dlLink(x) }) + `\n`
-      + (x.src === 'google' ? t('  Arquivo {f} pela CDN do Fontsource: {u}', { f: fmt === 'none' ? 'woff2' : fmt, u: fontsourceUrl(x, fmt === 'none' ? 'woff2' : fmt) }) + `\n` : t('  Baixe otf e ttf direto na página do Fontshare') + `\n`)
+    s = list.map(x => `${x.n}\n` + t('  Banco: {b}', { b: bankName(x) }) + `\n` + t('  Página: {u}', { u: dlLink(x) }) + `\n`
+      + (x.src !== 'fontshare' ? t('  Arquivo {f} pela CDN do Fontsource: {u}', { f: fmt === 'none' ? 'woff2' : fmt, u: fontsourceUrl(x, fmt === 'none' ? 'woff2' : fmt) }) + `\n` : t('  Baixe otf e ttf direto na página do Fontshare') + `\n`)
       + t('  Licença: confira na própria página antes de redistribuir')).join('\n\n')
       + `\n\n` + t('Espelho sem rastreamento das famílias do Google:') + `\n  https://fonts.bunny.net`;
   }

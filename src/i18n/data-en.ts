@@ -176,9 +176,9 @@ const contrs = ['None', 'Low — mechanical', 'Medium', 'High — Didone'];
 const banks: [string, string, string][] = [
   ['Google Fonts', 'The largest open library, with a delivery API and direct download. Mostly SIL OFL and Apache licences.', 'woff2 via the API, ttf on download'],
   ['Fontshare', 'The Indian Type Foundry\'s library of contemporary families, free for commercial use.', 'woff2 and woff via the API, otf and ttf on download'],
-  ['Fontsource', 'A mirror of the Google families packaged for npm and CDN, useful for self-hosting.', 'woff2 and woff per weight file'],
+  ['Fontsource', 'Packages families from Google and from independent foundries (Vercel, Collletttivo, The League, Cooper Hewitt) for npm and CDN, with subsets by script. OFL, Apache and public-domain licences.', 'woff2 and woff per weight and subset, via the jsDelivr CDN'],
   ['Bunny Fonts', 'A tracking-free mirror of Google with the same URL syntax.', 'woff2'],
-  ['Velvetyne', 'A French libre foundry with experimental designs and open licences.', 'otf, ttf and woff2'],
+  ['Velvetyne', 'A French libre foundry of experimental designs under the SIL OFL. The families served here come through the Fontsource CDN; the foundry\'s site delivers the complete files.', 'otf and ttf on the site; woff2 via the CDN'],
   ['The League of Moveable Type', 'A veteran open-font project: few families, well cared for.', 'otf, ttf and woff'],
   ['Uncut', 'A curated set of free contemporary families from several foundries.', 'varies by family'],
   ['Open Foundry', 'A curated set with a technical sheet and essay on each open family.', 'otf and woff'],

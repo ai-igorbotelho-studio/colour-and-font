@@ -1,5 +1,6 @@
 /* Ganchos de teste, expostos só com ?test na URL. Servem ao harness em tests/tools
    para comparar a aplicação modular com o instantâneo do arquivo original. */
+import { setLegacyPool } from './data/fonts';
 import { $set } from './core/dom';
 import { S, syncControls } from './palette/state';
 import { build, render } from './palette/index';
@@ -25,15 +26,16 @@ export function installTestHooks(): void {
     },
     pair(sc: PairScen) {
       (['tEmo', 'tUse', 'tStrat', 'tClsD', 'tClsB', 'tBank', 'tWidth', 'tContr'] as const).forEach(k => $set(k, sc[k]));
-      T.seed = sc.seed; const pr = pickPair();
+      T.seed = sc.seed; setLegacyPool(true); const pr = pickPair(); setLegacyPool(false);
       return pr ? { d: pr.d.n, b: pr.b.n } : null;
     },
     proposals(br: BriefScen) {
       $set('cBrief', br.brief); $set('cPiece', br.piece); $set('cSup', br.sup); $set('cFam', String(br.fam));
       $set('cPos', br.pos); ['cEmo', 'cMkt', 'cCult', 'cMus'].forEach(id => $set(id, 0));
-      const b = buildBrief(br.n);
-      return ANGLES.map((a, i) => { const pp = makeProposal(a, b, br.seeds[i]);
+      const b = buildBrief(br.n); setLegacyPool(true);
+      const out = ANGLES.map((a, i) => { const pp = makeProposal(a, b, br.seeds[i]);
         return { hs: pp.hs, fonts: pp.fonts.map(f => f.n), li: pp.li, si: pp.si, u: pp.u, k: pp.k } });
+      setLegacyPool(false); return out;
     },
     render
   };

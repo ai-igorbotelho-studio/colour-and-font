@@ -3,7 +3,7 @@ import { readable } from '../core/color';
 import { $, $v, $n, esc, slug, download } from '../core/dom';
 import { t, dec, isEn } from '../i18n';
 import { MOODS_EN, SAMPLE_TXT_EN } from '../i18n/data-en';
-import { ROLES, SAMPLE_TXT, type Font } from '../data/fonts';
+import { ROLES, SAMPLE_TXT, type Font, bankName } from '../data/fonts';
 import { palette } from '../palette/state';
 import { T } from './state';
 import { famAttr, isSerif, describe } from './pairing';
@@ -49,7 +49,7 @@ export function drawCards(): void {
   $('tCards').innerHTML = T.fams.map(f => `<div class="fontcard">
     <div class="big" style="font-family:${famAttr(f)}">${esc(f.n)}</div>
     <div class="meta">${roleOf(f)}</div>
-    <div class="meta">${f.src === 'google' ? 'Google Fonts' : 'Fontshare'}${t(' · pesos ')}${f.wts.replace(/;/g, ', ')}</div>
+    <div class="meta">${bankName(f)}${t(' · pesos ')}${f.wts.replace(/;/g, ', ')}</div>
     <div class="meta">${describe(f)}</div>
     <div class="pills">${f.moods.map(m => `<span class="pill">${isEn() ? (MOODS_EN[m] || m) : m}</span>`).join('')}</div>
   </div>`).join('');

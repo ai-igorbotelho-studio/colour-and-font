@@ -1,7 +1,8 @@
 /* ═══════════ DADOS — TIPOGRAFIA ═══════════ */
 export type FontClass = 'serif-old' | 'serif-trans' | 'serif-mod' | 'serif-slab' | 'sans-grot' | 'sans-neo' | 'sans-geo' | 'sans-hum' | 'mono' | 'display';
 export type FontRole = 'both' | 'body' | 'display' | 'mono';
-export type FontBank = 'google' | 'fontshare';
+export type FontBank = 'google' | 'fontshare' | 'fontsource' | 'velvetyne';
+const BANK_CODE: Record<string, FontBank> = { g: 'google', f: 'fontshare', s: 'fontsource', v: 'velvetyne' };
 
 export const CLS: Record<FontClass, { n: string; d: string }> = {
  'serif-old'  :{n:'Serifada humanista',d:'As mais antigas, herdeiras da pena inclinada. Eixo oblíquo, contraste moderado, aberturas generosas. Lêem bem em texto longo e trazem calor sem parecer nostálgicas.'},
@@ -17,7 +18,7 @@ export const CLS: Record<FontClass, { n: string; d: string }> = {
 };
 
 /* [nome, banco, classe, altura de x, contraste, largura, papel, pesos, superfamília, humores] */
-type Raw = [string, 'g' | 'f', FontClass, number, number, number, FontRole, string, string | null, string];
+type Raw = [string, 'g' | 'f' | 's' | 'v', FontClass, number, number, number, FontRole, string, string | null, string];
 const FRAW: Raw[] = [
  ['EB Garamond','g','serif-old',.42,.55,.5,'both','400;500;600;700',null,'cerimônia,repouso,editorial,elegante'],
  ['Cormorant Garamond','g','serif-old',.38,.78,.47,'display','300;400;500;600;700',null,'elegante,cerimônia,melancolia,mistério'],
@@ -110,13 +111,57 @@ const FRAW: Raw[] = [
  ['Roboto Mono','g','mono',.53,.1,.5,'mono','300;400;500;700','roboto','técnico,institucional'],
  ['Fira Code','g','mono',.53,.1,.5,'mono','300;400;500;600;700','fira','técnico'],
  ['DM Mono','g','mono',.52,.1,.5,'mono','300;400;500',null,'técnico,repouso'],
- ['Source Code Pro','g','mono',.52,.1,.49,'mono','300;400;500;600;700','source','técnico,rigor']
+ ['Source Code Pro','g','mono',.52,.1,.49,'mono','300;400;500;600;700','source','técnico,rigor'],
+ ["Bagnard",'v','serif-old',0.46,0.5,0.5,'both','400',null,'editorial,cerimônia,mistério'],
+ ["Bagnard Sans",'v','sans-hum',0.5,0.2,0.5,'both','400',null,'editorial,rigor,técnico'],
+ ["Bluu Next",'v','serif-mod',0.5,0.62,0.52,'display','700',null,'elegante,cerimônia,desejo'],
+ ["Karmilla",'v','sans-grot',0.52,0.15,0.5,'both','400;700',null,'informal,confiança,técnico'],
+ ["Geist Sans",'s','sans-neo',0.53,0.1,0.5,'both','100;200;300;400;500;600;700;800;900',null,'técnico,rigor,institucional'],
+ ["Apfel Grotezk",'s','sans-grot',0.54,0.12,0.52,'both','400;700',null,'editorial,informal,energia'],
+ ["Uncut Sans",'s','sans-neo',0.52,0.1,0.5,'both','300;400;500;600;700',null,'rigor,institucional,técnico'],
+ ["Open Runde",'s','sans-geo',0.52,0.08,0.52,'both','400;500;600;700',null,'alegria,informal,cuidado'],
+ ["Hauora Sans",'s','sans-hum',0.52,0.12,0.5,'both','200;300;400;500;600;700;800',null,'confiança,cuidado,repouso'],
+ ["Nebula Sans",'s','sans-neo',0.53,0.1,0.5,'both','300;400;500;600;700;900',null,'técnico,rigor,energia'],
+ ["Redaction",'s','serif-trans',0.48,0.5,0.5,'both','400;700',null,'editorial,autoridade,mistério'],
+ ["Metropolis",'s','sans-geo',0.5,0.1,0.5,'both','100;200;300;400;500;600;700;800;900',null,'aspiração,energia,institucional'],
+ ["Clear Sans",'s','sans-hum',0.53,0.12,0.5,'body','100;300;400;500;700',null,'técnico,rigor,cuidado'],
+ ["Cooper Hewitt",'s','sans-geo',0.5,0.1,0.48,'both','100;200;300;400;500;600;700;800',null,'institucional,editorial,rigor'],
+ ["iA Writer Quattro",'s','sans-hum',0.53,0.1,0.5,'body','400;700',null,'editorial,repouso,técnico'],
+ ["Argentum Sans",'s','sans-hum',0.52,0.12,0.5,'both','100;200;300;400;500;600;700;800;900',null,'confiança,cuidado,institucional'],
+ ["Aileron",'s','sans-neo',0.52,0.1,0.5,'both','100;300;400;600;700;800',null,'institucional,rigor,confiança'],
+ ["Pretendard",'s','sans-neo',0.53,0.1,0.5,'both','100;200;300;400;500;600;700;800;900',null,'técnico,institucional,rigor'],
+ ["Libre Caslon Condensed",'s','serif-trans',0.47,0.55,0.34,'display','400;500;600;700',null,'editorial,autoridade,cerimônia'],
+ ["Junction",'s','sans-hum',0.52,0.15,0.5,'both','300;400;700',null,'cuidado,repouso,informal'],
+ ["Ostrich Sans",'s','sans-geo',0.48,0.05,0.3,'display','300;400;700;900',null,'energia,urgência,aspiração'],
+ ["Chunk Five",'s','serif-slab',0.5,0.1,0.52,'display','800',null,'autoridade,energia,abundância'],
+ ["Norwester",'s','sans-geo',0.52,0.05,0.5,'display','400',null,'autoridade,energia,informal'],
+ ["OpenDyslexic",'s','sans-hum',0.55,0.12,0.54,'body','400;700',null,'cuidado,informal'],
+ ["Commit Mono",'s','mono',0.52,0.08,0.5,'mono','200;300;400;500;600;700',null,'técnico,rigor'],
+ ["Maple Mono",'s','mono',0.52,0.08,0.5,'mono','100;200;300;400;500;600;700;800',null,'técnico,informal'],
+ ["Monaspace Neon",'s','mono',0.52,0.08,0.5,'mono','200;300;400;500;600;700;800',null,'técnico,rigor'],
+ ["League Mono",'s','mono',0.5,0.1,0.5,'mono','100;200;300;400;500;600;700;800',null,'técnico,editorial']
 ];
 
 export interface Font { n: string; src: FontBank; cls: FontClass; x: number; ct: number; w: number; role: FontRole; wts: string; sf: string | null; moods: string[] }
-export const FONTS: Font[] = FRAW.map(t => ({ n: t[0], src: t[1] === 'g' ? 'google' : 'fontshare', cls: t[2], x: t[3], ct: t[4], w: t[5],
+/* O harness de referência compara com o arquivo original, que só conhecia Google Fonts e
+   Fontshare: com o portão ligado, os sorteios ignoram os bancos acrescentados depois. */
+let legacyPool = false;
+export const setLegacyPool = (v: boolean): void => { legacyPool = v };
+export const pool = (): Font[] => legacyPool ? FONTS.filter(f => f.src === 'google' || f.src === 'fontshare') : FONTS;
+export const FONTS: Font[] = FRAW.map(t => ({ n: t[0], src: BANK_CODE[t[1]], cls: t[2], x: t[3], ct: t[4], w: t[5],
   role: t[6], wts: t[7], sf: t[8], moods: t[9].split(',') }));
 
+/** Nome do banco para exibição, página da família e id no Fontsource. */
+export const BANK_NAME: Record<FontBank, string> = { google: 'Google Fonts', fontshare: 'Fontshare', fontsource: 'Fontsource', velvetyne: 'Velvetyne' };
+export const bankName = (f: Font): string => BANK_NAME[f.src];
+const FS_ID: Record<string, string> = { 'iA Writer Quattro': 'ia-writer-quattro', 'Geist Sans': 'geist-sans' };
+export const fontsourceId = (f: Font): string => FS_ID[f.n] || f.n.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+export function bankPage(f: Font): string {
+  if (f.src === 'google') return `https://fonts.google.com/specimen/${f.n.replace(/ /g, '+')}`;
+  if (f.src === 'fontshare') return `https://www.fontshare.com/fonts/${fontsourceId(f)}`;
+  if (f.src === 'velvetyne') return `https://velvetyne.fr/fonts/${fontsourceId(f).replace(/-sans$/, '')}/`;
+  return `https://fontsource.org/fonts/${fontsourceId(f)}`;
+}
 export const SUPER: Record<string, string> = { plex: 'IBM Plex', source: 'Source', roboto: 'Roboto', pt: 'PT', noto: 'Noto', alegreya: 'Alegreya', fira: 'Fira', archivo: 'Archivo' };
 
 export interface Option { v: string; n: string }
@@ -142,9 +187,9 @@ export const CONTRS: Option[] = [{v:'none',n:'Nenhum'},{v:'low',n:'Baixo — mec
 export const BANKS: [string, string, string][] = [
  ['Google Fonts','O maior banco aberto, com API de entrega e download direto. Licenças SIL OFL e Apache na maioria.','woff2 pela API, ttf no download'],
  ['Fontshare','Banco da Indian Type Foundry com famílias contemporâneas gratuitas para uso comercial.','woff2 e woff pela API, otf e ttf no download'],
- ['Fontsource','Espelho das famílias do Google empacotado para npm e CDN, útil para hospedagem própria.','woff2 e woff por arquivo de peso'],
+ ['Fontsource','Empacota famílias do Google e de fundições independentes (Vercel, Collletttivo, The League, Cooper Hewitt) para npm e CDN, com subconjuntos por escrita. Licenças OFL, Apache e domínio público.','woff2 e woff por peso e subconjunto, pela CDN do jsDelivr'],
  ['Bunny Fonts','Espelho do Google sem rastreamento, com a mesma sintaxe de URL.','woff2'],
- ['Velvetyne','Fundição francesa livre, com desenhos experimentais e licenças abertas.','otf, ttf e woff2'],
+ ['Velvetyne','Fundição livre francesa, de desenhos experimentais e licença SIL OFL. As famílias servidas aqui vêm pela CDN do Fontsource; o site da fundição entrega os arquivos completos.','otf e ttf no site; woff2 pela CDN'],
  ['The League of Moveable Type','Projeto veterano de fontes abertas, poucas famílias e muito cuidadas.','otf, ttf e woff'],
  ['Uncut','Curadoria de famílias gratuitas contemporâneas de várias fundições.','varia por família'],
  ['Open Foundry','Curadoria com ficha técnica e ensaio sobre cada família aberta.','otf e woff']

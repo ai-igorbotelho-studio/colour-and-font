@@ -10,7 +10,7 @@ import { SCH } from '../data/schemes';
 import { LENS } from '../data/lenses';
 import { CULT } from '../data/cultures';
 import { MUS } from '../data/music';
-import { FONTS, type Font } from '../data/fonts';
+import { pool as fontPool, type Font } from '../data/fonts';
 import { PIECES, type Angle } from '../data/lexicon';
 import { generatePalette } from '../palette/generate';
 import { proportionsFor } from '../palette/state';
@@ -23,6 +23,7 @@ export interface Proposal { ang: Angle; br: Brief; li: number; si: number; t: nu
 /* ── famílias calculadas fora do DOM ── */
 export function genFonts(o: { e: number; strat: string; use: string; nf: number; seed: number }): Font[] {
   const editorial = o.use === 'relatorio' || o.use === 'ebook' || o.use === 'news';
+  const FONTS = fontPool();
   const D = FONTS.filter(f => f.cls !== 'mono' && f.role !== 'body');
   const B = FONTS.filter(f => f.cls !== 'mono' && f.role !== 'display' && !(editorial && f.cls === 'sans-geo'));
   const rnd = lcg(o.seed, 7);
