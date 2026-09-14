@@ -10,7 +10,9 @@ export interface Lexical { dpos: number; dc: number; words: string[]; emo?: stri
 export function readBriefText(text: string): Lexical {
   const t = norm(text || '');
   const hits: string[] = [], out: Lexical = { dpos: 0, dc: 0, words: [] };
-  LEX.forEach(e => { const m = e.w.find(w => t.includes(norm(w)));
+  // casa no início de palavra: "ação" não dispara dentro de "contemplação"
+  const hit = (w: string): boolean => { const n = norm(w); let i = t.indexOf(n); while (i >= 0) { if (i === 0 || !/[a-z0-9]/.test(t[i - 1])) return true; i = t.indexOf(n, i + 1) } return false };
+  LEX.forEach(e => { const m = e.w.find(hit);
     if (!m) return; hits.push(m);
     (['emo', 'mkt', 'cult', 'mus', 'lens'] as const).forEach(k => { if (e[k] && !out[k]) out[k] = e[k] });
     out.dpos += e.dpos || 0; out.dc += e.dc || 0 });
