@@ -13,7 +13,7 @@ export function initMotion(): void {
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
   initZoom();
   if (reduce) return;
-  initReveal(); initParallax(); initTilt(); initBlobs(); initMagnet();
+  initReveal(); initParallax(); initTilt(); initMagnet();
 }
 
 /* ── revelação ── */
@@ -88,14 +88,6 @@ function initZoom(): void {
   wrap.addEventListener('dblclick', () => { if (s > 1.01) { s = 1; x = 0; y = 0; apply() } else setS(2) });
 }
 
-/* ── formas de cor atrás dos títulos, em camadas com velocidades diferentes ── */
-function initBlobs(): void {
-  const cols = ['#DE3D7D', '#D4E7FA', '#700034', '#F2C14E'];
-  document.querySelectorAll<HTMLElement>('.hero').forEach(h => { if (h.closest('#p-home') || h.querySelector('.blobs')) return;
-    const w = document.createElement('div'); w.className = 'blobs';
-    w.innerHTML = [[.05, 62, -6, 180, 0], [.12, 68, 30, 140, 1], [.2, 18, 60, 120, 2]].map(([f, l, t, sz, ci]) => `<i class="blob" data-plx="${-f}" style="left:${l}%;top:${t}%;width:${sz}px;height:${sz}px;background:${cols[ci as number]}"></i>`).join('');
-    h.insertBefore(w, h.firstChild) });
-}
 /* ── botões principais seguem levemente o ponteiro ── */
 function initMagnet(): void {
   if (!matchMedia('(hover: hover) and (pointer: fine)').matches) return;

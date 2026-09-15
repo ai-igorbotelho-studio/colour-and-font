@@ -228,8 +228,6 @@ html[data-ground="treva"] .magcard[data-tone="ink"] .magdek,html[data-ground="tr
 .fmttable td:first-child{white-space:nowrap}
 /* barra de progresso e formas de paralaxe */
 #progress{position:fixed;top:0;left:0;height:3px;width:100%;transform-origin:0 0;transform:scaleX(var(--pg,0));background:var(--accent);z-index:80;pointer-events:none}
-.blobs{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:-1}
-.blob{position:absolute;border-radius:50%;filter:blur(60px);opacity:.35;transform:translate3d(0,var(--plx,0px),0)}
 .hero{position:relative;isolation:isolate}
 
 /* ── Teoria: OKLab, contraste e pares ── */
@@ -289,3 +287,10 @@ html[data-ground="treva"] .magcard[data-tone="ink"] .magdek,html[data-ground="tr
 .imgpick .imgsw{display:inline-flex;gap:3px;vertical-align:-3px}
 .imgpick .imgsw i{width:18px;height:18px;border-radius:5px;display:inline-block;box-shadow:inset 0 0 0 1px rgba(0,0,14,.12)}
 .faithbadge{display:inline-block;font-family:"Roboto Mono",ui-monospace,monospace;font-size:11px;font-weight:500;vertical-align:middle;padding:3px 8px;border-radius:var(--pill);background:var(--accent);color:var(--accent-ink)}
+
+/* ── fundo por seção: Início, Tendências, Conteúdos e Teoria diferem das três ferramentas ── */
+:root{--section-bg:var(--ground)}
+:root[data-section="content"]{--section-bg:#F4EEF0}
+html[data-ground="treva"][data-section="content"]{--section-bg:#0D0912}
+body{background:var(--section-bg)}
+nav{background:var(--section-bg)}

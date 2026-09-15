@@ -14,6 +14,7 @@ export function goto(p: Page | string): void {
   // troca de página com transição nativa quando o navegador oferece; senão, instantânea
   const doc = document as Document & { startViewTransition?: (cb: () => void) => void };
   if (doc.startViewTransition && !matchMedia('(prefers-reduced-motion: reduce)').matches) doc.startViewTransition(swap); else swap();
+  document.documentElement.setAttribute('data-section', ['cores', 'tipo', 'criacao'].includes(p as string) ? 'tool' : 'content');
   $all<HTMLButtonElement>(document, '.tab').forEach(b => { const on = b.dataset.p === p; b.setAttribute('aria-current', on ? 'page' : 'false'); b.setAttribute('aria-selected', String(on)) });
   $('hereLbl').textContent = LABEL[p as Page] ? label(p as Page) : '';
   try { window.scrollTo({ top: 0, behavior: 'instant' as ScrollBehavior }) } catch (_) {}
