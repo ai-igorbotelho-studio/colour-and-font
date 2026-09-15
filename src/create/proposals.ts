@@ -15,6 +15,7 @@ import { PIECES, type Angle } from '../data/lexicon';
 import { generatePalette } from '../palette/generate';
 import { proportionsFor } from '../palette/state';
 import { isSerif, describe, rangeBias } from '../type/pairing';
+import { imgAffinity } from '../type/fontmatch';
 import { rangeOf } from '../data/range';
 import { loadFont } from '../type/loader';
 import { findIdx, type Brief } from './brief';
@@ -22,7 +23,7 @@ import { findIdx, type Brief } from './brief';
 export interface Proposal { ang: Angle; br: Brief; li: number; si: number; t: number; u: number; k: number; cols: PaletteColor[]; fonts: Font[]; areas: number[]; seed: number; hs: string[] }
 
 /* ── famílias calculadas fora do DOM ── */
-export function genFonts(o: { e: number; strat: string; use: string; nf: number; seed: number; range?: string }): Font[] {
+export function genFonts(o: { e: number; strat: string; use: string; nf: number; seed: number; range?: string; img?: import('../core/image').TypeMetrics | null }): Font[] {
   const editorial = o.use === 'relatorio' || o.use === 'ebook' || o.use === 'news';
   const FONTS = fontPool();
   const D = FONTS.filter(f => f.cls !== 'mono' && f.role !== 'body');
@@ -43,6 +44,7 @@ export function genFonts(o: { e: number; strat: string; use: string; nf: number;
     else s += cd * 34 + ctd * 40 - xd * 70 - wd * 40 + (sameFam ? -60 : 0);
     if (editorial && b.role === 'both') s += 8;
     s += rangeBias(d, b, o.range || 'normal');
+    if (o.img) s += imgAffinity(d, o.img);
     pairs.push({ d, b, s: s + rnd() * 24 }) }));
   pairs.sort((x, y) => y.s - x.s);
   const pool = pairs.slice(0, 8), p = pool[Math.floor(rnd() * pool.length)];
@@ -65,8 +67,8 @@ export function makeProposal(ang: Angle, br: Brief, seed: number): Proposal {
   let u = br.u; const k = br.k;
   if (ang.k === 'lateral' && u === 0) u = 1 + Math.floor(seed * 631) % (MUS.length - 1);
   if (ang.k === 'ruptura' && u === 0 && br.t > .6) u = 6;
-  const cols = generatePalette({ seed, n: br.n, E: EMO[br.e], M: MKT[br.m], SC: SCH[si], L: LENS[li], K: CULT[k], U: MUS[u], t, jit: 40 * R.jit, dc: br.dc * R.dc });
-  const fonts = genFonts({ e: br.e, strat: ang.strat, use: br.piece, nf, seed, range: br.range });
+  const cols = generatePalette({ seed, n: br.n, E: EMO[br.e], M: MKT[br.m], SC: SCH[si], L: LENS[li], K: CULT[k], U: MUS[u], t, jit: 40 * R.jit, dc: br.dc * R.dc, baseOver: br.imgBase ?? undefined });
+  const fonts = genFonts({ e: br.e, strat: ang.strat, use: br.piece, nf, seed, range: br.range, img: br.imgType ?? null });
   const areas = proportionsFor(LENS[li].w, MUS[u].sy, br.n);
   fonts.forEach(loadFont);
   return { ang, br, li, si, t, u, k, cols, fonts, areas, seed, hs: cols.map(hexOfColor) };

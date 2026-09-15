@@ -10,6 +10,8 @@ import { CULT } from '../data/cultures';
 import { MUS, CVDLIST } from '../data/music';
 import { S, cur, paletteStore, hooks, syncControls } from './state';
 import { generatePalette } from './generate';
+import { colorsFromHex } from '../core/goethe';
+import { fileToCanvas, extractPalette, mountImgPicker } from '../core/image';
 import { pushH, applyH, HIST } from './history';
 import { drawWheel, initWheel } from './wheel';
 import { drawStrip, initViews } from './views';
@@ -77,6 +79,19 @@ export function initPalette(): void {
     if (t === 'INPUT' || t === 'SELECT' || t === 'TEXTAREA' || t === 'BUTTON') return;
     if (!$('p-cores').classList.contains('on')) return;
     e.preventDefault(); $('gen').click() });
+
+  const ih = document.getElementById('imgCol');
+  if (ih) mountImgPicker(ih, async file => {
+    if (!file) return;
+    const note = ih.querySelector('.imgnote'); if (note) note.textContent = t('Lendo a imagem…');
+    try {
+      const cv = await fileToCanvas(file), hs = extractPalette(cv, S.n);
+      if (!hs.length) throw new Error('empty');
+      S.colors = colorsFromHex(hs); S.n = hs.length; S.scheme = 0; S.baseOver = S.colors[0].a;
+      syncControls(); render(); pushH();
+      if (note) note.textContent = t('{n} cores extraídas da imagem, em esquema livre. Arraste as bolas para refinar.', { n: hs.length });
+    } catch (_) { if (note) note.textContent = t('Não consegui ler essa imagem — tente JPG, PNG, WEBP ou SVG.'); }
+  });
 
   build(false);
   pushH();

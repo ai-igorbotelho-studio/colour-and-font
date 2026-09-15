@@ -24,7 +24,7 @@ export const readBrief = (): Lexical => readBriefText($v('cBrief'));
 export const findIdx = (arr: { n: string }[], frag?: string | null): number => { if (!frag) return -1;
   const f = norm(frag); return arr.findIndex(x => norm(x.n).indexOf(f) === 0 || norm(x.n).includes(f)) };
 
-export interface Brief { piece: string; sup: string; e: number; m: number; k: number; u: number; lensFrag?: string; n: number; nf: number; t: number; dc: number; words: string[]; range: string }
+export interface Brief { piece: string; sup: string; e: number; m: number; k: number; u: number; lensFrag?: string; n: number; nf: number; t: number; dc: number; words: string[]; range: string; imgBase?: number | null; imgType?: import('../core/image').TypeMetrics | null }
 export function buildBrief(n: number): Brief {
   const lx = readBrief();
   const pick = (sel: string, arr: { n: string }[], frag?: string) => { const dom = +$v(sel); if (dom > 0) return dom;

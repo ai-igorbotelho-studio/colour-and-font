@@ -1,5 +1,7 @@
 /* ═══════════ INSTRUMENTO DE TIPOGRAFIA — montagem ═══════════ */
 import { segHtml } from '../data/range';
+import { fileToCanvas, analyzeType, mountImgPicker } from '../core/image';
+import { pairingFromImage, similarFonts } from './fontmatch';
 import { $, $v, $all, esc, fillSel, toast } from '../core/dom';
 import { t } from '../i18n';
 import { EMO } from '../data/emotions';
@@ -57,6 +59,16 @@ export function initType(): void {
   initTypeExport(); initTypeSaved();
 
   $('tGen').onclick = () => { T.seed = Math.random(); newPair() };
+  const ti = document.getElementById('tImg');
+  if (ti) mountImgPicker(ti, async file => {
+    if (!file) return; const note = ti.querySelector('.imgnote'); if (note) note.textContent = t('Lendo a imagem…');
+    try {
+      const cv = await fileToCanvas(file), m = analyzeType(cv), pair = pairingFromImage(m), sims = similarFonts(m, 6);
+      setFamilies(pair, t('{d} no título, {b} no texto — estimadas a partir da textura da imagem.', { d: pair[0].n, b: pair[1].n }));
+      if (note) note.innerHTML = (m.ok ? '' : t('Textura pouco nítida — a estimativa é fraca. ') as string)
+        + t('Estimativa: {s}, contraste {c}. Famílias parecidas: {l}.', { s: t(m.serif >= .5 ? 'serifada' : 'sem serifa'), c: t(m.ct >= .6 ? 'alto' : m.ct <= .2 ? 'baixo' : 'médio'), l: sims.map(f => f.n).join(', ') });
+    } catch (_) { if (note) note.textContent = t('Não consegui ler essa imagem — tente JPG, PNG, WEBP ou SVG.'); }
+  });
   $('tSwap').onclick = () => { if (T.fams.length < 2) return toast(t('Com uma família só não há o que trocar'));
     const tmp = T.fams[0]; T.fams[0] = T.fams[1]; T.fams[1] = tmp; T.disp = T.fams[0]; T.body = T.fams[1];
     $('tWhy').textContent = t('{d} no título, {b} no texto — invertido à mão.', { d: T.fams[0].n, b: T.fams[1].n }); renderSpec() };

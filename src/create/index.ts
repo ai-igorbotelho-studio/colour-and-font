@@ -4,6 +4,8 @@ import { nameOf, atAngle } from '../core/goethe';
 import { $, $v, $n, $all, $set, esc, slug, copy, download, toast, fillSel } from '../core/dom';
 import { t, dec, isEn } from '../i18n';
 import { colourName } from '../core/names';
+import { colorsFromHex } from '../core/goethe';
+import { fileToCanvas, extractPalette, analyzeType, mountImgPicker, type TypeMetrics } from '../core/image';
 import { createStore } from '../core/state';
 import { EMO } from '../data/emotions';
 import { MKT } from '../data/markets';
@@ -28,7 +30,7 @@ import { mdProposal } from './markdown';
 import { resetPath, initPath } from './path';
 import { segHtml } from '../data/range';
 
-export const createStoreCR = createStore({ props: [] as Proposal[], seed: .4, n: 5, views: [] as ViewKey[] });
+export const createStoreCR = createStore({ props: [] as Proposal[], seed: .4, n: 5, views: [] as ViewKey[], imgBase: null as number | null, imgType: null as TypeMetrics | null, imgHs: [] as string[] });
 const CR = createStoreCR.state;
 
 /* ambiente da amostra de uma proposta: famílias e paleta dela, controles da página */
@@ -132,7 +134,7 @@ export function initCreate(): void {
       ? `${t('Reconheci na descrição:')} <b style="color:var(--ink)">${lx.words.join('</b>, <b style="color:var(--ink)">')}</b>${t('. Essas palavras deslocam intenção, campo, referência e postura — o que você escolher nos campos acima tem prioridade.')}`
       : t('Ainda não reconheci nenhuma palavra do léxico. Escreva à vontade: os campos acima já bastam para gerar.') };
   $('cGo').onclick = () => {
-    CR.seed = Math.random(); const br = buildBrief(CR.n);
+    CR.seed = Math.random(); const br = buildBrief(CR.n); br.imgBase = CR.imgBase; br.imgType = CR.imgType;
     // três propostas de verdade distintas: reamostra a semente enquanto a família de título
     // ou a paleta repetirem uma proposta anterior
     const tooClose = (a: Proposal, b: Proposal): boolean => a.fonts[0].n === b.fonts[0].n
@@ -159,6 +161,19 @@ export function initCreate(): void {
   $('cRange').innerHTML = segHtml();
   $all<HTMLButtonElement>($('cRange'), 'button').forEach(b => b.onclick = () => $all($('cRange'), 'button').forEach(x => x.setAttribute('aria-pressed', String(x === b))));
   initPath();
+  const ci = document.getElementById('cImg');
+  if (ci) mountImgPicker(ci, async file => {
+    const note = ci.querySelector('.imgnote');
+    if (!file) { CR.imgBase = null; CR.imgType = null; CR.imgHs = []; if (note) note.innerHTML = ''; return; }
+    if (note) note.textContent = t('Lendo a imagem…');
+    try {
+      const cv = await fileToCanvas(file), hs = extractPalette(cv, CR.n), m = analyzeType(cv);
+      CR.imgHs = hs; CR.imgBase = hs.length ? colorsFromHex([hs[0]])[0].a : null; CR.imgType = m;
+      if (note) note.innerHTML = t('As três propostas vão partir desta imagem.') + ' '
+        + `<span class="imgsw">${hs.map(h => `<i style="background:${h}" title="${h}"></i>`).join('')}</span> `
+        + t('Tipografia estimada: {s}, contraste {c}.', { s: t(m.serif >= .5 ? 'serifada' : 'sem serifa'), c: t(m.ct >= .6 ? 'alto' : m.ct <= .2 ? 'baixo' : 'médio') });
+    } catch (_) { CR.imgBase = null; CR.imgType = null; if (note) note.textContent = t('Não consegui ler essa imagem — tente JPG, PNG, WEBP ou SVG.'); }
+  });
   // texto e controles da amostra: valem para as três propostas e mudam ao vivo
   ($('cText') as HTMLTextAreaElement).value = sampleText();
   $('cText').oninput = drawSpecimens;
