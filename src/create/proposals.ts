@@ -1,6 +1,6 @@
 /* ── três propostas por caminhos opostos: paleta, famílias e raciocínio ── */
 import { lum, ratio, mixLch } from '../core/color';
-import { hexOfColor, type PaletteColor } from '../core/goethe';
+import { hexOfColor, colorsFromHex, type PaletteColor } from '../core/goethe';
 import { lcg } from '../core/rng';
 import { t } from '../i18n';
 import { norm } from '../core/dom';
@@ -20,7 +20,7 @@ import { rangeOf } from '../data/range';
 import { loadFont } from '../type/loader';
 import { findIdx, type Brief } from './brief';
 
-export interface Proposal { ang: Angle; br: Brief; li: number; si: number; t: number; u: number; k: number; cols: PaletteColor[]; fonts: Font[]; areas: number[]; seed: number; hs: string[] }
+export interface Proposal { ang: Angle; br: Brief; li: number; si: number; t: number; u: number; k: number; cols: PaletteColor[]; fonts: Font[]; areas: number[]; seed: number; hs: string[]; faithful?: boolean }
 
 /* ── famílias calculadas fora do DOM ── */
 export function genFonts(o: { e: number; strat: string; use: string; nf: number; seed: number; range?: string; img?: import('../core/image').TypeMetrics | null }): Font[] {
@@ -72,6 +72,10 @@ export function makeProposal(ang: Angle, br: Brief, seed: number): Proposal {
   const areas = proportionsFor(LENS[li].w, MUS[u].sy, br.n);
   fonts.forEach(loadFont);
   return { ang, br, li, si, t, u, k, cols, fonts, areas, seed, hs: cols.map(hexOfColor) };
+}
+/** Uma proposta com exatamente as cores extraídas da imagem, mantendo fontes e leitura. */
+export function faithfulFromImage(base: Proposal, hs: string[]): Proposal {
+  return { ...base, cols: colorsFromHex(hs), hs: hs.slice(), areas: proportionsFor(LENS[base.li].w, MUS[base.u].sy, hs.length), faithful: true };
 }
 export interface Roles { bg: string; ink: string; ac: string; mut: string }
 export function roleOf(p: Proposal): Roles {

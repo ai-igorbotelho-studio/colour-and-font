@@ -689,4 +689,6 @@ export const UI: Record<string, string> = {
   'As três propostas vão partir desta imagem.': 'The three proposals will start from this image.',
   'Tipografia estimada: {s}, contraste {c}.': 'Estimated typography: {s}, {c} contrast.',
   'Paleta extraída da imagem': 'Palette extracted from the image',
+  'cores exatas da imagem': 'exact image colours',
+  'A primeira proposta usa exatamente estas cores; as outras duas as interpretam.': 'The first proposal uses exactly these colours; the other two interpret them.',
 };

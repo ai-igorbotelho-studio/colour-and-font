@@ -25,7 +25,7 @@ import { setFamilies } from '../type/index';
 import { fam } from '../type/pairing';
 import { goto } from '../nav';
 import { readBrief, buildBrief } from './brief';
-import { makeProposal, roleOf, titleFor, why, type Proposal } from './proposals';
+import { makeProposal, faithfulFromImage, roleOf, titleFor, why, type Proposal } from './proposals';
 import { mdProposal } from './markdown';
 import { resetPath, initPath } from './path';
 import { segHtml } from '../data/range';
@@ -59,7 +59,7 @@ function drawView(i: number): void {
 function drawProposals(): void {
   $('cOut').innerHTML = CR.props.map((p, i) => `<section class="prop" data-p="${i}">
       <div class="prophead">
-        <div><h2 style="margin:0">${esc(p.ang.n)}</h2>
+        <div><h2 style="margin:0">${esc(p.ang.n)}${p.faithful ? ` <span class=\"faithbadge\">${t('cores exatas da imagem')}</span>` : ''}</h2>
           <p class="sm" style="margin:4px 0 0">${esc(titleFor(p.br))} · ${esc(SCH[p.si].n)} · ${esc(LENS[p.li].n.split(' — ')[0])}${p.u !== p.br.u ? t(' · dinâmica de {u}', { u: esc(MUS[p.u].n.toLowerCase()) }) : ''} · ${p.fonts.map(f => esc(f.n)).join(' + ')}</p></div>
         <div class="propstrip">${p.hs.map((h, j) => `<button data-h="${h}" style="background:${h};color:${readable(h)}" title="${h}">${Math.round(p.areas[j])}%</button>`).join('')}</div>
       </div>
@@ -144,6 +144,7 @@ export function initCreate(): void {
     ANGLES.forEach((a, i) => { let p = makeProposal(a, br, (CR.seed * (i + 1) * 7.13) % 1), tries = 0;
       while (CR.props.some(q => tooClose(p, q)) && tries < 8) { tries++; p = makeProposal(a, br, (CR.seed * (i + 1) * 7.13 + tries * .173) % 1) }
       CR.props.push(p) });
+    if (CR.imgHs.length && CR.props.length) CR.props[0] = faithfulFromImage(CR.props[0], CR.imgHs);
     CR.views = CR.props.map(() => 'faixas'); $('cOut').innerHTML = '';
     $('cRead').style.display = 'block';
     $('cRead').innerHTML = `<b>${t('O que eu li do seu pedido.')}</b> `
@@ -169,7 +170,7 @@ export function initCreate(): void {
     try {
       const cv = await fileToCanvas(file), hs = extractPalette(cv, CR.n), m = analyzeType(cv);
       CR.imgHs = hs; CR.imgBase = hs.length ? colorsFromHex([hs[0]])[0].a : null; CR.imgType = m;
-      if (note) note.innerHTML = t('As três propostas vão partir desta imagem.') + ' '
+      if (note) note.innerHTML = t('A primeira proposta usa exatamente estas cores; as outras duas as interpretam.') + ' '
         + `<span class="imgsw">${hs.map(h => `<i style="background:${h}" title="${h}"></i>`).join('')}</span> `
         + t('Tipografia estimada: {s}, contraste {c}.', { s: t(m.serif >= .5 ? 'serifada' : 'sem serifa'), c: t(m.ct >= .6 ? 'alto' : m.ct <= .2 ? 'baixo' : 'médio') });
     } catch (_) { CR.imgBase = null; CR.imgType = null; if (note) note.textContent = t('Não consegui ler essa imagem — tente JPG, PNG, WEBP ou SVG.'); }
