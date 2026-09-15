@@ -14,14 +14,15 @@ import { pool as fontPool, type Font } from '../data/fonts';
 import { PIECES, type Angle } from '../data/lexicon';
 import { generatePalette } from '../palette/generate';
 import { proportionsFor } from '../palette/state';
-import { isSerif, describe } from '../type/pairing';
+import { isSerif, describe, rangeBias } from '../type/pairing';
+import { rangeOf } from '../data/range';
 import { loadFont } from '../type/loader';
 import { findIdx, type Brief } from './brief';
 
 export interface Proposal { ang: Angle; br: Brief; li: number; si: number; t: number; u: number; k: number; cols: PaletteColor[]; fonts: Font[]; areas: number[]; seed: number; hs: string[] }
 
 /* ── famílias calculadas fora do DOM ── */
-export function genFonts(o: { e: number; strat: string; use: string; nf: number; seed: number }): Font[] {
+export function genFonts(o: { e: number; strat: string; use: string; nf: number; seed: number; range?: string }): Font[] {
   const editorial = o.use === 'relatorio' || o.use === 'ebook' || o.use === 'news';
   const FONTS = fontPool();
   const D = FONTS.filter(f => f.cls !== 'mono' && f.role !== 'body');
@@ -41,6 +42,7 @@ export function genFonts(o: { e: number; strat: string; use: string; nf: number;
     else if (o.strat === 'metrica') s += (1 - xd * 4) * 40 + (1 - wd * 4) * 26 + cd * 12 + (sameFam ? -40 : 0);
     else s += cd * 34 + ctd * 40 - xd * 70 - wd * 40 + (sameFam ? -60 : 0);
     if (editorial && b.role === 'both') s += 8;
+    s += rangeBias(d, b, o.range || 'normal');
     pairs.push({ d, b, s: s + rnd() * 24 }) }));
   pairs.sort((x, y) => y.s - x.s);
   const pool = pairs.slice(0, 8), p = pool[Math.floor(rnd() * pool.length)];
@@ -56,14 +58,15 @@ export function makeProposal(ang: Angle, br: Brief, seed: number): Proposal {
   const lensName = (br.lensFrag && ang.k === 'convencao') ? br.lensFrag : ang.lens[Math.floor(seed * ang.lens.length) % ang.lens.length];
   let li = findIdx(LENS, lensName); if (li < 0) li = findIdx(LENS, ang.lens[0]); if (li < 0) li = 1;
   let si = findIdx(SCH, ang.sch[Math.floor(seed * 97 * ang.sch.length) % ang.sch.length]); if (si < 0) si = 2;
-  const t = Math.max(0, Math.min(1, br.t + ang.dpos));
+  const R = rangeOf(br.range || 'normal');
+  const t = Math.max(0, Math.min(1, br.t + ang.dpos + R.dpos));
   const nf = br.nf || (ang.k === 'lateral' ? 3 : 2);
   // a leitura lateral troca o eixo: se nada foi pedido, ela traz uma dinâmica musical própria
   let u = br.u; const k = br.k;
   if (ang.k === 'lateral' && u === 0) u = 1 + Math.floor(seed * 631) % (MUS.length - 1);
   if (ang.k === 'ruptura' && u === 0 && br.t > .6) u = 6;
-  const cols = generatePalette({ seed, n: br.n, E: EMO[br.e], M: MKT[br.m], SC: SCH[si], L: LENS[li], K: CULT[k], U: MUS[u], t, jit: 40, dc: br.dc });
-  const fonts = genFonts({ e: br.e, strat: ang.strat, use: br.piece, nf, seed });
+  const cols = generatePalette({ seed, n: br.n, E: EMO[br.e], M: MKT[br.m], SC: SCH[si], L: LENS[li], K: CULT[k], U: MUS[u], t, jit: 40 * R.jit, dc: br.dc * R.dc });
+  const fonts = genFonts({ e: br.e, strat: ang.strat, use: br.piece, nf, seed, range: br.range });
   const areas = proportionsFor(LENS[li].w, MUS[u].sy, br.n);
   fonts.forEach(loadFont);
   return { ang, br, li, si, t, u, k, cols, fonts, areas, seed, hs: cols.map(hexOfColor) };

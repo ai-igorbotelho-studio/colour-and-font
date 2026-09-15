@@ -1,4 +1,5 @@
 /* ═══════════ INSTRUMENTO DE COR — montagem ═══════════ */
+import { rangeOf, segValue, segHtml } from '../data/range';
 import { $, $all, $n, fillSel, toast } from '../core/dom';
 import { t } from '../i18n';
 import { EMO } from '../data/emotions';
@@ -26,7 +27,8 @@ export { pushH } from './history';
 /** Gera a paleta a partir de S. keepLocks preserva as cores congeladas. */
 export function build(keepLocks: boolean): void {
   const { E, M, SC, L, K, U } = cur();
-  S.colors = generatePalette({ seed: S.seed, n: S.n, E, M, SC, L, K, U, t: S.pos / 100, jit: 46,
+  const R = rangeOf(S.range);
+  S.colors = generatePalette({ seed: S.seed, n: S.n, E, M, SC, L, K, U, t: Math.max(0, Math.min(1, S.pos / 100 + R.dpos)), jit: 46 * R.jit, dc: R.dc,
     baseOver: S.baseOver, prev: S.colors.slice(), keepLocks });
   if (S.sel !== null && S.sel >= S.n) S.sel = null;
   render();
@@ -61,6 +63,9 @@ export function initPalette(): void {
   $('cvd').onchange = () => { S.cvd = ($('cvd') as HTMLSelectElement).value; render() };
   $('pos').oninput = () => { S.pos = $n('pos'); $('posval').textContent = String(S.pos); S.baseOver = null; build(true) };
   $('pos').onchange = pushH;
+  $('range').innerHTML = segHtml();
+  $all<HTMLButtonElement>($('range'), 'button').forEach(b => b.onclick = () => { S.range = b.dataset.r!;
+    $all($('range'), 'button').forEach(x => x.setAttribute('aria-pressed', String(x === b))); build(true); pushH() });
   $all<HTMLButtonElement>($('cnt'), 'button').forEach(b => b.onclick = () => {
     S.n = +b.dataset.n!; $('cntLbl').textContent = String(S.n);
     $all($('cnt'), 'button').forEach(x => x.setAttribute('aria-pressed', String(x === b))); build(true); pushH() });

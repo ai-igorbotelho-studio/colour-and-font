@@ -20,8 +20,8 @@
 <link rel="preload" href="/fonts/dm-serif-display-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="manifest" href="/manifest.webmanifest">
 <link rel="apple-touch-icon" href="/icons/icon-192.png">
-  <script type="module" crossorigin src="/assets/index-rbPnz600.js"></script>
-  <link rel="stylesheet" crossorigin href="/assets/index-JH-ZsVrs.css">
+  <script type="module" crossorigin src="/assets/index-B4awY8-x.js"></script>
+  <link rel="stylesheet" crossorigin href="/assets/index-BsPhYUpc.css">
 </head>
 <body>
 <a class="skip" href="#conteudo">Ir para o conteúdo</a>
@@ -306,6 +306,10 @@
       <input type="range" id="pos" min="0" max="100" value="55">
       <div class="scl"><span>Pertencer</span><span id="posval">55</span><span>Romper</span></div>
     </div>
+    <div class="ctl">
+      <label>Ousadia</label>
+      <div class="seg" id="range" role="group" aria-label="Ousadia"></div>
+    </div>
     <div class="ctl"><label for="scheme">Esquema geométrico</label><select id="scheme"></select></div>
     <div class="ctl">
       <label>Quantas cores <b id="cntLbl">5</b></label>
@@ -447,6 +451,10 @@
       <div class="ctl"><label for="tEmo">O que a peça precisa provocar</label><select id="tEmo"></select></div>
       <div class="ctl"><label for="tUse">Uso principal</label><select id="tUse"></select></div>
       <div class="ctl"><label for="tStrat">Estratégia de combinação</label><select id="tStrat"></select></div>
+    <div class="ctl">
+      <label>Ousadia</label>
+      <div class="seg" id="tRange" role="group" aria-label="Ousadia"></div>
+    </div>
     </div>
     <div>
       <div class="ctl"><label for="tClsD">Classe do título</label><select id="tClsD"></select></div>
@@ -580,6 +588,10 @@
       <div class="seg" id="cN" role="group" aria-label="Número de cores">
         <button data-n="3">3</button><button data-n="4">4</button>
         <button data-n="5" aria-pressed="true">5</button><button data-n="6">6</button></div></div>
+    <div class="ctl">
+      <label>Ousadia</label>
+      <div class="seg" id="cRange" role="group" aria-label="Ousadia"></div>
+    </div>
     <div class="ctl"><label for="cFam">Quantas famílias tipográficas</label><select id="cFam">
       <option value="0">Que o instrumento decida</option><option value="1">1</option>
       <option value="2" selected>2</option><option value="3">3</option><option value="4">4</option></select></div>
@@ -629,6 +641,29 @@
   <h2>Visualização de exemplos</h2>
   <p class="lede">A paleta e as famílias aplicadas a peças reais, em pacotes por campo: digital, produtos, papel, rua, vestuário e telas em ambiente. Tudo é desenhado aqui, em vetor, e sai em SVG ou PNG.</p>
   <div id="mkCriacao"></div>
+</section>
+<section id="cPath" hidden>
+  <h2>Compor um caminho</h2>
+  <p class="lede">Das três propostas, escolha de qual vem a paleta e de qual vem a tipografia. O resultado é um caminho só, com amostra viva, e pode ser refinado cor a cor e família a família.</p>
+  <div class="pathpick">
+    <div class="ctl"><label>Paleta de</label><div class="seg" id="cPathPal" role="group" aria-label="Paleta de qual proposta"></div></div>
+    <div class="ctl"><label>Tipografia de</label><div class="seg" id="cPathTyp" role="group" aria-label="Tipografia de qual proposta"></div></div>
+  </div>
+  <h3 id="cPathTitle" style="margin-top:22px"></h3>
+  <div class="viewbar" id="cPathBar" role="group" aria-label="Modo de visualização"></div>
+  <div class="vwrap" id="cPathView"></div>
+  <div class="spec" id="cPathSpec" style="margin-top:18px"></div>
+  <h3 style="margin-top:30px">Refinar este caminho</h3>
+  <p class="sm">Cada cor pode ser trocada, clareada, escurecida, avivada ou acalmada, e volta ao original com um toque. Cada família pode ser trocada por outra que combine, forçada a serifada ou sem serifa, ou escolhida à mão.</p>
+  <div id="cRefCols" class="reflist"></div>
+  <div id="cRefFonts" class="reflist" style="margin-top:12px"></div>
+  <div class="ctl" style="margin-top:16px"><label for="cPathReq">Ou peça por escrito</label>
+    <div class="reqrow"><input type="text" id="cPathReq" placeholder="Ex.: cor 2 mais escura, título serifado, texto em Inter, todas mais sóbrias"><button class="act" id="cPathAsk">Aplicar</button></div></div>
+  <div id="cRefLog"></div>
+  <div class="btnrow" style="margin-top:18px">
+    <button class="act" id="cPathMd">Baixar em Markdown</button><button class="mini" id="cPathCores">Levar para Cores</button>
+    <button class="mini" id="cPathTipo">Levar para Tipografia</button><button class="mini" id="cPathCopy">Copiar os hex</button><button class="mini" id="cPathReset">Desfazer tudo</button>
+  </div>
 </section>
 </main>
 

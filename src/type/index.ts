@@ -1,4 +1,5 @@
 /* ═══════════ INSTRUMENTO DE TIPOGRAFIA — montagem ═══════════ */
+import { segHtml } from '../data/range';
 import { $, $v, $all, esc, fillSel, toast } from '../core/dom';
 import { t } from '../i18n';
 import { EMO } from '../data/emotions';
@@ -76,6 +77,8 @@ export function initType(): void {
   $('tClear').onclick = () => { ($('tText') as HTMLTextAreaElement).value = ''; $('tText').focus(); renderSpec() };
   $('tSpecPng').onclick = () => specPng();
   ['tEmo', 'tUse', 'tStrat', 'tClsD', 'tClsB', 'tBank', 'tWidth', 'tContr'].forEach(id => $(id).onchange = newPair);
+  $('tRange').innerHTML = segHtml();
+  $all<HTMLButtonElement>($('tRange'), 'button').forEach(b => b.onclick = () => { $all($('tRange'), 'button').forEach(x => x.setAttribute('aria-pressed', String(x === b))); newPair() });
   ['tFmt', 'tRatio', 'tPal'].forEach(id => $(id).onchange = renderSpec);
   ['tBase', 'tMeasure', 'tLh', 'tTrack'].forEach(id => $(id).oninput = renderSpec);
 

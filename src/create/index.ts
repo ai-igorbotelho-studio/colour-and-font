@@ -25,6 +25,8 @@ import { goto } from '../nav';
 import { readBrief, buildBrief } from './brief';
 import { makeProposal, roleOf, titleFor, why, type Proposal } from './proposals';
 import { mdProposal } from './markdown';
+import { resetPath, initPath } from './path';
+import { segHtml } from '../data/range';
 
 export const createStoreCR = createStore({ props: [] as Proposal[], seed: .4, n: 5, views: [] as ViewKey[] });
 const CR = createStoreCR.state;
@@ -95,7 +97,7 @@ function drawProposals(): void {
       if (a === 'zip') return zipProposal(p, nm);
       if (a === 'cores') {
         S.emo = p.br.e; S.mkt = p.br.m; S.scheme = p.si; S.lens = p.li; S.cult = p.k; S.mus = p.u; S.pos = Math.round(p.t * 100);
-        S.n = p.hs.length;
+        S.n = p.hs.length; S.range = p.br.range || 'normal';
         S.colors = p.cols.map(c => ({ a: c.a, L: c.L, C: c.C, lock: false })); S.baseOver = p.cols[0].a;
         syncControls(); render(); pushH(); goto('cores'); toast(t('Paleta carregada no instrumento de cor')) }
       if (a === 'tipo') {
@@ -103,7 +105,7 @@ function drawProposals(): void {
         goto('tipo'); toast(t('Combinação carregada no instrumento de tipografia')) }
     });
   });
-  createStoreCR.notify();
+  resetPath(CR.props); createStoreCR.notify();
 }
 function zipProposal(p: Proposal, nm: string): void {
   const te = new TextEncoder(), files = [
@@ -154,6 +156,9 @@ export function initCreate(): void {
     setTimeout(() => { try { $('cOut').scrollIntoView({ behavior: 'smooth', block: 'start' }) } catch (_) {} }, 120);
   };
   $('cAgain').onclick = () => $('cGo').click();
+  $('cRange').innerHTML = segHtml();
+  $all<HTMLButtonElement>($('cRange'), 'button').forEach(b => b.onclick = () => $all($('cRange'), 'button').forEach(x => x.setAttribute('aria-pressed', String(x === b))));
+  initPath();
   // texto e controles da amostra: valem para as três propostas e mudam ao vivo
   ($('cText') as HTMLTextAreaElement).value = sampleText();
   $('cText').oninput = drawSpecimens;

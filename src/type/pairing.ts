@@ -5,6 +5,7 @@ import { lcg } from '../core/rng';
 import { EMO } from '../data/emotions';
 import { pool, CLS, type Font, type FontClass } from '../data/fonts';
 import { T } from './state';
+import { segValue } from '../data/range';
 
 export const isSerif = (c: FontClass | string): boolean => c.startsWith('serif');
 /** Pilha CSS da família, com a reserva declarada. */
@@ -24,8 +25,8 @@ export const widthBand = (w: number): string => w <= .36 ? 'cond' : w >= .56 ? '
 export const contrBand = (c: number): string => c <= .2 ? 'low' : c >= .65 ? 'high' : 'med';
 
 export type Slot = 'disp' | 'body' | 'mono';
-export interface Filters { bank: string; wf: string; cf: string; clsD: string; clsB: string; use: string; strat: string; emo: number }
-export const filtersFromUI = (): Filters => ({ bank: $v('tBank'), wf: $v('tWidth'), cf: $v('tContr'), clsD: $v('tClsD'), clsB: $v('tClsB'), use: $v('tUse'), strat: $v('tStrat'), emo: +$v('tEmo') });
+export interface Filters { bank: string; wf: string; cf: string; clsD: string; clsB: string; use: string; strat: string; emo: number; range?: string }
+export const filtersFromUI = (): Filters => ({ bank: $v('tBank'), wf: $v('tWidth'), cf: $v('tContr'), clsD: $v('tClsD'), clsB: $v('tClsB'), use: $v('tUse'), strat: $v('tStrat'), emo: +$v('tEmo'), range: segValue('tRange') });
 
 export function candidates(slot: Slot, F: Filters = filtersFromUI()): Font[] {
   const cls = slot === 'disp' ? F.clsD : F.clsB, use = F.use;
@@ -58,7 +59,17 @@ export function pairScore(d: Font, b: Font, F: Filters): number {
   else { s += classDiff * 10 - xDiff * 20; if (sameFam) s -= 25 }
   if (b.role === 'display') s -= 25;
   if (d.role === 'body') s -= 10;
+  s += rangeBias(d, b, F.range || 'normal');
   return s;
+}
+/** Inclinação da ousadia: conservador premia segurança de texto; disruptivo premia voz e oposição. */
+export function rangeBias(d: Font, b: Font, r: string): number {
+  const indie = (f: Font): boolean => f.src === 'velvetyne' || f.src === 'fontsource';
+  const cd = isSerif(d.cls) !== isSerif(b.cls) ? 1 : 0, ctd = Math.abs(d.ct - b.ct);
+  if (r === 'conservador') return (d.role === 'display' ? -22 : 0) + (b.role === 'body' ? 8 : 0) + (d.ct > .7 ? -8 : 0) + (d.sf && d.sf === b.sf ? 10 : 0) - (indie(d) ? 6 : 0);
+  if (r === 'inovador') return cd * 8 + (d.role === 'display' ? 6 : 0) + (indie(d) || indie(b) ? 8 : 0);
+  if (r === 'disruptivo') return cd * 16 + ctd * 30 + (d.role === 'display' ? 18 : 0) + (indie(d) ? 14 : 0) + (indie(b) ? 6 : 0) + (Math.abs(d.w - b.w) > .15 ? 10 : 0) - (d.sf && d.sf === b.sf ? 20 : 0);
+  return 0;
 }
 export interface Pair { d: Font; b: Font; s: number }
 export function pickPair(seed: number = T.seed, F: Filters = filtersFromUI()): Pair | null {

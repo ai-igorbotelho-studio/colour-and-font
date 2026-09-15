@@ -2,6 +2,7 @@
    Fonte única de verdade: os <select> e o controle de postura refletem S,
    não o contrário. syncControls() leva S para a interface. */
 import { createStore } from '../core/state';
+import { segSet } from '../data/range';
 import { simulate } from '../core/color';
 import { hexOfColor, type PaletteColor } from '../core/goethe';
 import { $, $all, $set } from '../core/dom';
@@ -19,10 +20,10 @@ export type CodeFmt = 'css' | 'scss' | 'json' | 'tw' | 'swift' | 'android' | 'fl
 export interface PaletteState {
   n: number; colors: PaletteColor[]; seed: number; fmt: CodeFmt; sel: number | null; baseOver: number | null; cvd: string;
   view: ViewKey; ctTarget: number; ctPair: [number, number] | null;
-  emo: number; mkt: number; scheme: number; lens: number; cult: number; mus: number; pos: number;
+  emo: number; mkt: number; scheme: number; lens: number; cult: number; mus: number; pos: number; range: string;
 }
 export const paletteStore = createStore<PaletteState>({
-  n: 5, colors: [], seed: .5, fmt: 'css', sel: null, baseOver: null, cvd: 'none',
+  n: 5, colors: [], seed: .5, fmt: 'css', sel: null, baseOver: null, cvd: 'none', range: 'normal',
   view: 'faixas', ctTarget: 4.5, ctPair: null,
   emo: 1, mkt: 3, scheme: 2, lens: 1, cult: 0, mus: 0, pos: 55
 });
@@ -56,4 +57,5 @@ export function syncControls(): void {
   $set('pos', S.pos); $('posval').textContent = String(S.pos);
   $('cntLbl').textContent = String(S.n);
   $all<HTMLButtonElement>($('cnt'), 'button').forEach(x => x.setAttribute('aria-pressed', String(+x.dataset.n! === S.n)));
+  segSet('range', S.range);
 }
