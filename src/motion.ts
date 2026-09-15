@@ -91,7 +91,7 @@ function initZoom(): void {
 /* ── formas de cor atrás dos títulos, em camadas com velocidades diferentes ── */
 function initBlobs(): void {
   const cols = ['#DE3D7D', '#D4E7FA', '#700034', '#F2C14E'];
-  document.querySelectorAll<HTMLElement>('.hero').forEach(h => { if (h.querySelector('.blobs')) return;
+  document.querySelectorAll<HTMLElement>('.hero').forEach(h => { if (h.closest('#p-home') || h.querySelector('.blobs')) return;
     const w = document.createElement('div'); w.className = 'blobs';
     w.innerHTML = [[.05, 62, -6, 180, 0], [.12, 68, 30, 140, 1], [.2, 18, 60, 120, 2]].map(([f, l, t, sz, ci]) => `<i class="blob" data-plx="${-f}" style="left:${l}%;top:${t}%;width:${sz}px;height:${sz}px;background:${cols[ci as number]}"></i>`).join('');
     h.insertBefore(w, h.firstChild) });
