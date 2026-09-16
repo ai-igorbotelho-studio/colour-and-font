@@ -23,6 +23,7 @@ pre{background:var(--field);border:1px solid var(--rule);border-radius:var(--r);
 .askturn.ask-user{color:var(--soft)}
 .askrole{margin:0 0 6px;color:var(--soft);text-transform:uppercase;letter-spacing:.08em;font-size:11px}
 .askprop b{font-weight:500}
+#cText{min-height:360px}
 .pills{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
 .pill{font-size:11px;padding:4px 12px;border:1px solid var(--rule);border-radius:99px;color:var(--soft)}
 
