@@ -28,6 +28,7 @@ import { readBrief, buildBrief } from './brief';
 import { makeProposal, faithfulFromImage, roleOf, titleFor, why, type Proposal } from './proposals';
 import { mdProposal } from './markdown';
 import { resetPath, initPath } from './path';
+import { initAssistant } from './assistant';
 import { segHtml } from '../data/range';
 
 export const createStoreCR = createStore({ props: [] as Proposal[], seed: .4, n: 5, views: [] as ViewKey[], imgBase: null as number | null, imgType: null as TypeMetrics | null, imgHs: [] as string[] });
@@ -162,6 +163,7 @@ export function initCreate(): void {
   $('cRange').innerHTML = segHtml();
   $all<HTMLButtonElement>($('cRange'), 'button').forEach(b => b.onclick = () => $all($('cRange'), 'button').forEach(x => x.setAttribute('aria-pressed', String(x === b))));
   initPath();
+  initAssistant();
   const ci = document.getElementById('cImg');
   if (ci) mountImgPicker(ci, async file => {
     const note = ci.querySelector('.imgnote');
