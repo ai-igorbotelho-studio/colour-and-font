@@ -1,0 +1,19 @@
+# Auge
+
+> Colour and typography instrument. Palettes from Goethe’s wheel, type pairing across ~130 free families, three-proposal briefs. Deterministic, offline, no network calls.
+
+Site: https://colour-and-font.pages.dev
+Agent manifest: https://colour-and-font.pages.dev/agent/manifest.json
+Guide: AGENTS.md in the repository.
+
+## Using Auge from an agent
+
+Three equivalent routes, all offline and deterministic (same seed = same output):
+
+- MCP server (recommended in Claude): `node agent/mcp-server.mjs` exposes the tools auge_list_options, auge_palette, auge_palette_from_colours, auge_pairing, auge_proposals.
+- CLI: `node bin/auge.mjs <options|palette|colours|pairing|proposals> '<json>'`.
+- ESM import of `agent/dist/auge.mjs`.
+
+Call auge_list_options first to get every valid intention, field, scheme, lens, cultural reference, musical style, boldness range, font bank and class.
+
+Invariants: Six Goethe anchors with 180° opposites; OKLab interpolation with binary-search chroma reduction (never clipped); black and white are full colours; contrast measured on the real colours (WCAG 2.1). No network calls. Deterministic given a seed.

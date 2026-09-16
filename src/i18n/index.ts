@@ -16,6 +16,8 @@ try { const s = localStorage.getItem(KEY); if (s === 'pt' || s === 'en') lang = 
 export const getLang = (): Lang => lang;
 export function setLang(l: Lang): void { try { localStorage.setItem(KEY, l) } catch (_) {} location.reload() }
 export const isEn = (): boolean => lang === 'en';
+/** Define o idioma sem recarregar nem gravar — para uso headless (agentes, testes). */
+export function useLang(l: Lang): void { lang = l; }
 
 export function t(pt: string, vars?: Record<string, string | number>): string {
   let s = lang === 'en' ? (UI[pt] ?? pt) : pt;

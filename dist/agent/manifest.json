@@ -1,0 +1,892 @@
+{
+  "name": "Auge",
+  "version": "1.0.0",
+  "description": "Colour and typography instrument. Palettes from Goethe’s wheel, type pairing across ~130 free families, three-proposal briefs. Deterministic, offline, no network calls.",
+  "homepage": "https://colour-and-font.pages.dev",
+  "invariants": "Six Goethe anchors with 180° opposites; OKLab interpolation with binary-search chroma reduction (never clipped); black and white are full colours; contrast measured on the real colours (WCAG 2.1). No network calls. Deterministic given a seed.",
+  "routes": {
+    "mcp": "node agent/mcp-server.mjs",
+    "cli": "node bin/auge.mjs <command> [json]",
+    "esm": "import * as auge from 'auge/agent/dist/auge.mjs'"
+  },
+  "tools": [
+    {
+      "name": "auge_list_options",
+      "description": "List every valid value for building a brief: intentions, fields, geometric schemes, studio lenses, cultural references, musical styles, boldness ranges, font banks, font classes, pairing strategies and the three reading angles. Call this first.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "auge_palette",
+      "description": "Generate a colour palette from Goethe’s wheel. Every field is optional; pass an index, a slug, or a name (from auge_list_options). Deterministic given the seed.",
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "intention": {
+            "description": "What the piece must evoke (name/index)"
+          },
+          "field": {
+            "description": "Field of activity (name/index)"
+          },
+          "scheme": {
+            "description": "Geometric scheme, e.g. Complementary, Triad, Analogous"
+          },
+          "lens": {
+            "description": "Studio lens (name/index)"
+          },
+          "culture": {
+            "description": "Cultural reference (name/index)"
+          },
+          "music": {
+            "description": "Musical dynamic (name/index)"
+          },
+          "range": {
+            "type": "string",
+            "enum": [
+              "conservador",
+              "normal",
+              "inovador",
+              "disruptivo"
+            ]
+          },
+          "stance": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 100,
+            "description": "0 belong to the field, 100 break from it"
+          },
+          "n": {
+            "type": "integer",
+            "minimum": 2,
+            "maximum": 6
+          },
+          "seed": {
+            "type": "number",
+            "description": "0..1; same seed = same palette"
+          },
+          "markdown": {
+            "type": "boolean",
+            "description": "Include a ready Markdown block"
+          }
+        }
+      }
+    },
+    {
+      "name": "auge_palette_from_colours",
+      "description": "Map already-extracted hex colours (e.g. sampled from an image) onto Goethe’s wheel and return them enriched with names, RGB/HSL/CMYK/OKLCH and areas. The app decodes images in the browser; agents pass the hex list.",
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "hexes"
+        ],
+        "properties": {
+          "hexes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Hex colours, with or without #"
+          },
+          "markdown": {
+            "type": "boolean"
+          }
+        }
+      }
+    },
+    {
+      "name": "auge_pairing",
+      "description": "Choose a typographic pairing (or a set of up to 5 families) from ~130 free families, with full filters. Deterministic given the seed.",
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "intention": {
+            "description": "What the piece must evoke (name/index)"
+          },
+          "strategy": {
+            "type": "string",
+            "enum": [
+              "contraste",
+              "super",
+              "uma",
+              "metrica",
+              "oposto"
+            ]
+          },
+          "families": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 5
+          },
+          "bank": {
+            "type": "string",
+            "enum": [
+              "none",
+              "google",
+              "fontshare",
+              "fontsource",
+              "velvetyne"
+            ]
+          },
+          "classDisplay": {
+            "type": "string",
+            "description": "Font class for the headline (see fontClasses)"
+          },
+          "classBody": {
+            "type": "string",
+            "description": "Font class for the text"
+          },
+          "width": {
+            "type": "string",
+            "enum": [
+              "none",
+              "cond",
+              "norm",
+              "ext"
+            ]
+          },
+          "contrast": {
+            "type": "string",
+            "enum": [
+              "none",
+              "low",
+              "med",
+              "high"
+            ]
+          },
+          "range": {
+            "type": "string",
+            "enum": [
+              "conservador",
+              "normal",
+              "inovador",
+              "disruptivo"
+            ]
+          },
+          "seed": {
+            "type": "number"
+          }
+        }
+      }
+    },
+    {
+      "name": "auge_proposals",
+      "description": "Produce three complete proposals (palette + typography + reasoning) by three opposite readings, exactly like the Create page. Deterministic given the seed.",
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "intention": {},
+          "field": {},
+          "culture": {},
+          "music": {},
+          "stance": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 100
+          },
+          "range": {
+            "type": "string",
+            "enum": [
+              "conservador",
+              "normal",
+              "inovador",
+              "disruptivo"
+            ]
+          },
+          "colours": {
+            "type": "integer",
+            "minimum": 2,
+            "maximum": 6
+          },
+          "families": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 5
+          },
+          "seed": {
+            "type": "number"
+          },
+          "imageColours": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Optional hex colours to anchor the proposals to"
+          }
+        }
+      }
+    }
+  ],
+  "options": {
+    "version": "1.0.0",
+    "intentions": [
+      {
+        "index": 0,
+        "label": "None"
+      },
+      {
+        "index": 1,
+        "label": "Joy and clarity"
+      },
+      {
+        "index": 2,
+        "label": "Warm optimism"
+      },
+      {
+        "index": 3,
+        "label": "Energy and urgency"
+      },
+      {
+        "index": 4,
+        "label": "Desire and appetite"
+      },
+      {
+        "index": 5,
+        "label": "Authority and gravity"
+      },
+      {
+        "index": 6,
+        "label": "Ceremony and legacy"
+      },
+      {
+        "index": 7,
+        "label": "Aspiration and restlessness"
+      },
+      {
+        "index": 8,
+        "label": "Mystery and transcendence"
+      },
+      {
+        "index": 9,
+        "label": "Depth and distance"
+      },
+      {
+        "index": 10,
+        "label": "Trust and serenity"
+      },
+      {
+        "index": 11,
+        "label": "Melancholy and longing"
+      },
+      {
+        "index": 12,
+        "label": "Rest and balance"
+      },
+      {
+        "index": 13,
+        "label": "Care and regeneration"
+      },
+      {
+        "index": 14,
+        "label": "Rigour and precision"
+      },
+      {
+        "index": 15,
+        "label": "Abundance and plenty"
+      },
+      {
+        "index": 16,
+        "label": "Intimacy and warmth"
+      },
+      {
+        "index": 17,
+        "label": "Nostalgia and tenderness"
+      },
+      {
+        "index": 18,
+        "label": "Courage and assertion"
+      },
+      {
+        "index": 19,
+        "label": "Reverence and the sacred"
+      },
+      {
+        "index": 20,
+        "label": "Wonder and awe"
+      },
+      {
+        "index": 21,
+        "label": "Silence and contemplation"
+      },
+      {
+        "index": 22,
+        "label": "Hope and beginning again"
+      },
+      {
+        "index": 23,
+        "label": "Grief and farewell"
+      },
+      {
+        "index": 24,
+        "label": "Eroticism and skin"
+      },
+      {
+        "index": 25,
+        "label": "Freedom and vastness"
+      },
+      {
+        "index": 26,
+        "label": "Humour and irony"
+      },
+      {
+        "index": 27,
+        "label": "Roots and belonging"
+      },
+      {
+        "index": 28,
+        "label": "Vertigo and ecstasy"
+      },
+      {
+        "index": 29,
+        "label": "Wisdom and time"
+      },
+      {
+        "index": 30,
+        "label": "Relief and lightness"
+      }
+    ],
+    "fields": [
+      {
+        "index": 0,
+        "label": "None"
+      },
+      {
+        "index": 1,
+        "label": "Finance and banking"
+      },
+      {
+        "index": 2,
+        "label": "Fintech and crypto"
+      },
+      {
+        "index": 3,
+        "label": "Climate and regeneration"
+      },
+      {
+        "index": 4,
+        "label": "Bioeconomy and agriculture"
+      },
+      {
+        "index": 5,
+        "label": "Health and care"
+      },
+      {
+        "index": 6,
+        "label": "Wellbeing and longevity"
+      },
+      {
+        "index": 7,
+        "label": "Food and drink"
+      },
+      {
+        "index": 8,
+        "label": "Luxury and jewellery"
+      },
+      {
+        "index": 9,
+        "label": "Fashion"
+      },
+      {
+        "index": 10,
+        "label": "Technology and software"
+      },
+      {
+        "index": 11,
+        "label": "Tourism and hospitality"
+      },
+      {
+        "index": 12,
+        "label": "Transformational travel"
+      },
+      {
+        "index": 13,
+        "label": "Energy and infrastructure"
+      },
+      {
+        "index": 14,
+        "label": "Education"
+      },
+      {
+        "index": 15,
+        "label": "Media and culture"
+      },
+      {
+        "index": 16,
+        "label": "Public sector and NGOs"
+      },
+      {
+        "index": 17,
+        "label": "Art and editorial"
+      },
+      {
+        "index": 18,
+        "label": "Property and architecture"
+      },
+      {
+        "index": 19,
+        "label": "Retail and e-commerce"
+      }
+    ],
+    "schemes": [
+      {
+        "index": 0,
+        "label": "None — free"
+      },
+      {
+        "index": 1,
+        "label": "Goethe — harmonious"
+      },
+      {
+        "index": 2,
+        "label": "Goethe — characteristic"
+      },
+      {
+        "index": 3,
+        "label": "Goethe — characterless"
+      },
+      {
+        "index": 4,
+        "label": "Monochromatic"
+      },
+      {
+        "index": 5,
+        "label": "Analogous"
+      },
+      {
+        "index": 6,
+        "label": "Complementary"
+      },
+      {
+        "index": 7,
+        "label": "Split-complementary"
+      },
+      {
+        "index": 8,
+        "label": "Triadic"
+      },
+      {
+        "index": 9,
+        "label": "Tetradic"
+      },
+      {
+        "index": 10,
+        "label": "Square"
+      }
+    ],
+    "lenses": [
+      {
+        "index": 0,
+        "label": "None"
+      },
+      {
+        "index": 1,
+        "label": "Pentagram — London and New York"
+      },
+      {
+        "index": 2,
+        "label": "Wolff Olins — London and New York"
+      },
+      {
+        "index": 3,
+        "label": "COLLINS — New York and San Francisco"
+      },
+      {
+        "index": 4,
+        "label": "PORTO ROCHA — New York and London"
+      },
+      {
+        "index": 5,
+        "label": "Koto — London and New York"
+      },
+      {
+        "index": 6,
+        "label": "Jones Knowles Ritchie — London and New York"
+      },
+      {
+        "index": 7,
+        "label": "Studio Dumbar — Rotterdam"
+      },
+      {
+        "index": 8,
+        "label": "Chermayeff & Geismar & Haviv — New York"
+      },
+      {
+        "index": 9,
+        "label": "Landor — global network"
+      },
+      {
+        "index": 10,
+        "label": "Mucho — Barcelona and San Francisco"
+      },
+      {
+        "index": 11,
+        "label": "Experimental Jetset — Amsterdam"
+      },
+      {
+        "index": 12,
+        "label": "&Walsh — New York"
+      },
+      {
+        "index": 13,
+        "label": "DixonBaxi — London"
+      },
+      {
+        "index": 14,
+        "label": "Ragged Edge — London"
+      },
+      {
+        "index": 15,
+        "label": "Pearlfisher — London and New York"
+      },
+      {
+        "index": 16,
+        "label": "Interbrand and Siegel+Gale — global network"
+      }
+    ],
+    "cultures": [
+      {
+        "index": 0,
+        "label": "None"
+      },
+      {
+        "index": 1,
+        "label": "Aotearoa — kōkōwai, pango, mā"
+      },
+      {
+        "index": 2,
+        "label": "Indigenous Amazon — urucum, jenipapo, tabatinga"
+      },
+      {
+        "index": 3,
+        "label": "Japan — aizome, sumi, kurenai"
+      },
+      {
+        "index": 4,
+        "label": "West Africa — adire indigo, kente gold"
+      },
+      {
+        "index": 5,
+        "label": "Andes — cochineal and indigo"
+      },
+      {
+        "index": 6,
+        "label": "Mediterranean — lime and blue"
+      },
+      {
+        "index": 7,
+        "label": "Nordic — low light"
+      },
+      {
+        "index": 8,
+        "label": "Mexico — Barragán"
+      },
+      {
+        "index": 9,
+        "label": "India — sindoor, saffron, indigo"
+      },
+      {
+        "index": 10,
+        "label": "Bauhaus — primaries and plane"
+      },
+      {
+        "index": 11,
+        "label": "Morocco — zellige, saffron, Majorelle blue"
+      },
+      {
+        "index": 12,
+        "label": "Korea — obangsaek, the five colours"
+      },
+      {
+        "index": 13,
+        "label": "China — vermilion and jade"
+      },
+      {
+        "index": 14,
+        "label": "Mali — bogolan, fermented mud"
+      },
+      {
+        "index": 15,
+        "label": "Portugal — cobalt azulejo on white"
+      },
+      {
+        "index": 16,
+        "label": "Ancient Egypt — Egyptian blue, ochre, gold"
+      },
+      {
+        "index": 17,
+        "label": "Persia — miniature and lapis lazuli"
+      },
+      {
+        "index": 18,
+        "label": "Guatemala — Maya huipil"
+      },
+      {
+        "index": 19,
+        "label": "Java — sogan batik"
+      },
+      {
+        "index": 20,
+        "label": "Scotland — tartan"
+      },
+      {
+        "index": 21,
+        "label": "Turkey — İznik"
+      },
+      {
+        "index": 22,
+        "label": "Aboriginal Australia — desert ochres"
+      },
+      {
+        "index": 23,
+        "label": "Brazil — cerrado and sertão"
+      }
+    ],
+    "music": [
+      {
+        "index": 0,
+        "label": "None"
+      },
+      {
+        "index": 1,
+        "label": "Bossa nova"
+      },
+      {
+        "index": 2,
+        "label": "Samba de roda and batucada"
+      },
+      {
+        "index": 3,
+        "label": "Choro"
+      },
+      {
+        "index": 4,
+        "label": "Berlin techno"
+      },
+      {
+        "index": 5,
+        "label": "Ambient and drone"
+      },
+      {
+        "index": 6,
+        "label": "Punk"
+      },
+      {
+        "index": 7,
+        "label": "Modal jazz"
+      },
+      {
+        "index": 8,
+        "label": "Gospel and soul"
+      },
+      {
+        "index": 9,
+        "label": "Dub and reggae"
+      },
+      {
+        "index": 10,
+        "label": "Fado"
+      },
+      {
+        "index": 11,
+        "label": "Afrobeats"
+      },
+      {
+        "index": 12,
+        "label": "Classical romanticism"
+      },
+      {
+        "index": 13,
+        "label": "Flamenco"
+      },
+      {
+        "index": 14,
+        "label": "Tango"
+      },
+      {
+        "index": 15,
+        "label": "Hip-hop and boom bap"
+      },
+      {
+        "index": 16,
+        "label": "Indian raga"
+      },
+      {
+        "index": 17,
+        "label": "Gamelan"
+      },
+      {
+        "index": 18,
+        "label": "Taiko"
+      },
+      {
+        "index": 19,
+        "label": "Highlife and soukous"
+      },
+      {
+        "index": 20,
+        "label": "Cumbia"
+      },
+      {
+        "index": 21,
+        "label": "Forró"
+      },
+      {
+        "index": 22,
+        "label": "Minimalism — Reich, Glass"
+      },
+      {
+        "index": 23,
+        "label": "Gregorian chant"
+      },
+      {
+        "index": 24,
+        "label": "Delta blues"
+      },
+      {
+        "index": 25,
+        "label": "K-pop"
+      },
+      {
+        "index": 26,
+        "label": "Andean music"
+      }
+    ],
+    "ranges": [
+      {
+        "key": "conservador",
+        "label": "Conservador",
+        "note": "Croma contido, matiz perto da convenção, famílias de texto seguras."
+      },
+      {
+        "key": "normal",
+        "label": "Normal",
+        "note": "O comportamento de referência do instrumento."
+      },
+      {
+        "key": "inovador",
+        "label": "Inovador",
+        "note": "Croma um pouco acima, mais liberdade no matiz, famílias com voz própria."
+      },
+      {
+        "key": "disruptivo",
+        "label": "Disruptivo",
+        "note": "Croma alto, matiz solto, oposição de estrutura e fundições independentes."
+      }
+    ],
+    "fontBanks": [
+      {
+        "key": "google",
+        "label": "Google Fonts"
+      },
+      {
+        "key": "fontshare",
+        "label": "Fontshare"
+      },
+      {
+        "key": "fontsource",
+        "label": "Fontsource"
+      },
+      {
+        "key": "velvetyne",
+        "label": "Velvetyne"
+      }
+    ],
+    "fontClasses": [
+      {
+        "key": "serif-old",
+        "label": "Humanist serif"
+      },
+      {
+        "key": "serif-trans",
+        "label": "Transitional serif"
+      },
+      {
+        "key": "serif-mod",
+        "label": "Modern serif"
+      },
+      {
+        "key": "serif-slab",
+        "label": "Slab serif"
+      },
+      {
+        "key": "sans-grot",
+        "label": "Grotesque sans"
+      },
+      {
+        "key": "sans-neo",
+        "label": "Neo-grotesque sans"
+      },
+      {
+        "key": "sans-geo",
+        "label": "Geometric sans"
+      },
+      {
+        "key": "sans-hum",
+        "label": "Humanist sans"
+      },
+      {
+        "key": "mono",
+        "label": "Monospaced"
+      },
+      {
+        "key": "display",
+        "label": "Display"
+      }
+    ],
+    "strategies": [
+      {
+        "key": "contraste",
+        "label": "Structural contrast"
+      },
+      {
+        "key": "super",
+        "label": "Superfamily"
+      },
+      {
+        "key": "uma",
+        "label": "Single family"
+      },
+      {
+        "key": "metrica",
+        "label": "Metric compatibility"
+      },
+      {
+        "key": "oposto",
+        "label": "Maximum opposition"
+      }
+    ],
+    "readings": [
+      {
+        "index": 0,
+        "key": "convencao",
+        "label": "The direct reading"
+      },
+      {
+        "index": 1,
+        "key": "ruptura",
+        "label": "The contrasting reading"
+      },
+      {
+        "index": 2,
+        "key": "lateral",
+        "label": "The lateral reading"
+      }
+    ],
+    "counts": {
+      "colours": [
+        2,
+        6
+      ],
+      "families": [
+        1,
+        5
+      ]
+    }
+  }
+}

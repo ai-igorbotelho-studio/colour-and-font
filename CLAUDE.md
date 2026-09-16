@@ -42,6 +42,10 @@ Preview must be running for the audits: `npx vite preview --port 4173 --strictPo
 
 Store per domain (`createStore` in `core/state.ts`); imports flow one way: `core → data → palette → type → nav → create/trends`.
 
+## Agents
+
+Headless engine for agents/subagents: `src/api.ts` (pure, deterministic, DOM-free) bundled to `agent/dist/auge.mjs`. Three routes — MCP stdio server (`agent/mcp-server.mjs`), CLI (`bin/auge.mjs`), ESM import. Catalogue published at `public/agent/manifest.json` + `public/llms.txt`. See `AGENTS.md`. Rebuild the bundle and manifest with `npm run build:agent` after touching `src/api.ts` or the data catalogue; `tests/api.test.ts` guards shapes and determinism.
+
 ## Git
 
 Develop and push to `claude/new-session-bailo2`. Commit/push only when asked. `dist/` stays committed until the user sets `npm run build` in Cloudflare.

@@ -3,9 +3,15 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
+  "bin": {
+    "auge": "bin/auge.mjs"
+  },
   "scripts": {
     "dev": "vite",
     "build": "tsc --noEmit && vitest run && vite build",
+    "build:agent": "esbuild src/api.ts --bundle --format=esm --platform=node --outfile=agent/dist/auge.mjs --log-level=warning && node agent/build-manifest.mjs",
+    "agent:manifest": "node agent/build-manifest.mjs",
+    "agent:mcp": "node agent/mcp-server.mjs",
     "preview": "vite preview",
     "test": "vitest run",
     "typecheck": "tsc --noEmit",

@@ -18,6 +18,7 @@ export function cdnLink(f: Font): string {
 }
 
 export function loadFont(f: Font | null | undefined): Promise<boolean> {
+  if (typeof document === 'undefined') return Promise.resolve(true);
   if (!f || loaded.has(f.n)) return Promise.resolve(!failed.has(f?.n || ''));
   loaded.add(f.n);
   return new Promise(res => {
