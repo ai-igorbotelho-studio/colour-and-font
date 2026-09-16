@@ -691,21 +691,4 @@ export const UI: Record<string, string> = {
   'Paleta extraída da imagem': 'Palette extracted from the image',
   'cores exatas da imagem': 'exact image colours',
   'A primeira proposta usa exatamente estas cores; as outras duas as interpretam.': 'The first proposal uses exactly these colours; the other two interpret them.',
-
-  /* ── assistente (Claude dentro de Auge) ── */
-  'Descreva em conversa — com a inteligência do Claude': 'Describe it in conversation — with Claude\'s intelligence',
-  'Diga o que você precisa em linguagem natural e o Claude conduz o instrumento: escolhe o breve, gera, refina ou explica. As cores e as fontes vêm sempre do mesmo motor determinístico desta página — o Claude interpreta, o motor decide.':
-    'Say what you need in natural language and Claude drives the instrument: it sets the brief, generates, refines or explains. The colours and fonts always come from this page\'s same deterministic engine — Claude interprets, the engine decides.',
-  'Diferente do gerador acima, esta seção consulta o Claude pela rede. Depende de uma chave configurada no servidor; sem ela, permanece inativa e nada mais na página muda.':
-    'Unlike the generator above, this section calls Claude over the network. It needs a key configured on the server; without it, it stays inactive and nothing else on the page changes.',
-  'Seu pedido': 'Your request',
-  'Ex.: uma paleta calma de 5 cores para um serviço de luto, e um par serifa/sem serifa que combine':
-    'e.g. a calm 5-colour palette for a bereavement service, and a matching serif/sans pairing',
-  'Perguntar ao Claude': 'Ask Claude',
-  'Limpar conversa': 'Clear conversation',
-  'Você': 'You',
-  'Claude': 'Claude',
-  'Claude está pensando…': 'Claude is thinking…',
-  '(sem resposta)': '(no answer)',
-  'Não consegui falar com o Claude: {m}': 'Could not reach Claude: {m}',
 };

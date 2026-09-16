@@ -18,11 +18,6 @@ pre{background:var(--field);border:1px solid var(--rule);border-radius:var(--r);
 .card{border:1px solid var(--rule);padding:16px}
 .note{border:1px solid var(--rule);padding:13px 14px;margin-top:14px;font-size:13px;color:var(--soft);max-width:64ch}
 .note b{color:var(--ink);font-weight:500}
-.askturn{border-top:1px solid var(--rule);padding:14px 0}
-.askturn:first-child{border-top:0}
-.askturn.ask-user{color:var(--soft)}
-.askrole{margin:0 0 6px;color:var(--soft);text-transform:uppercase;letter-spacing:.08em;font-size:11px}
-.askprop b{font-weight:500}
 #cText{min-height:360px}
 .pills{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
 .pill{font-size:11px;padding:4px 12px;border:1px solid var(--rule);border-radius:99px;color:var(--soft)}

@@ -85,31 +85,6 @@ Six Goethe anchors with 180° opposites; OKLab interpolation with binary-search
 chroma reduction (never clipped); black and white are full colours; contrast on
 the real colours (WCAG 2.1); no network calls; deterministic given a seed.
 
-## Claude *inside* Auge (the reverse direction)
-
-The routes above expose Auge **to** an agent. To run Claude's intelligence **inside**
-the deployed app — a natural-language box where the person describes a piece and
-Claude drives the engine — there is a Cloudflare Pages Function.
-
-- `functions/api/claude.ts` — server endpoint. Holds `ANTHROPIC_API_KEY` (never the
-  browser). Runs a tool-use loop: Claude decides what the request needs (translate a
-  brief, generate, refine, or explain) and calls the **same** deterministic tools
-  from `agent/tools.mjs`. Claude interprets; the engine decides the colours and fonts.
-- `src/create/ask.ts` — `askAuge(messages)`, a pure client that POSTs to `/api/claude`
-  and returns `{ reply, tools }`. Framework-agnostic; mount it in any UI surface.
-
-This is an **opt-in, separate surface** — the Criação/Create page stays offline (no
-network calls), per the invariants.
-
-### Enable it
-
-1. In the Cloudflare Pages project, add the secret **`ANTHROPIC_API_KEY`**
-   (optional: `AUGE_CLAUDE_MODEL`, default `claude-opus-5`; `AUGE_CLAUDE_EFFORT`,
-   default `medium`).
-2. Deploy. Pages auto-detects `functions/` and serves `/api/claude`.
-3. Without the key the endpoint returns HTTP 501 and the rest of the site is
-   unaffected — the feature is simply inert.
-
 ## Ready prompts for Claude
 
 - "Using the auge tools, list the options, then generate a 5-colour palette for
