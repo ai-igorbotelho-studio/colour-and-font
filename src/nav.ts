@@ -21,7 +21,9 @@ export function goto(p: Page | string): void {
   document.documentElement.setAttribute('data-section', ['cores', 'tipo', 'criacao'].includes(p as string) ? 'tool' : 'content');
   $all<HTMLButtonElement>(document, '.tab').forEach(b => { const on = b.dataset.p === p; b.setAttribute('aria-current', on ? 'page' : 'false'); b.setAttribute('aria-selected', String(on)) });
   $('hereLbl').textContent = p !== 'home' && LABEL[p as Page] ? label(p as Page) : '';
-  document.documentElement.style.setProperty('--accent', ACCENT[p as Page] || 'transparent');
+  const pageAccent = ACCENT[p as Page];
+  if (pageAccent) document.documentElement.style.setProperty('--accent', pageAccent);
+  else document.documentElement.style.removeProperty('--accent');
   try { window.scrollTo({ top: 0, behavior: 'instant' as ScrollBehavior }) } catch (_) {}
   if (p === 'tipo' && !T.disp) newPair();
   if (p === 'tipo') renderSpec();
