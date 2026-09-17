@@ -66,6 +66,13 @@
      narra a mudança de polaridade, não a esconde (DESIGN-CONTENTS-SPEC.md §3.3) */
   #magHome,#magArt{transition:opacity var(--tw-fast) var(--ease-out)}
   #magHome.artgone,#magArt.artgone{opacity:0}
+  /* revelação da citação sob o dek — aditiva e espacial, não uma troca de display (DESIGN-CONTENTS-CARDS-SPEC.md §2.2) */
+  .magquoterow{transition:grid-template-rows var(--tw-slow) var(--ease-out)}
+  .magquoterow>.magquote{transition:opacity var(--tw-fast) var(--ease-out),transform var(--tw-fast) var(--ease-out)}
+  #magList:not(.dysoff) .magopen:hover .magquoterow,
+  #magList:not(.dysoff) .magopen:focus-visible .magquoterow{grid-template-rows:1fr}
+  #magList:not(.dysoff) .magopen:hover .magquoterow>.magquote,
+  #magList:not(.dysoff) .magopen:focus-visible .magquoterow>.magquote{opacity:1;transform:none;transition-delay:.08s}
 }
 @media(prefers-reduced-motion:reduce){
   #magHome,#magArt{transition:opacity .02s linear}
@@ -79,6 +86,12 @@
   .fontcard:hover .big{transform:none}
   .ball,.ball:hover,.ball.dragging{transition:none;transform:none}
   #spec,#dHead{transition:none}
+  /* citação: sem tween, o estado aberto/fechado ainda muda instantaneamente (§2.3) */
+  .magquoterow,.magquoterow>.magquote{transition:none}
+  #magList:not(.dysoff) .magopen:hover .magquoterow,
+  #magList:not(.dysoff) .magopen:focus-visible .magquoterow{grid-template-rows:1fr}
+  #magList:not(.dysoff) .magopen:hover .magquoterow>.magquote,
+  #magList:not(.dysoff) .magopen:focus-visible .magquoterow>.magquote{opacity:1;transform:none}
 }
 /* lupa: sobreposição com zoom e arrasto */
 #zoom{position:fixed;inset:0;z-index:90;background:rgba(0,0,14,.78);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);display:flex;align-items:center;justify-content:center;touch-action:none}

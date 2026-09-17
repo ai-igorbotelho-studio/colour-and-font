@@ -46,11 +46,23 @@ function headings(body: string): { id: string; text: string }[] {
   return out;
 }
 /** Primeira citação "> " do corpo, já existente na marcação — sem novo campo de dados (§3.1). */
-const quoteCache = new Map<string, string>();
-function pullQuote(a: Article): string {
+const quoteCache = new Map<string, { text: string; real: boolean }>();
+function pullQuote(a: Article): { text: string; real: boolean } {
   const x = L(a), key = a.slug + (isEn() ? 'en' : 'pt'); let q = quoteCache.get(key);
-  if (q === undefined) { const m = x.body.match(/^>\s+(.+)$/m); q = m ? m[1] : x.dek; quoteCache.set(key, q) }
+  if (q === undefined) { const m = x.body.match(/^>\s+(.+)$/m); q = m ? { text: m[1], real: true } : { text: x.dek, real: false }; quoteCache.set(key, q) }
   return q;
+}
+/** Classificação do módulo do cartão a partir de a.min e da presença de citação real — sem novo campo (DESIGN-CONTENTS-CARDS-SPEC.md §1.2/§4). */
+type ModClass = 'mod-quote' | 'mod-long' | 'mod-standard' | 'mod-brief';
+function moduleClass(a: Article, real: boolean): ModClass {
+  // limiares calibrados ao intervalo real de leitura do catálogo atual (6–8 min):
+  // um corte só em min>=5 (o antigo limiar) engolia as 15 matérias inteiras em
+  // "mod-quote", já que quase todas têm citação real e >=6min — sem variedade
+  // nenhuma, o mesmo problema que o redesenho deveria resolver.
+  if (real && a.min >= 8) return 'mod-quote';
+  if (a.min >= 7) return 'mod-long';
+  if (a.min >= 4) return 'mod-standard';
+  return 'mod-brief';
 }
 /** Anel de leitura, estático (§3.2): 12min = anel cheio; furniture informativa, não decorativa. */
 function dial(min: number, size = 16): string {
@@ -72,14 +84,44 @@ const plateOf = (a: Article): string => 'E·' + String(CHRONO.findIndex(z => z.s
 
 function cardHtml(a: Article, i: number, featured: boolean): string {
   const x = L(a), q = pullQuote(a);
-  return `<article class="magcard${featured ? ' lead' : ''}" data-tone="${featured ? 'accent' : ['card', 'deep', 'ink', 'card', 'accent'][i % 5]}">
+  const meta = `<span class="magmeta">${dial(a.min)}<time datetime="${a.date}">${esc(fmtDate(a.date))}</time> · ${t('{n} min de leitura', { n: a.min })} · ${a.topics.map(topicName).join(', ')}</span>`;
+  if (featured) {
+    return `<article class="magcard lead" data-tone="accent">
       <button class="magopen" data-s="${a.slug}">
-        ${featured ? '' : `<span class="plate" aria-hidden="true">${plateOf(a)}</span>`}
         <span class="kicker">${esc(x.kicker)}</span>
         <span class="magtitle">${esc(x.title)}</span>
         <span class="magdek">${esc(x.dek)}</span>
-        <span class="magquote">“${esc(q)}”</span>
-        <span class="magmeta">${dial(a.min)}<time datetime="${a.date}">${esc(fmtDate(a.date))}</time> · ${t('{n} min de leitura', { n: a.min })} · ${a.topics.map(topicName).join(', ')}</span>
+        ${meta}
+      </button></article>`;
+  }
+  const mod = moduleClass(a, q.real);
+  const plate = `<span class="plate" aria-hidden="true">${plateOf(a)}</span>`;
+  const kicker = `<span class="kicker">${esc(x.kicker)}</span>`;
+  if (mod === 'mod-quote') {
+    return `<article class="magcard mod-quote" data-tone="card">
+      <button class="magopen" data-s="${a.slug}">
+        ${plate}${kicker}
+        <span class="magquote">“${esc(q.text)}”</span>
+        <hr class="qrule" aria-hidden="true">
+        <span class="magtitle magtitle-caption">${esc(x.title)}</span>
+        ${meta}
+      </button></article>`;
+  }
+  if (mod === 'mod-brief') {
+    return `<article class="magcard mod-brief" data-tone="card">
+      <button class="magopen" data-s="${a.slug}">
+        ${plate}${kicker}
+        <span class="magtitle">${esc(x.title)}</span>
+        ${meta}
+      </button></article>`;
+  }
+  return `<article class="magcard ${mod}" data-tone="card">
+      <button class="magopen" data-s="${a.slug}">
+        ${plate}${kicker}
+        <span class="magtitle">${esc(x.title)}</span>
+        <span class="magdek">${esc(x.dek)}</span>
+        <span class="magquoterow"><span class="magquote">“${esc(q.text)}”</span></span>
+        ${meta}
       </button></article>`;
 }
 

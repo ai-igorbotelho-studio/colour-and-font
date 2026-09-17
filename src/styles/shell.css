@@ -180,36 +180,59 @@ html[data-ground="treva"] #magHome{--ground:#FFFDF9;--panel:#F3F7FC;--ink:#00000
 .magcard.lead .magopen{padding-top:22px}
 .dial{flex:0 0 auto}
 .magmeta{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
-.magquote{font-style:italic;display:none}
-#magList:not(.dysoff) .magopen:hover .magdek,#magList:not(.dysoff) .magopen:focus-visible .magdek{display:none}
-#magList:not(.dysoff) .magopen:hover .magquote,#magList:not(.dysoff) .magopen:focus-visible .magquote{display:block}
-@media(hover:none){.magquote{display:none!important}.magdek{display:block!important}}
+.magquote{font-style:italic}
+.magquoterow{display:grid;grid-template-rows:0fr;overflow:hidden}
+.magquoterow>.magquote{min-height:0;opacity:0;transform:translateY(-4px)}
+@media(hover:none){.magquoterow{display:none}}
 
 .magfilters{margin-top:26px;display:grid;gap:12px}
 .magsearch input{width:100%;font:inherit;font-size:16px;padding:13px 16px;border:1px solid var(--rule);border-radius:var(--pill);background:var(--field);color:var(--ink)}
 .magcount{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
 #magTopics .pill,.mag .magmeta .pill{cursor:pointer;font:inherit;font-size:12.5px;min-height:40px;padding:8px 14px;border:1px solid var(--rule);background:transparent;color:var(--soft)}
 #magTopics .pill[aria-pressed="true"]{background:var(--ink);color:var(--ground);border-color:var(--ink)}
-.maglist{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:14px}
+/* grade em módulos — asimetria vem da duração/tipo de leitura, não de cor (DESIGN-CONTENTS-CARDS-SPEC.md §1.2) */
+.maglist{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));grid-auto-rows:minmax(96px,auto);grid-auto-flow:dense;gap:14px}
+/* #magList é, ele próprio, um .maglist (grade externa); drawList() injeta outro
+   .maglist (cartão em destaque) e um .topicgroup por tema como filhos diretos —
+   sem isto, esses invólucros viram itens de 1 coluna na grade externa e o
+   conteúdo largo deles transborda por cima dos cartões vizinhos. */
+#magList > .maglist, #magList > .topicgroup{grid-column:1/-1}
 .magcard{margin:0}
 .magcard.lead{grid-column:1/-1}
+.magcard.mod-quote,.magcard.mod-long{grid-column:span 3;grid-row:span 2}
+.magcard.mod-standard{grid-column:span 3;grid-row:span 1}
+.magcard.mod-brief{grid-column:span 2;grid-row:span 1}
+@media(max-width:479px){.magcard.mod-quote,.magcard.mod-long,.magcard.mod-standard,.magcard.mod-brief{grid-column:1/-1;grid-row:auto}.maglist{grid-template-columns:1fr}}
+@media(min-width:480px) and (max-width:767px){
+  .maglist{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .magcard.mod-quote,.magcard.mod-long,.magcard.mod-standard{grid-column:span 2;grid-row:auto}
+  .magcard.mod-brief{grid-column:span 1;grid-row:auto}
+}
+@media(min-width:768px) and (max-width:1023px){
+  .maglist{grid-template-columns:repeat(4,minmax(0,1fr))}
+  .magcard.mod-quote,.magcard.mod-long{grid-column:span 4;grid-row:auto}
+  .magcard.mod-standard{grid-column:span 2;grid-row:auto}
+  .magcard.mod-brief{grid-column:span 1;grid-row:auto}
+}
+@media(min-width:1440px){.maglist{gap:20px}}
 .magopen{display:flex;flex-direction:column;align-items:flex-start;gap:10px;text-align:left;width:100%;height:100%;font:inherit;cursor:pointer;
   background:var(--card);color:var(--ink);border:1px solid var(--rule2);border-radius:var(--r);padding:26px 24px}
 .magopen:hover{border-color:var(--ink);transform:translateY(-2px);box-shadow:var(--sh)}
-/* cartões nas cores da paleta da identidade */
+.mod-brief .magopen{min-height:40px}
+/* cartão em destaque: única exceção de cor da lista */
 .magcard[data-tone="accent"] .magopen{background:var(--accent);color:var(--accent-ink)}
 .magcard[data-tone="accent"] .kicker,.magcard[data-tone="accent"] .magdek,.magcard[data-tone="accent"] .magmeta{color:var(--accent-ink)}
-.magcard[data-tone="deep"] .magopen{background:#700034;color:#FFFDF9}
-.magcard[data-tone="deep"] .kicker,.magcard[data-tone="deep"] .magdek,.magcard[data-tone="deep"] .magmeta{color:#FFFDF9}
-.magcard[data-tone="ink"] .magopen{background:#00000E;color:#FFFDF9}
-.magcard[data-tone="ink"] .kicker{color:var(--accent)}
-.magcard[data-tone="ink"] .magdek,.magcard[data-tone="ink"] .magmeta{color:#FFFDF9;opacity:.85}
 .magcard[data-tone="card"] .kicker{color:var(--deep)}
 .kicker{font-family:var(--font-mono);font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--deep);margin:0}
 .magtitle{font-family:var(--font-display);font-size:clamp(24px,3vw,34px);line-height:1.08;max-width:22ch}
 .magcard.lead .magtitle{font-size:clamp(30px,4.6vw,54px);max-width:18ch}
+.mod-long .magtitle{font-size:clamp(26px,3.4vw,40px)}
 .magdek{color:var(--soft);font-size:15px;line-height:1.5;max-width:60ch}
 .magmeta{font-size:12.5px;color:var(--soft);margin-top:auto}
+/* cartões liderados por citação (§1.3): citação grande, título vira legenda */
+.mod-quote .magquote{display:block;font-style:normal;font-family:var(--font-display);font-size:clamp(20px,2.4vw,28px);line-height:1.25;max-width:none}
+.mod-quote .qrule{border:0;border-top:1px solid var(--rule2);width:100%;margin:2px 0 0}
+.mod-quote .magtitle-caption{font-family:inherit;font-size:14px;font-weight:400;line-height:1.4;max-width:none;color:var(--soft)}
 /* artigo */
 /* ── trilho de progresso de leitura (§3.4): 2px fixo, cromo só ── */
 .artprogress{position:fixed;top:0;left:0;height:2px;width:0%;background:var(--rule);z-index:40;pointer-events:none}
