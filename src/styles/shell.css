@@ -134,6 +134,57 @@ nav .gt+.gt{margin-left:6px}
 .mock figcaption .mini{min-height:40px;padding:8px 12px;font-size:12px}
 
 /* ── Conteúdos: revista ── */
+/* ── polaridade invertida da lista de Conteúdos (§1.1 DESIGN-CONTENTS-SPEC):
+   um único ponto de troca de custom properties no invólucro da lista; a
+   página de leitura (#magArt) fica fora deste escopo e usa a polaridade
+   ambiente normalmente. */
+#magHome{--ground:#FFFDF9;--panel:#F3F7FC;--ink:#00000E;--soft:#4A3F47;--rule:rgba(0,0,14,.30);--rule2:rgba(0,0,14,.14);--field:#F3F1EC;--card:#D4E7FA;
+  background:var(--ground);color:var(--ink);border-radius:var(--r);padding:22px clamp(16px,4vw,28px) 30px;margin-top:8px}
+html[data-ground="luz"] #magHome{--ground:#00000E;--panel:#0F1121;--ink:#FFFDF9;--soft:#C6C1CB;--rule:rgba(255,253,249,.34);--rule2:rgba(255,253,249,.17);--field:#171A2E;--card:#141729}
+html[data-ground="treva"] #magHome{--ground:#FFFDF9;--panel:#F3F7FC;--ink:#00000E;--soft:#4A3F47;--rule:rgba(0,0,14,.30);--rule2:rgba(0,0,14,.14);--field:#F3F1EC;--card:#D4E7FA}
+#magHome .eyebrow,#magHome h1{color:var(--ink)}
+
+/* ── módulos (Ensaios/Léxico/Arquivo/Leituras) ── */
+.modtabs{margin-top:28px;display:flex;gap:4px;overflow-x:auto;scroll-snap-type:x proximity;border-bottom:1px solid var(--rule)}
+.modtabs::-webkit-scrollbar{display:none}
+.modtab{scroll-snap-align:start;flex:0 0 auto;min-width:96px;min-height:44px;padding:10px 16px 12px;font:inherit;font-size:14px;background:transparent;border:0;border-bottom:2px solid transparent;color:var(--soft);cursor:pointer;display:flex;flex-direction:column;gap:2px;text-align:left}
+.modtab .cap{font-size:11px;color:var(--soft);opacity:.8;max-width:22ch;white-space:normal}
+.modtab:hover{color:var(--ink)}
+.modtab[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--accent)}
+.modtab[aria-selected="true"]:hover{border-bottom-color:var(--accent)}
+.modtab[aria-disabled="true"]{cursor:default;opacity:.62}
+.modtab[aria-disabled="true"]:hover{color:var(--soft)}
+.modtab:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
+.magmodpanel{transition:opacity var(--tw-fast) var(--ease-out)}
+.magmodpanel.swapping{opacity:0}
+.modsoon{padding:28px 0;color:var(--soft);max-width:52ch}
+.modsoon b{color:var(--ink);display:block;margin-bottom:6px}
+
+/* ── alternância tema/data ── */
+.viewtoggle{display:inline-flex;border:1px solid var(--rule);border-radius:var(--pill);overflow:hidden;width:max-content}
+.viewtoggle button{font:inherit;font-size:12.5px;min-height:40px;padding:8px 16px;background:transparent;border:0;color:var(--soft);cursor:pointer}
+.viewtoggle button[aria-checked="true"]{background:var(--ink);color:var(--ground)}
+.viewtoggle button:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
+
+/* ── grupos por tema ── */
+.topicgroup{margin:38px 0 8px}
+.topicgroup h2{font-family:var(--font-display);font-size:clamp(22px,2.6vw,30px);margin:0 0 4px}
+.topicgroup .rule{border:0;border-top:1px solid var(--rule);margin:8px 0 16px}
+.topicgroup.hl{background:var(--rule2);transition:background var(--tw-slow) var(--ease-out)}
+.topicgroup.hl.off{background:transparent}
+
+/* ── plate / dial / pull-quote ── */
+.plate{position:absolute;top:14px;left:16px;font-family:var(--font-mono);font-size:11px;letter-spacing:.04em;color:var(--soft);font-variant-numeric:tabular-nums}
+.magcard[data-tone="accent"] .plate,.magcard[data-tone="deep"] .plate,.magcard[data-tone="ink"] .plate{color:inherit;opacity:.75}
+.magopen{position:relative;padding-top:36px}
+.magcard.lead .magopen{padding-top:22px}
+.dial{flex:0 0 auto}
+.magmeta{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.magquote{font-style:italic;display:none}
+#magList:not(.dysoff) .magopen:hover .magdek,#magList:not(.dysoff) .magopen:focus-visible .magdek{display:none}
+#magList:not(.dysoff) .magopen:hover .magquote,#magList:not(.dysoff) .magopen:focus-visible .magquote{display:block}
+@media(hover:none){.magquote{display:none!important}.magdek{display:block!important}}
+
 .magfilters{margin-top:26px;display:grid;gap:12px}
 .magsearch input{width:100%;font:inherit;font-size:16px;padding:13px 16px;border:1px solid var(--rule);border-radius:var(--pill);background:var(--field);color:var(--ink)}
 .magcount{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
@@ -160,6 +211,45 @@ nav .gt+.gt{margin-left:6px}
 .magdek{color:var(--soft);font-size:15px;line-height:1.5;max-width:60ch}
 .magmeta{font-size:12.5px;color:var(--soft);margin-top:auto}
 /* artigo */
+/* ── trilho de progresso de leitura (§3.4): 2px fixo, cromo só ── */
+.artprogress{position:fixed;top:0;left:0;height:2px;width:0%;background:var(--rule);z-index:40;pointer-events:none}
+@media(prefers-reduced-motion:no-preference){.artprogress{transition:width .12s linear}}
+
+/* ── layout da leitura: régua de sumário à esquerda em telas largas ── */
+.artgrid{display:grid;gap:0 32px;grid-template-columns:1fr}
+@media(min-width:1024px){.artgrid{grid-template-columns:220px minmax(0,1fr)}}
+@media(min-width:1440px){.artgrid{grid-template-columns:260px minmax(0,1fr)}}
+@media(min-width:1920px){.artgrid{grid-template-columns:320px minmax(0,1fr)}}
+.artrail{display:none}
+@media(min-width:1024px){
+  .artrail{display:block;position:sticky;top:24px;align-self:start;max-height:calc(100vh - 48px);overflow:auto;padding-top:30px}
+  .artrail ol{list-style:none;margin:0;padding:0;border-left:1px solid var(--rule)}
+  .artrail li{margin:0}
+  .artrail a{display:flex;align-items:center;gap:8px;padding:7px 0 7px 14px;margin-left:-1px;border-left:2px solid transparent;font-size:13px;color:var(--soft);text-decoration:none}
+  .artrail a .tick{width:6px;height:6px;border-radius:50%;background:var(--rule);flex:0 0 auto}
+  .artrail a:hover{color:var(--ink)}
+  .artrail a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+  .artrail a[aria-current="location"]{color:var(--ink);border-left-color:var(--accent)}
+  .artrail a[aria-current="location"] .tick{background:var(--accent)}
+  .artrail .railtime{display:none;font-family:var(--font-mono);font-size:11px;color:var(--soft);padding:10px 0 10px 14px;letter-spacing:.03em}
+}
+@media(min-width:1440px){.artrail .railtime{display:block}}
+.artpage{margin-top:18px;border:1px solid var(--rule2);border-radius:var(--r2);padding:4px 16px}
+.artpage summary{cursor:pointer;padding:10px 0;font-size:14px}
+.artpage summary:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.artpage ul{margin:0 0 12px;padding-left:1.2em;font-size:14px}
+.artpage a{color:var(--ink)}
+@media(min-width:1024px){.artpage{display:none}}
+
+/* ── coluna de margem utilitária, 768–1023px apenas (§4) ── */
+.artmargin{display:none}
+@media(min-width:768px) and (max-width:1023px){
+  .artgrid{grid-template-columns:minmax(0,1fr) 22%}
+  .artmargin{display:flex;flex-direction:column;gap:16px;padding-top:30px}
+  .artrail,.mag>.magmusic{display:none}
+}
+
+.dial{display:inline-block;vertical-align:middle}
 .arttools{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;padding-top:22px}
 .artread{display:flex;gap:6px;flex-wrap:wrap}
 .mag{--artscale:1;max-width:72ch;margin:0 auto;padding:30px 0 60px;font-size:calc(17.5px * var(--artscale));line-height:1.65}

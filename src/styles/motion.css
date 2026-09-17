@@ -61,6 +61,14 @@
   .tab[aria-current="page"]:hover svg{transform:scale(1.16)}
   input[type=range]::-webkit-slider-thumb{transition:transform .15s}
   input[type=range]:active::-webkit-slider-thumb{transform:scale(1.25)}
+  /* entrada em Conteúdos: a lista (índice, polaridade invertida) some e a
+     leitura (modo do usuário) aparece na mesma janela de tempo — o crossfade
+     narra a mudança de polaridade, não a esconde (DESIGN-CONTENTS-SPEC.md §3.3) */
+  #magHome,#magArt{transition:opacity var(--tw-fast) var(--ease-out)}
+  #magHome.artgone,#magArt.artgone{opacity:0}
+}
+@media(prefers-reduced-motion:reduce){
+  #magHome,#magArt{transition:opacity .02s linear}
 }
 /* pressionar deve parecer instantâneo mesmo com movimento reduzido — é
    retorno de estado essencial, não coreografia (DESIGN-MOTION-SPEC.md §5) */

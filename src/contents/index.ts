@@ -14,17 +14,51 @@ const fmtDate = (d: string): string => new Date(d + 'T12:00:00').toLocaleDateStr
 const norm = (s: string): string => s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
 const plain = (s: string): string => s.replace(/^##\s+/gm, '').replace(/^>\s+/gm, '').replace(/\*\*?([^*]+)\*\*?/g, '$1').replace(/\s\[\d+\]/g, '');
 const url = (a: Article): string => location.origin + location.pathname + '#c/' + a.slug;
-const ST = { topics: new Set<Topic>(), q: '', open: null as string | null, scale: 1, dys: false };
+
+/* módulos do arquivo — só "Ensaios" tem conteúdo hoje; os outros três ficam
+   como abas "em breve" honestas, nunca escondidas (DESIGN-CONTENTS-SPEC.md §2.1) */
+type ModuleKey = 'essays' | 'lexicon' | 'archive' | 'readings';
+const MODULES: { k: ModuleKey; pt: string; caption?: string }[] = [
+  { k: 'essays', pt: 'Ensaios' },
+  { k: 'lexicon', pt: 'Léxico', caption: 'Termos compartilhados entre Teoria e Tendências — em preparação' },
+  { k: 'archive', pt: 'Arquivo', caption: 'Edições encadernadas de Tendências — em preparação' },
+  { k: 'readings', pt: 'Leituras', caption: 'Indicações externas selecionadas — em preparação' },
+];
+type ViewMode = 'theme' | 'date';
+const ST = { topics: new Set<Topic>(), q: '', open: null as string | null, scale: 1, dys: false, module: 'essays' as ModuleKey, view: 'theme' as ViewMode };
 try { ST.scale = +(localStorage.getItem('fk-artscale') || 1) || 1; ST.dys = localStorage.getItem('fk-artdys') === '1' } catch (_) {}
 
 /** Marcação mínima → HTML: ## seção, > citação, parágrafos, **negrito**, *itálico*, [n] referência. */
 export function mdHtml(body: string): string {
   const inline = (s: string): string => esc(s).replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>').replace(/\*([^*]+)\*/g, '<em>$1</em>')
     .replace(/\s\[(\d+)\]/g, ' <sup class="ref"><a href="#ref-$1" aria-label="' + t('referência {n}', { n: '$1' }) + '">$1</a></sup>');
+  let hi = 0;
   return body.split(/\n\s*\n/).map(p => { p = p.trim(); if (!p) return '';
-    if (p.startsWith('## ')) return `<h2>${inline(p.slice(3))}</h2>`;
+    if (p.startsWith('## ')) { const txt = p.slice(3), id = 'h-' + (++hi) + '-' + slugify(txt); return `<h2 id="${id}">${inline(txt)}</h2>` }
     if (p.startsWith('> ')) return `<blockquote class="pull">${inline(p.slice(2))}</blockquote>`;
     return `<p>${inline(p)}</p>` }).join('\n');
+}
+function slugify(s: string): string { return s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') }
+/** Cabeçalhos "## " do corpo, na ordem — usados pelo sumário desktop e pelo "Nesta página" móvel. */
+function headings(body: string): { id: string; text: string }[] {
+  let hi = 0; const out: { id: string; text: string }[] = [];
+  for (const p of body.split(/\n\s*\n/)) { const s = p.trim(); if (s.startsWith('## ')) { const txt = s.slice(3); out.push({ id: 'h-' + (++hi) + '-' + slugify(txt), text: txt }) } }
+  return out;
+}
+/** Primeira citação "> " do corpo, já existente na marcação — sem novo campo de dados (§3.1). */
+const quoteCache = new Map<string, string>();
+function pullQuote(a: Article): string {
+  const x = L(a), key = a.slug + (isEn() ? 'en' : 'pt'); let q = quoteCache.get(key);
+  if (q === undefined) { const m = x.body.match(/^>\s+(.+)$/m); q = m ? m[1] : x.dek; quoteCache.set(key, q) }
+  return q;
+}
+/** Anel de leitura, estático (§3.2): 12min = anel cheio; furniture informativa, não decorativa. */
+function dial(min: number, size = 16): string {
+  const r = (size - 3) / 2, c = 2 * Math.PI * r, frac = Math.min(1, min / 12), off = c * (1 - frac);
+  return `<svg class="dial" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" aria-hidden="true">
+    <circle cx="${size / 2}" cy="${size / 2}" r="${r}" fill="none" stroke="var(--rule2)" stroke-width="2"/>
+    <circle cx="${size / 2}" cy="${size / 2}" r="${r}" fill="none" stroke="currentColor" stroke-width="2" stroke-dasharray="${c}" stroke-dashoffset="${off}" transform="rotate(-90 ${size / 2} ${size / 2})"/>
+  </svg>`;
 }
 function matches(a: Article): boolean {
   if (ST.topics.size && !a.topics.some(k => ST.topics.has(k))) return false;
@@ -32,20 +66,89 @@ function matches(a: Article): boolean {
   return ST.q.split(/\s+/).filter(Boolean).every(w => hay.includes(norm(w)));
 }
 const topicName = (k: Topic): string => { const tp = TOPICS.find(x => x.k === k)!; return isEn() ? tp.en : tp.pt };
+/* posição cronológica estável de cada artigo dentro do módulo — identidade citável, não decoração (§1.2) */
+const CHRONO = [...ARTICLES].sort((a, b) => a.date.localeCompare(b.date));
+const plateOf = (a: Article): string => 'E·' + String(CHRONO.findIndex(z => z.slug === a.slug) + 1).padStart(2, '0');
 
-function drawList(): void {
-  const list = ARTICLES.filter(matches).sort((a, b) => b.date.localeCompare(a.date));
-  $('magTopics').innerHTML = TOPICS.map(tp => `<button class="pill" data-k="${tp.k}" aria-pressed="${ST.topics.has(tp.k)}">${esc(isEn() ? tp.en : tp.pt)}</button>`).join('');
-  $all<HTMLButtonElement>($('magTopics'), 'button').forEach(b => b.onclick = () => { const k = b.dataset.k as Topic; if (ST.topics.has(k)) ST.topics.delete(k); else ST.topics.add(k); drawList() });
-  $('magCount').textContent = list.length === 1 ? t('1 artigo') : t('{n} artigos', { n: list.length });
-  $('magList').innerHTML = list.length ? list.map((a, i) => { const x = L(a); return `<article class="magcard${i === 0 ? ' lead' : ''}" data-tone="${['accent', 'card', 'deep', 'ink', 'card'][i % 5]}">
+function cardHtml(a: Article, i: number, featured: boolean): string {
+  const x = L(a), q = pullQuote(a);
+  return `<article class="magcard${featured ? ' lead' : ''}" data-tone="${featured ? 'accent' : ['card', 'deep', 'ink', 'card', 'accent'][i % 5]}">
       <button class="magopen" data-s="${a.slug}">
+        ${featured ? '' : `<span class="plate" aria-hidden="true">${plateOf(a)}</span>`}
         <span class="kicker">${esc(x.kicker)}</span>
         <span class="magtitle">${esc(x.title)}</span>
         <span class="magdek">${esc(x.dek)}</span>
-        <span class="magmeta"><time datetime="${a.date}">${esc(fmtDate(a.date))}</time> · ${t('{n} min de leitura', { n: a.min })} · ${a.topics.map(topicName).join(', ')}</span>
-      </button></article>` }).join('') : `<p class="sm">${t('Nada encontrado com esses filtros.')}</p>`;
-  $all<HTMLButtonElement>($('magList'), '.magopen').forEach(b => b.onclick = () => open(b.dataset.s!));
+        <span class="magquote">“${esc(q)}”</span>
+        <span class="magmeta">${dial(a.min)}<time datetime="${a.date}">${esc(fmtDate(a.date))}</time> · ${t('{n} min de leitura', { n: a.min })} · ${a.topics.map(topicName).join(', ')}</span>
+      </button></article>`;
+}
+
+function drawModTabs(): void {
+  const strip = $('modTabs'); strip.setAttribute('aria-label', t('Módulos'));
+  strip.innerHTML = MODULES.map(m => {
+    const soon = m.k !== 'essays';
+    return `<button class="modtab" role="tab" data-m="${m.k}" aria-selected="${ST.module === m.k}" ${soon ? 'aria-disabled="true"' : ''}>
+      <span>${esc(t(m.pt))}</span>${soon ? `<span class="cap">${esc(t(m.caption!))}</span>` : ''}</button>`;
+  }).join('');
+  $all<HTMLButtonElement>(strip, '.modtab').forEach(b => b.onclick = () => {
+    const k = b.dataset.m as ModuleKey; if (k === ST.module || b.getAttribute('aria-disabled') === 'true') return;
+    ST.module = k; drawList();
+  });
+}
+
+function drawViewToggle(): void {
+  const box = $('magViewToggle'); box.setAttribute('aria-label', t('Ordenar por'));
+  box.innerHTML = `<button role="radio" data-v="theme" aria-checked="${ST.view === 'theme'}">${t('Por tema')}</button>
+    <button role="radio" data-v="date" aria-checked="${ST.view === 'date'}">${t('Por data')}</button>`;
+  $all<HTMLButtonElement>(box, 'button').forEach(b => b.onclick = () => { const v = b.dataset.v as ViewMode; if (v === ST.view) return; ST.view = v; drawList() });
+}
+
+function scrollHighlight(k: Topic): void {
+  const sec = document.getElementById('topic-' + k); if (!sec) return;
+  sec.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  sec.classList.add('hl'); sec.classList.remove('off');
+  setTimeout(() => sec.classList.add('off'), 600);
+}
+
+function drawList(): void {
+  drawModTabs(); drawViewToggle();
+  const panel = $('magList');
+  panel.classList.toggle('dysoff', ST.dys);
+  const filters = document.querySelector('.magfilters') as HTMLElement | null;
+  if (ST.module !== 'essays') {
+    if (filters) filters.hidden = true;
+    const mod = MODULES.find(m => m.k === ST.module)!;
+    panel.innerHTML = `<div class="modsoon"><b>${esc(t(mod.pt))}</b>${esc(t(mod.caption!))}</div>`;
+    return;
+  }
+  if (filters) filters.hidden = false;
+  $('magTopics').innerHTML = TOPICS.map(tp => `<button class="pill" data-k="${tp.k}" aria-pressed="${ST.topics.has(tp.k)}">${esc(isEn() ? tp.en : tp.pt)}</button>`).join('');
+  $all<HTMLButtonElement>($('magTopics'), 'button').forEach(b => b.onclick = () => {
+    const k = b.dataset.k as Topic;
+    if (ST.view === 'theme') { scrollHighlight(k); return }
+    if (ST.topics.has(k)) ST.topics.delete(k); else ST.topics.add(k); drawList();
+  });
+  const all = ARTICLES.filter(matches);
+  $('magCount').textContent = all.length === 1 ? t('1 artigo') : t('{n} artigos', { n: all.length });
+  if (!all.length) { panel.innerHTML = `<p class="sm">${t('Nada encontrado com esses filtros.')}</p>`; return }
+  const showFeatured = !ST.q && !ST.topics.size;
+  const sorted = [...all].sort((a, b) => b.date.localeCompare(a.date));
+  const featured = showFeatured ? sorted[0] : null;
+  const rest = featured ? sorted.filter(a => a.slug !== featured.slug) : sorted;
+  const featuredHtml = featured ? `<div class="maglist">${cardHtml(featured, 0, true)}</div>` : '';
+  let bodyHtml: string;
+  if (ST.view === 'date') {
+    bodyHtml = `<div class="maglist">${rest.map((a, i) => cardHtml(a, i, false)).join('')}</div>`;
+  } else {
+    bodyHtml = TOPICS.map(tp => {
+      const items = rest.filter(a => a.topics[0] === tp.k).sort((a, b) => b.date.localeCompare(a.date));
+      if (!items.length) return '';
+      return `<div class="topicgroup" id="topic-${tp.k}"><h2>${esc(topicName(tp.k))}</h2><hr class="rule">
+        <div class="maglist">${items.map((a, i) => cardHtml(a, i, false)).join('')}</div></div>`;
+    }).join('');
+  }
+  panel.innerHTML = featuredHtml + bodyHtml;
+  $all<HTMLButtonElement>(panel, '.magopen').forEach(b => b.onclick = () => open(b.dataset.s!));
 }
 
 /* ── SEO: título, descrição, canônico e dados estruturados do artigo aberto ── */
@@ -114,23 +217,38 @@ function share(a: Article, where: string): void {
   window.open(links[where], '_blank', 'noopener');
 }
 
+let scrollHandler: (() => void) | null = null;
+let toCObserver: IntersectionObserver | null = null;
+let keyHandler: ((e: KeyboardEvent) => void) | null = null;
+
 function open(slug: string): void {
   const a = ARTICLES.find(z => z.slug === slug); if (!a) return; const x = L(a); ST.open = slug; stop();
   if (location.hash !== '#c/' + slug) history.replaceState(null, '', '#c/' + slug);
-  const host = $('magArt'); host.hidden = false; $('magHome').hidden = true;
-  host.style.setProperty('--artscale', String(ST.scale)); host.classList.toggle('dys', ST.dys);
-  host.innerHTML = `<div class="arttools no-print">
+  const home = $('magHome'), host = $('magArt'), reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const hs = headings(x.body), toc = hs.map(h => `<li><a href="#${h.id}" data-h="${h.id}"><span class="tick" aria-hidden="true"></span>${esc(h.text)}</a></li>`).join('');
+  const swapIn = () => {
+    host.hidden = false; home.hidden = true;
+    host.style.setProperty('--artscale', String(ST.scale)); host.classList.toggle('dys', ST.dys);
+    host.innerHTML = `<div class="artprogress" id="artProgress" aria-hidden="true"></div>
+    <div class="arttools no-print">
       <button class="mini" id="artBack">${t('← Todos os artigos')}</button>
       <div class="artread" role="group" aria-label="${t('Ajustes de leitura')}">
         <button class="mini" id="artMinus" aria-label="${t('Diminuir letra')}">A−</button><button class="mini" id="artPlus" aria-label="${t('Aumentar letra')}">A+</button>
         <button class="mini" id="artDys" aria-pressed="${ST.dys}">${t('Leitura facilitada')}</button>
       </div></div>
+    <div class="artgrid">
+      <nav class="artrail" aria-label="${t('Sumário')}">
+        <ol>${toc}</ol>
+        <p class="railtime" id="railTime"></p>
+      </nav>
+      <div>
     <article class="mag" lang="${isEn() ? 'en-GB' : 'pt-BR'}">
       <header class="maghead">
         <p class="kicker">${esc(x.kicker)}</p>
         <h1>${esc(x.title)}</h1>
         <p class="dek">${esc(x.dek)}</p>
-        <p class="magmeta"><time datetime="${a.date}">${t('Publicado em {d}', { d: esc(fmtDate(a.date)) })}</time> · ${t('{n} min de leitura', { n: a.min })} · ${a.topics.map(k => `<span class="pill">${esc(topicName(k))}</span>`).join(' ')}</p>
+        <p class="magmeta"><time datetime="${a.date}">${t('Publicado em {d}', { d: esc(fmtDate(a.date)) })}</time> · <span id="artMinLeft">${t('{n} min de leitura', { n: a.min })}</span> · ${a.topics.map(k => `<span class="pill">${esc(topicName(k))}</span>`).join(' ')}</p>
+        ${hs.length ? `<details class="artpage"><summary>${t('Nesta página')}</summary><ul>${hs.map(h => `<li><a href="#${h.id}">${esc(h.text)}</a></li>`).join('')}</ul></details>` : ''}
       </header>
       <div class="artaudio no-print" role="group" aria-label="${t('Ouvir o artigo')}">
         <button class="act" id="artPlay">${t('Ouvir')}</button><button class="mini" id="artStop">${t('Parar')}</button>
@@ -138,7 +256,7 @@ function open(slug: string): void {
         <label class="lbl"><span>${t('Velocidade')}</span><input id="artRate" type="range" min=".7" max="1.3" step=".05" value="1"></label>
         <p class="sm">${t('Leitura com as vozes instaladas no seu aparelho, sem custo e sem enviar o texto a nenhum serviço.')}</p>
       </div>
-      <div class="magbody">${mdHtml(x.body)}</div>
+      <div class="magbody" id="magBody">${mdHtml(x.body)}</div>
       <aside class="magmusic">
         <p class="kicker">${t('Música para ler')}</p>
         <p><b>${esc(x.music.title)}</b> — ${esc(x.music.artist)}</p>
@@ -146,7 +264,7 @@ function open(slug: string): void {
         <p class="btnrow no-print"><a class="mini" href="https://open.spotify.com/search/${encodeURIComponent(x.music.q)}" target="_blank" rel="noopener">Spotify</a>
           <a class="mini" href="https://music.apple.com/search?term=${encodeURIComponent(x.music.q)}" target="_blank" rel="noopener">Apple Music</a></p>
       </aside>
-      <section class="magrefs"><h2>${t('Referências')}</h2>
+      <section class="magrefs" id="magRefs"><h2>${t('Referências')}</h2>
         <ol>${x.refs.map((r, i) => `<li id="ref-${i + 1}">${esc(r.n).replace(/\*([^*]+)\*/g, '<em>$1</em>')}${r.u ? ` <a href="${r.u}" target="_blank" rel="noopener">${esc(r.u.replace(/^https?:\/\//, ''))}</a>` : ''}</li>`).join('')}</ol>
         <p class="sm">${t('Todas as referências são obras publicadas, com editor e ano; os links levam a páginas institucionais ou a DOIs permanentes.')}</p>
       </section>
@@ -167,22 +285,65 @@ function open(slug: string): void {
           <dt>${t('Dados estruturados')}</dt><dd>schema.org/Article (JSON-LD), canonical, Open Graph, <code>lang</code>, <code>datetime</code></dd>
         </dl></details>
       <p class="magdisc">${t(DISCLAIMER)}</p>
-    </article>`;
-  $('artBack').onclick = () => close();
-  $('artMinus').onclick = () => setScale(ST.scale - .1); $('artPlus').onclick = () => setScale(ST.scale + .1);
-  $('artDys').onclick = () => { ST.dys = !ST.dys; host.classList.toggle('dys', ST.dys); $('artDys').setAttribute('aria-pressed', String(ST.dys)); try { localStorage.setItem('fk-artdys', ST.dys ? '1' : '0') } catch (_) {} };
-  $('artPlay').onclick = () => speak(a); $('artStop').onclick = stop;
-  fillVoices(); const s = synth(); if (s) s.onvoiceschanged = fillVoices;
-  $all<HTMLButtonElement>(host, '[data-dl]').forEach(b => b.onclick = () => { const k = b.dataset.dl, nm = a.slug + (isEn() ? '-en' : '-pt');
-    if (k === 'md') return download(nm + '.md', asMd(a), 'text/markdown');
-    if (k === 'txt') return download(nm + '.txt', asTxt(a), 'text/plain');
-    if (k === 'doc') return download(nm + '.doc', asDoc(a), 'application/msword');
-    window.print() });
-  $all<HTMLButtonElement>(host, '[data-sh]').forEach(b => b.onclick = () => b.dataset.sh === 'copy' ? copy(url(a), t('Link copiado')) : share(a, b.dataset.sh!));
-  applySeo(a); try { window.scrollTo({ top: 0, behavior: 'instant' as ScrollBehavior }) } catch (_) {}
-  function setScale(v: number): void { ST.scale = Math.min(1.6, Math.max(.8, Math.round(v * 10) / 10)); host.style.setProperty('--artscale', String(ST.scale)); try { localStorage.setItem('fk-artscale', String(ST.scale)) } catch (_) {} }
+    </article>
+      </div>
+      <aside class="artmargin">${dial(a.min, 22)}<span class="sm">${t('{n} min de leitura', { n: a.min })}</span>
+        <p class="sm"><b>${esc(x.music.title)}</b> — ${esc(x.music.artist)}</p>
+        <a class="mini" href="#magRefs">${t('Ir às referências')}</a></aside>
+    </div>`;
+    $('artBack').onclick = () => close();
+    updateScaleButtons(); $('artMinus').onclick = () => setScale(ST.scale - .1); $('artPlus').onclick = () => setScale(ST.scale + .1);
+    $('artDys').onclick = () => { ST.dys = !ST.dys; host.classList.toggle('dys', ST.dys); $('artDys').setAttribute('aria-pressed', String(ST.dys)); try { localStorage.setItem('fk-artdys', ST.dys ? '1' : '0') } catch (_) {} };
+    $('artPlay').onclick = () => speak(a); $('artStop').onclick = stop;
+    fillVoices(); const s = synth(); if (s) s.onvoiceschanged = fillVoices;
+    $all<HTMLButtonElement>(host, '[data-dl]').forEach(b => b.onclick = () => { const k = b.dataset.dl, nm = a.slug + (isEn() ? '-en' : '-pt');
+      if (k === 'md') return download(nm + '.md', asMd(a), 'text/markdown');
+      if (k === 'txt') return download(nm + '.txt', asTxt(a), 'text/plain');
+      if (k === 'doc') return download(nm + '.doc', asDoc(a), 'application/msword');
+      window.print() });
+    $all<HTMLButtonElement>(host, '[data-sh]').forEach(b => b.onclick = () => b.dataset.sh === 'copy' ? copy(url(a), t('Link copiado')) : share(a, b.dataset.sh!));
+    applySeo(a); try { window.scrollTo({ top: 0, behavior: 'instant' as ScrollBehavior }) } catch (_) {}
+    setupReadingRail(a);
+    function setScale(v: number): void { ST.scale = Math.min(1.6, Math.max(.8, Math.round(v * 10) / 10)); host.style.setProperty('--artscale', String(ST.scale)); try { localStorage.setItem('fk-artscale', String(ST.scale)) } catch (_) {} updateScaleButtons() }
+    function updateScaleButtons(): void { const mn = $('artMinus') as HTMLButtonElement, mx = $('artPlus') as HTMLButtonElement; mn.disabled = ST.scale <= .8; mx.disabled = ST.scale >= 1.6 }
+    keyHandler = (e: KeyboardEvent) => { if (!(e.ctrlKey || e.metaKey)) return; if (e.key === '+' || e.key === '=') { e.preventDefault(); $('artPlus').click() } else if (e.key === '-') { e.preventDefault(); $('artMinus').click() } };
+    document.addEventListener('keydown', keyHandler);
+  };
+  if (reduce) { swapIn(); return }
+  host.classList.add('artgone'); home.classList.add('artgone');
+  setTimeout(() => { swapIn(); requestAnimationFrame(() => host.classList.remove('artgone')) }, 150);
 }
-function close(): void { ST.open = null; stop(); $('magArt').hidden = true; $('magArt').innerHTML = ''; $('magHome').hidden = false; applySeo(null);
+/** Trilho de sumário/progresso/tempo restante — recompute via IntersectionObserver e um throttle de ~250ms, nunca no ritmo bruto do scroll (§6). */
+function setupReadingRail(a: Article): void {
+  const progress = document.getElementById('artProgress');
+  const head = document.querySelector('.maghead') as HTMLElement | null, refs = document.getElementById('magRefs');
+  const links = $all<HTMLAnchorElement>(document, '.artrail a');
+  let last = 0;
+  scrollHandler = () => {
+    const now = performance.now(); if (now - last < 60) return; last = now;
+    if (progress && head && refs) {
+      const top = head.getBoundingClientRect().top + window.scrollY, bottom = refs.getBoundingClientRect().bottom + window.scrollY;
+      const frac = Math.max(0, Math.min(1, (window.scrollY - top) / Math.max(1, bottom - top - window.innerHeight)));
+      progress.style.width = (frac * 100) + '%';
+      const railTime = document.getElementById('railTime');
+      if (railTime) { const left = Math.max(0, Math.round(a.min * (1 - frac))); railTime.textContent = t('{n} min restantes', { n: left }) }
+    }
+  };
+  window.addEventListener('scroll', scrollHandler, { passive: true }); scrollHandler();
+  if (links.length && 'IntersectionObserver' in window) {
+    toCObserver = new IntersectionObserver(entries => {
+      for (const en of entries) if (en.isIntersecting) { const id = (en.target as HTMLElement).id;
+        links.forEach(l => l.toggleAttribute('aria-current', l.dataset.h === id)); links.forEach(l => { if (l.dataset.h === id) l.setAttribute('aria-current', 'location'); else l.removeAttribute('aria-current') }) }
+    }, { rootMargin: '0px 0px -70% 0px' });
+    $all<HTMLElement>(document, '.magbody h2').forEach(h => toCObserver!.observe(h));
+  }
+}
+function close(): void {
+  ST.open = null; stop();
+  if (scrollHandler) { window.removeEventListener('scroll', scrollHandler); scrollHandler = null }
+  if (toCObserver) { toCObserver.disconnect(); toCObserver = null }
+  if (keyHandler) { document.removeEventListener('keydown', keyHandler); keyHandler = null }
+  $('magArt').hidden = true; $('magArt').innerHTML = ''; $('magHome').hidden = false; $('magHome').classList.remove('artgone'); applySeo(null);
   if (location.hash.startsWith('#c/')) history.replaceState(null, '', '#c') }
 
 export function openFromHash(): boolean {
