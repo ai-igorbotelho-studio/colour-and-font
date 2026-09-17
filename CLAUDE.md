@@ -50,3 +50,5 @@ Headless engine for agents/subagents: `src/api.ts` (pure, deterministic, DOM-fre
 
 Develop and push to `auge`. Commit/push only when asked. `dist/` stays committed until the user sets `npm run build` in Cloudflare.
 Renamed from `claude/new-session-bailo2`: after the first push under the new name, update the Cloudflare Pages "Production branch" setting to `auge` so deploys keep tracking it.
+
+For the digital product team of subagents (Head, pipeline, DACI, gates), read DIGITAL-PRODUCT-TEAM.md and act as the Head.
