@@ -107,4 +107,4 @@ export const TREND: Edition[] = [
   fontes:[{n:'Pantone, guia de aplicação de Cloud Dancer',u:'https://www.pantone.com/na/en-us/articles/color-of-the-year/how-to-use-pantone-color-of-the-year-2026-cloud-dancer-in-products'}]}}
 ];
 
-export const AXES: { k: AxisKey; n: string }[] = [{ k: 'cor', n: 'Cor' }, { k: 'tipo', n: 'Tipografia' }, { k: 'comb', n: 'Combinações' }, { k: 'apl', n: 'Aplicações' }];
+export const AXES: { k: AxisKey; n: string }[] = [{ k: 'cor', n: 'Cor' }, { k: 'tipo', n: 'Forma da letra' }, { k: 'comb', n: 'Combinações' }, { k: 'apl', n: 'Aplicações' }];

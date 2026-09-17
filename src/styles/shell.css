@@ -14,7 +14,7 @@ button,select,[role="tab"]{touch-action:manipulation}
 /* ── interação ── */
 button,.tab,.pick,.cell,.card,.tabs2 button,.viewbar button,.rolebar button{transition:background .2s,color .2s,border-color .2s,transform var(--tw-fast) var(--ease-out),box-shadow .2s}
 .gt button:hover,.seg button:hover,.tabs2 button:hover,.viewbar button:hover,.rolebar button:hover{transform:translateY(-1px)}
-.gt button:active,.seg button:active,#tabbar button:active,.tabs2 button:active,.viewbar button:active,.rolebar button:active,.propstrip button:active,.trendpal button:active{transform:scale(.97)}
+.gt button:active,.seg button:active,#tabbar button:active,.tabs2 button:active,.viewbar button:active,.rolebar button:active,.propstrip button:active,.trend-swatch:active,.tick:active{transform:scale(.97)}
 button.mini:hover,.tabs2 button:hover,.viewbar button:hover,.rolebar button:hover{border-color:var(--ink)}
 /* button.act/.mini: hover-lift, press e desabilitado seguem a linguagem única
    de botão em motion.css §1 (DESIGN-MOTION-SPEC.md) — não duplicar aqui. */
@@ -431,6 +431,70 @@ html[data-ground="treva"] .magcard[data-tone="ink"] .magdek,html[data-ground="tr
 .imgpick .imgsw{display:inline-flex;gap:3px;vertical-align:-3px}
 .imgpick .imgsw i{width:18px;height:18px;border-radius:5px;display:inline-block;box-shadow:inset 0 0 0 1px rgba(0,0,14,.12)}
 .faithbadge{display:inline-block;font-family:var(--font-mono);font-size:11px;font-weight:500;vertical-align:middle;padding:3px 8px;border-radius:var(--pill);background:var(--accent);color:var(--accent-ink)}
+
+/* ── Tendências: cabeçalho com roda, trilho de edições, quatro eixos com
+   identidade própria (ver docs/DESIGN-TRENDS-SPEC.md) ── */
+.edhead{display:grid;gap:14px;border-bottom:1px solid var(--rule2);padding-bottom:18px;margin-bottom:4px}
+.edhead-ring{order:-1}
+.trend-ring{width:64px;height:64px;display:block}
+@media(min-width:768px){
+  .edhead{grid-template-columns:1fr auto;align-items:end;gap:22px}
+  .edhead-ring{order:2}
+  .trend-ring{width:84px;height:84px}
+}
+@media(min-width:1024px){.trend-ring{width:120px;height:120px}}
+@media(min-width:1920px){.trend-ring{width:150px;height:150px}}
+.ring-arc{transition:opacity var(--tw) var(--ease-out)}
+
+/* trilho de linha do tempo — substitui as duas fileiras antigas de edições */
+.trend-rail{display:flex;gap:0;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x proximity;-webkit-overflow-scrolling:touch;
+  position:relative;padding:10px 2px 6px;scrollbar-width:thin;scrollbar-color:var(--rule) transparent}
+.trend-rail::before{content:"";position:absolute;left:0;right:0;top:26px;height:1px;background:var(--rule2)}
+.tick{position:relative;flex:none;min-width:64px;min-height:44px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;
+  background:transparent;border:0;cursor:pointer;font:inherit;color:var(--soft);padding:0 10px;scroll-snap-align:start}
+.tick .tickmark{width:9px;height:9px;border-radius:50%;border:1px solid var(--ink);background:transparent}
+.tick .ticklabel{font-family:var(--font-mono);font-size:11px;letter-spacing:.02em;white-space:nowrap}
+.tick.cur .tickmark{background:var(--ink)}
+.tick.cur .ticklabel{color:var(--ink);border-bottom:2px solid var(--accent);padding-bottom:2px}
+.tick:hover .ticklabel{color:var(--ink)}
+
+/* eixos: espaçamento e ritmo comuns, identidade visual varia por classe */
+.axis{margin-top:26px;padding-top:22px;border-top:1px solid var(--rule2)}
+.axis:first-child{margin-top:16px}
+.axis .kicker{font-family:var(--font-mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;margin-bottom:10px}
+
+/* eixo Cor — grade de amostras grandes com convenção de aproximação (≈) */
+.trend-swatchgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(96px,1fr));gap:10px}
+@media(min-width:480px){.trend-swatchgrid{grid-template-columns:repeat(auto-fit,minmax(112px,1fr))}}
+@media(min-width:1440px){.trend-swatchgrid{grid-template-columns:repeat(auto-fit,minmax(140px,1fr))}}
+.trend-swatch{aspect-ratio:1;border-radius:var(--r2);border:0;cursor:pointer;display:flex;flex-direction:column;justify-content:flex-end;
+  align-items:flex-start;gap:2px;padding:10px;text-align:left;min-height:96px;transition:transform var(--tw-fast) var(--ease-out)}
+.trend-swatch:hover{transform:scale(1.02)}
+.trend-swatch .n{font-size:12px;font-weight:500}
+.trend-swatch .hx{font-family:var(--font-mono);font-size:11px;opacity:.85}
+
+/* eixo Forma da letra — tira de espécime tipografada na própria face */
+.trend-specimen{display:flex;flex-direction:column}
+.trend-specrow{padding:12px 0;border-top:1px solid var(--rule2);font-size:clamp(22px,7vw,30px);line-height:1.15}
+.trend-specrow:first-child{border-top:0}
+@media(min-width:480px){.trend-specrow{font-size:clamp(28px,4vw,44px)}}
+.trend-specfallback{font-family:var(--font-body);margin-right:8px}
+
+/* eixo Combinações — declaração pura, sem ativo visual */
+.trend-pull{font-family:var(--font-display);font-size:clamp(26px,3.4vw,40px);line-height:1.18;margin:0 0 4px}
+
+/* eixo Aplicações — faixa de polaridade invertida, ancorando a sequência */
+.axis-apl{background:var(--ground);color:var(--ink);border-radius:var(--r);padding:22px clamp(16px,4vw,28px);border-top:0;margin-top:26px}
+html[data-ground="luz"] .axis-apl{--ground:#00000E;--ink:#FFFDF9;--soft:#C6C1CB;--rule2:rgba(255,253,249,.17);--rule:rgba(255,253,249,.34);--deep:#E8A9C2}
+html[data-ground="treva"] .axis-apl{--ground:#FFFDF9;--ink:#00000E;--soft:#4A3F47;--rule2:rgba(0,0,14,.14);--rule:rgba(0,0,14,.30);--deep:#5C1C36}
+.axis-apl .lede{color:var(--soft)}
+
+/* citações — chip com numeral mono, nome e ícone de link externo */
+.trend-cites{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:14px}
+.trend-cite{display:inline-flex;align-items:center;gap:6px;min-height:40px;padding:6px 12px;border:1px solid var(--rule);border-radius:var(--pill);
+  text-decoration:none;color:var(--soft);transition:border-color var(--tw-fast) var(--ease-out)}
+.trend-cite .cn{font-family:var(--font-mono);font-size:11px;color:var(--deep)}
+.trend-cite:hover,.trend-cite:focus-visible{border-color:var(--ink)}
 
 /* ── fundo por seção: Início, Tendências, Conteúdos e Teoria diferem das três ferramentas ── */
 :root{--section-bg:var(--ground)}

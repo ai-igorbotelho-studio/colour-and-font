@@ -388,6 +388,8 @@ export const UI: Record<string, string> = {
   '{f} — famílias citadas na edição {e}.': '{f} — families cited in the {e} edition.', 'Famílias da edição carregadas': 'Edition families loaded',
   'Copiar o código SVG': 'Copy the SVG code', 'SVG copiado': 'SVG copied', 'tendencias': 'trends',
   '{n} edições no arquivo. A mais antiga é {e}.': '{n} editions in the archive. The oldest is {e}.',
+  'Forma da letra': 'Letterform', 'Combinações': 'Pairing', 'Aplicações': 'Surface',
+  '(fora do banco do instrumento)': '(not in the instrument\'s library)', '+{n} mais': '+{n} more',
   '# Tendências — {e}': '# Trends — {e}', '| Cor | HEX aproximado | Observação |': '| Colour | Approximate HEX | Note |', 'Famílias citadas: {f}': 'Families cited: {f}', 'Fontes:': 'Sources:',
   'Os valores em hex são aproximações em sRGB feitas a partir da descrição e da imagem divulgadas, não os códigos oficiais. Compilado em {d}.': 'The hex values are sRGB approximations made from the published description and image, not the official codes. Compiled on {d}.',
   '// rótulo da aba': '// tab label', '// pal.hex alimenta o botão que abre a paleta no instrumento de cor': '// pal.hex feeds the button that opens the palette in the colour instrument',

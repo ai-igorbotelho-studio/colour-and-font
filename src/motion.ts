@@ -12,7 +12,7 @@ import { reduceMotion } from './core/dom';
    `.hero > *` abaixo pegaria um `.lede` (dek/standfirst) se existisse; a regra
    `.lede{opacity:1!important;transform:none!important}` em motion.css o exclui
    de propósito. Isto é deliberado — não "concertar" removendo a exclusão. */
-const REVEAL = '.stage > div, .homecard, .magcard, .mock, .card, .prop, .fontcard, .magmusic, .magrefs, .mocksec > *, .hero > *';
+const REVEAL = '.stage > div, .homecard, .magcard, .mock, .card, .prop, .fontcard, .magmusic, .magrefs, .mocksec > *, .hero > *, .axis';
 const TILT = '.homecard, .magopen, .mock';
 const ZOOM = '.mockimg, .bnr, .v-poster, .v-ui, .spec';
 
