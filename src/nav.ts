@@ -13,6 +13,12 @@ const label = (p: Page): string => t(LABEL[p]);
    assinatura de cor — a própria roda vira o sistema de orientação da navegação */
 const ACCENT: Partial<Record<Page, string>> = { cores: ANCHORS[0].hex, tipo: ANCHORS[1].hex, criacao: ANCHORS[2].hex, tend: ANCHORS[3].hex, cont: ANCHORS[4].hex, fund: ANCHORS[5].hex };
 
+/* cada página tem o seu próprio endereço, para recarregar ou partilhar sem
+   cair de volta num artigo que já foi fechado — home fica sem hash, e
+   Conteúdos gerencia o próprio endereço (#c, #c/<slug>) em contents/index.ts */
+const PAGE_HASH: Record<Exclude<Page, 'cont'>, string> = { home: '', cores: 'cores', tipo: 'tipo', criacao: 'criacao', tend: 'tend', fund: 'fund' };
+const HASH_PAGE: Record<string, Page> = { cores: 'cores', tipo: 'tipo', criacao: 'criacao', tend: 'tend', fund: 'fund' };
+
 export function goto(p: Page | string): void {
   const swap = () => $all(document, '.page').forEach(el => el.classList.toggle('on', el.id === 'p-' + p));
   // troca de página com transição nativa quando o navegador oferece; senão, instantânea
@@ -27,6 +33,18 @@ export function goto(p: Page | string): void {
   try { window.scrollTo({ top: 0, behavior: 'instant' as ScrollBehavior }) } catch (_) {}
   if (p === 'tipo' && !T.disp) newPair();
   if (p === 'tipo') renderSpec();
+  if (p !== 'cont') { const h = PAGE_HASH[p as Exclude<Page, 'cont'>]; if (h !== undefined) { const wanted = h ? '#' + h : ''; if (location.hash !== wanted) history.replaceState(null, '', location.pathname + wanted) } }
+}
+/* restaura a página certa ao carregar ou ao usar avançar/voltar do navegador —
+   endereços de Conteúdos (#c, #c/<slug>) ficam por conta de openFromHash lá */
+export function routeFromHash(): void {
+  const h = location.hash.replace(/^#/, '');
+  const p = h ? HASH_PAGE[h] : 'home';
+  if (p) goto(p);
+}
+export function initHashRouting(): void {
+  if (!location.hash.startsWith('#c')) routeFromHash();
+  window.addEventListener('hashchange', () => { if (!location.hash.startsWith('#c')) routeFromHash() });
 }
 /* troca de polaridade luz/treva: crossfade das superfícies, escopado a uma
    janela curta em torno da mudança do atributo (DESIGN-MOTION-SPEC.md §2a) —
