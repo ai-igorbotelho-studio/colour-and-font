@@ -74,14 +74,43 @@ button:disabled{opacity:.45;cursor:not-allowed;transform:none!important}
 .hero{padding-top:clamp(28px,6vw,64px);border-bottom:0}
 .eyebrow{letter-spacing:.08em;text-transform:uppercase;font-size:11.5px;margin-bottom:10px}
 .homegrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin-top:30px}
-.homecard{display:flex;flex-direction:column;align-items:flex-start;gap:8px;text-align:left;font:inherit;cursor:pointer;
-  background:var(--card);color:var(--ink);border:1px solid var(--rule2);border-radius:var(--r);padding:22px 20px 20px;min-height:170px}
-.homecard svg{width:26px;height:26px;stroke:currentColor;fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;margin-bottom:6px}
+/* flat.css força border:0 em .homecard (superfícies sem borda) — o "anel" de
+   estado descrito na spec vira box-shadow inset, somado à elevação real. */
+.homecard{position:relative;display:flex;flex-direction:column;align-items:flex-start;gap:8px;text-align:left;font:inherit;cursor:pointer;
+  background:var(--card);color:var(--ink);border-radius:var(--r);padding:22px 20px 20px;min-height:170px;
+  box-shadow:var(--sh),inset 0 0 0 1px var(--rule2);transition:box-shadow var(--tw-fast),transform var(--tw-fast)}
+.homecard .hcx{order:-3;font-family:var(--font-mono);font-size:11px;letter-spacing:.04em;font-variant-numeric:tabular-nums;color:var(--soft);margin:0}
+.homecard:not(:first-child)::before{content:"";order:-2;display:block;width:100%;height:1px;background:var(--rule2);margin:2px 0 4px}
+.homecard .hcicon{order:-1;display:flex;align-items:center;justify-content:center;width:40px;height:40px;border-radius:var(--pill);
+  box-shadow:inset 0 0 0 1px var(--rule2);margin-bottom:2px;transition:box-shadow var(--tw-fast)}
+.homecard svg{width:26px;height:26px;stroke:currentColor;fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;transition:stroke-width var(--tw-fast)}
 .homecard b{font-family:var(--font-display);font-weight:400;font-size:24px;line-height:1}
 .homecard span{font-size:13px;color:var(--soft);line-height:1.5}
-.homecard:hover{border-color:var(--ink);transform:translateY(-2px);box-shadow:var(--sh)}
-.homecard:first-child{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.homecard:hover{transform:translateY(-3px);box-shadow:var(--sh-2),inset 0 0 0 1px var(--ink)}
+.homecard:hover svg{stroke-width:1.9}
+.homecard:hover .hcicon{box-shadow:inset 0 0 0 1px var(--ink)}
+.homecard:active{transform:translateY(-1px);box-shadow:var(--sh),inset 0 0 0 1px var(--ink);transition:transform .08s}
+.homecard:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+.homecard:first-child{background:var(--accent);color:var(--accent-ink);box-shadow:inset 0 0 0 1px var(--accent)}
+.homecard:first-child .hcx{color:var(--accent-ink)}
+.homecard:first-child .hcicon{box-shadow:inset 0 0 0 1px var(--accent-ink)}
+.homecard:first-child svg{width:30px;height:30px}
 .homecard:first-child span{color:var(--accent-ink)}
+.homecard:first-child:hover{transform:translateY(-3px);box-shadow:inset 0 0 0 1px var(--accent)}
+.homecard:first-child:hover .hcicon{box-shadow:inset 0 0 0 1.5px var(--accent-ink)}
+.homecard:first-child:active{box-shadow:inset 0 0 0 1px var(--accent)}
+.homecard:first-child:focus-visible{outline:2px solid var(--ink)}
+html[data-ground="treva"] .homecard:first-child:focus-visible{outline-color:var(--ground)}
+@media(prefers-reduced-motion:reduce){
+  .homecard{transition:box-shadow var(--tw-fast)}
+  .homecard:hover,.homecard:active,.homecard:first-child:hover{transform:none}
+}
+@media(max-width:479px){.homecard .hcicon,.homecard:first-child .hcicon{width:34px;height:34px}}
+@media(min-width:768px){
+  .homegrid{gap:16px}
+  .homecard{padding:24px 22px 22px;min-height:184px}
+}
+@media(min-width:1920px){.homegrid{grid-template-columns:repeat(auto-fit,minmax(220px,320px))}}
 @media(max-width:520px){#tabbar{gap:0;padding:5px}#tabbar button{min-width:44px;padding:10px 2px;font-size:9.5px}#tabbar button span{max-width:44px;overflow:hidden;text-overflow:ellipsis}}
 
 nav .gt+.gt{margin-left:6px}
