@@ -1,6 +1,6 @@
 # Auge — working notes for Claude
 
-Single-page colour and typography instrument. Vite 5 + TypeScript (strict), no UI framework, ESM. Deployed to Cloudflare Pages from `claude/new-session-bailo2`; `dist/` is committed because the dashboard has no build command.
+Single-page colour and typography instrument. Vite 5 + TypeScript (strict), no UI framework, ESM. Deployed to Cloudflare Pages from `auge`; `dist/` is committed because the dashboard has no build command.
 
 ## Default working mode (to save credits)
 
@@ -48,4 +48,5 @@ Headless engine for agents/subagents: `src/api.ts` (pure, deterministic, DOM-fre
 
 ## Git
 
-Develop and push to `claude/new-session-bailo2`. Commit/push only when asked. `dist/` stays committed until the user sets `npm run build` in Cloudflare.
+Develop and push to `auge`. Commit/push only when asked. `dist/` stays committed until the user sets `npm run build` in Cloudflare.
+Renamed from `claude/new-session-bailo2`: after the first push under the new name, update the Cloudflare Pages "Production branch" setting to `auge` so deploys keep tracking it.
