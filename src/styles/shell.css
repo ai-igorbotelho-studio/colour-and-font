@@ -12,11 +12,13 @@ button,select,[role="tab"]{touch-action:manipulation}
 .wrap{container-type:inline-size;container-name:conteudo}
 
 /* ── interação ── */
-button,.tab,.pick,.cell,.card,.tabs2 button,.viewbar button,.rolebar button{transition:background .2s,color .2s,border-color .2s,transform .15s cubic-bezier(.2,.7,.2,1),box-shadow .2s}
-button.act:hover,button.mini:hover,.gt button:hover,.seg button:hover,.tabs2 button:hover,.viewbar button:hover,.rolebar button:hover{transform:translateY(-1px)}
-button.act:active,button.mini:active,.gt button:active,.seg button:active,#tabbar button:active,.tabs2 button:active,.viewbar button:active,.rolebar button:active,.propstrip button:active,.trendpal button:active{transform:scale(.97)}
+button,.tab,.pick,.cell,.card,.tabs2 button,.viewbar button,.rolebar button{transition:background .2s,color .2s,border-color .2s,transform var(--tw-fast) var(--ease-out),box-shadow .2s}
+.gt button:hover,.seg button:hover,.tabs2 button:hover,.viewbar button:hover,.rolebar button:hover{transform:translateY(-1px)}
+.gt button:active,.seg button:active,#tabbar button:active,.tabs2 button:active,.viewbar button:active,.rolebar button:active,.propstrip button:active,.trendpal button:active{transform:scale(.97)}
 button.mini:hover,.tabs2 button:hover,.viewbar button:hover,.rolebar button:hover{border-color:var(--ink)}
-button:disabled{opacity:.45;cursor:not-allowed;transform:none!important}
+/* button.act/.mini: hover-lift, press e desabilitado seguem a linguagem única
+   de botão em motion.css §1 (DESIGN-MOTION-SPEC.md) — não duplicar aqui. */
+button:disabled{opacity:.45;cursor:not-allowed;transform:none!important;transition:opacity 0s,transform 0s!important}
 .cell:hover{transform:translateY(-2px);box-shadow:var(--sh);z-index:1}
 .card:hover{border-color:var(--ink)}
 .page{animation:pagein .32s cubic-bezier(.2,.7,.2,1)}
@@ -89,7 +91,7 @@ button:disabled{opacity:.45;cursor:not-allowed;transform:none!important}
 .homecard:hover{transform:translateY(-3px);box-shadow:var(--sh-2),inset 0 0 0 1px var(--ink)}
 .homecard:hover svg{stroke-width:1.9}
 .homecard:hover .hcicon{box-shadow:inset 0 0 0 1px var(--ink)}
-.homecard:active{transform:translateY(-1px);box-shadow:var(--sh),inset 0 0 0 1px var(--ink);transition:transform .08s}
+.homecard:active{transform:translateY(-1px);box-shadow:var(--sh),inset 0 0 0 1px var(--ink);transition:transform .08s var(--ease-out),box-shadow .08s var(--ease-out)}
 .homecard:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
 .homecard:first-child{background:var(--accent);color:var(--accent-ink);box-shadow:inset 0 0 0 1px var(--accent)}
 .homecard:first-child .hcx{color:var(--accent-ink)}

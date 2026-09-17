@@ -4,13 +4,20 @@
    roda quando a pessoa pediu menos movimento. */
 import './styles/motion.css';
 import { t } from './i18n';
+import { reduceMotion } from './core/dom';
 
+/* NUNCA acrescentar texto de leitura longa (corpo de Teoria, prosa editorial de
+   Tendências, corpo de artigo em Conteúdos) a esta seleção — a revelação é um
+   floreio de chrome (títulos, grades de cartão, mockups), não de leitura. O
+   `.hero > *` abaixo pegaria um `.lede` (dek/standfirst) se existisse; a regra
+   `.lede{opacity:1!important;transform:none!important}` em motion.css o exclui
+   de propósito. Isto é deliberado — não "concertar" removendo a exclusão. */
 const REVEAL = '.stage > div, .homecard, .magcard, .mock, .card, .prop, .fontcard, .magmusic, .magrefs, .mocksec > *, .hero > *';
 const TILT = '.homecard, .magopen, .mock';
 const ZOOM = '.mockimg, .bnr, .v-poster, .v-ui, .spec';
 
 export function initMotion(): void {
-  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const reduce = reduceMotion();
   initZoom();
   if (reduce) return;
   initReveal(); initParallax(); initTilt(); initMagnet();

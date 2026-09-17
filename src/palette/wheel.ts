@@ -1,7 +1,7 @@
 /* ── roda com bolas arrastáveis: ângulo = matiz, raio = croma ── */
 import { simulate, readable, wrapDeg } from '../core/color';
 import { ANCHORS, hexAt } from '../core/goethe';
-import { $ } from '../core/dom';
+import { $, $all, reduceMotion } from '../core/dom';
 import { t } from '../i18n';
 import { S, cur, hexOf, shown, hooks } from './state';
 import { pushH } from './history';
@@ -58,9 +58,9 @@ export function initWheel(): void {
   }
   wv.addEventListener('pointerdown', e => { const g = (e.target as Element).closest('.ball') as SVGGElement | null; if (!g) return;
     dragI = +g.dataset.i!; S.sel = dragI; try { wv.setPointerCapture(e.pointerId) } catch (_) {}
-    showDetail(dragI); move(e) });
+    g.classList.add('dragging'); showDetail(dragI); move(e) });
   wv.addEventListener('pointermove', move);
-  ['pointerup', 'pointercancel'].forEach(t => wv.addEventListener(t, () => { if (dragI !== null) { dragI = null; pushH() } }));
+  ['pointerup', 'pointercancel'].forEach(t => wv.addEventListener(t, () => { if (dragI !== null) { $all(wv, '.ball').forEach(b => b.classList.remove('dragging')); dragI = null; pushH() } }));
   wv.addEventListener('keydown', e => {
     const i = S.sel === null ? 0 : S.sel, c = S.colors[i]; if (!c) return; const st = e.shiftKey ? 12 : 3;
     if (e.key === 'ArrowRight') { e.preventDefault(); c.a = (c.a + st) % 360; if (i === 0) S.baseOver = c.a; hooks.render() }
@@ -68,4 +68,26 @@ export function initWheel(): void {
     if (e.key === 'ArrowUp') { e.preventDefault(); c.C = Math.min(.33, c.C + .015); hooks.render() }
     if (e.key === 'ArrowDown') { e.preventDefault(); c.C = Math.max(0, c.C - .015); hooks.render() }
   });
+}
+
+/* ── troca de 180° "atravessa a roda" (DESIGN-MOTION-SPEC.md §2c) ──
+   Não é decoração: narra a relação causal de oposto que a geometria de
+   Goethe afirma. Nenhum ponto de disparo discreto existe ainda no código
+   (arrasto e teclado ficam de propósito sem tween, por contrato de
+   causalidade) — esta função fica pronta para a próxima ação que troque um
+   matiz por ~180° de uma vez (ex.: "usar o oposto harmônico"), sem tocar o
+   arrasto/teclado existentes. */
+export function animateHueFlip(colorIndex: number, fromA: number, toA: number): void {
+  if (reduceMotion()) { const c = S.colors[colorIndex]; if (!c) return; c.a = toA; hooks.render(); return }
+  const dur = 380, start = performance.now();
+  const short = wrapDeg(toA - fromA);
+  const arc = Math.abs(short) >= 175 ? 180 * Math.sign(short || 1) : short;
+  function tick(now: number): void {
+    const c = S.colors[colorIndex]; if (!c) return;
+    const p = Math.min(1, (now - start) / dur), e = 1 - Math.pow(1 - p, 3);
+    c.a = (fromA + arc * e + 360) % 360;
+    hooks.render();
+    if (p < 1) requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
 }

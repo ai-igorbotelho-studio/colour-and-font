@@ -1,5 +1,5 @@
 /* ═══════════ NAVEGAÇÃO E FUNDO ═══════════ */
-import { $, $all } from './core/dom';
+import { $, $all, reduceMotion } from './core/dom';
 import { S, render } from './palette/index';
 import { T, newPair, renderSpec } from './type/index';
 import { drawHome } from './home';
@@ -28,10 +28,18 @@ export function goto(p: Page | string): void {
   if (p === 'tipo' && !T.disp) newPair();
   if (p === 'tipo') renderSpec();
 }
+/* troca de polaridade luz/treva: crossfade das superfícies, escopado a uma
+   janela curta em torno da mudança do atributo (DESIGN-MOTION-SPEC.md §2a) —
+   a classe .polarity-swap nunca fica permanentemente ativa, senão o crossfade
+   universal também dispararia (e atrasaria) trocas de conteúdo dinâmicas
+   (regenerar paleta, trocar par tipográfico), que precisam ficar instantâneas. */
 export const setGround = (g: 'luz' | 'treva'): void => {
-  document.documentElement.setAttribute('data-ground', g);
+  const html = document.documentElement, reduce = reduceMotion();
+  if (!reduce) html.classList.add('polarity-swap');
+  html.setAttribute('data-ground', g);
   $('gLuz').setAttribute('aria-pressed', String(g === 'luz')); $('gTreva').setAttribute('aria-pressed', String(g === 'treva'));
   drawHome(); if (S.colors.length) render();
+  if (!reduce) setTimeout(() => html.classList.remove('polarity-swap'), 650);
 };
 export function initNav(): void {
   $all<HTMLButtonElement>(document, '.tab').forEach(b => b.onclick = () => goto(b.dataset.p!));

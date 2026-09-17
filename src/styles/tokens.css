@@ -5,6 +5,7 @@
   color-scheme:light;
   --ground:#FFFDF9;--panel:#F3F7FC;--ink:#00000E;--soft:#4A3F47;
   --rule:rgba(0,0,14,.30);--rule2:rgba(0,0,14,.14);--field:#F3F1EC;--tw:.38s;--tw-fast:.15s;--tw-slow:.5s;
+  --ease-out:cubic-bezier(.2,.7,.2,1);--ease-in:cubic-bezier(.4,0,1,1);
   --r:22px;--r2:15px;--pill:999px;--sh:0 8px 26px rgba(0,0,14,.12);--sh-2:0 14px 34px rgba(0,0,14,.16);
   --rail:#00000E;--rail-ink:#FFFDF9;--rail-soft:#B9B4BC;--rail-on:#7A2545;--rail-on-ink:#FFFDF9;
   --card:#D4E7FA;--frame:#D4E7FA;

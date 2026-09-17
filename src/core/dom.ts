@@ -5,6 +5,8 @@ export const $v = (id: string): string => (document.getElementById(id) as HTMLIn
 export const $n = (id: string): number => +(document.getElementById(id) as HTMLInputElement).value;
 export const $set = (id: string, v: string | number): void => { (document.getElementById(id) as HTMLInputElement).value = String(v) };
 export const $all = <E extends Element = HTMLElement>(el: ParentNode, sel: string): E[] => Array.from(el.querySelectorAll<E>(sel));
+/** `matchMedia` não existe no jsdom dos testes — nunca chamar direto fora daqui. */
+export const reduceMotion = (): boolean => typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 export const esc = (s: unknown): string => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' } as Record<string, string>)[c]);
 export const slug = (s: string): string => s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');

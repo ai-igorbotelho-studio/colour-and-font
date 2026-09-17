@@ -10,7 +10,7 @@ import { paletteStore } from '../palette/state';
 import { T, typeStore, typeHooks } from './state';
 import { loadFont } from './loader';
 import { candidates, pickSet } from './pairing';
-import { renderSpec, specPng, sampleText } from './specimen';
+import { renderSpec, swapSpec, specPng, sampleText } from './specimen';
 import { initTypeExport } from './export';
 import { listTSaved, initTypeSaved } from './saved';
 
@@ -27,7 +27,7 @@ export function setFamilies(fs: Font[], why: string): void {
   T.disp = T.fams[0]; T.body = T.fams[1] || T.fams[0]; T.mono = T.fams.find(f => f.cls === 'mono') || null; T.ov = {};
   T.fams.forEach(loadFont);
   $('tWhy').textContent = why;
-  renderSpec(); typeStore.notify();
+  swapSpec(); typeStore.notify();
 }
 
 export function newPair(): void {
@@ -41,7 +41,7 @@ export function newPair(): void {
     : t('{d} no título, {b} no texto', { d: set[0].n, b: set[1].n }) + (set.length > 2 ? t(', mais {x}', { x: set.slice(2).map(f => f.n).join(' + ') }) : ''))
     + (E.a !== null ? t(', para provocar {e}', { e: E.n.toLowerCase() }) : '')
     + (st.v !== 'none' && set.length > 1 ? t(', pela estratégia de {s}', { s: st.n.toLowerCase() }) : '') + '.';
-  setTimeout(renderSpec, 80); renderSpec(); typeStore.notify();
+  setTimeout(renderSpec, 80); swapSpec(); typeStore.notify();
 }
 function setFamN(n: number): void { T.nFam = n; $('tFamLbl').textContent = String(n);
   $all($('tFamN'), 'button').forEach(x => x.setAttribute('aria-pressed', String(+(x as HTMLElement).dataset.n! === n)));
@@ -71,7 +71,7 @@ export function initType(): void {
   });
   $('tSwap').onclick = () => { if (T.fams.length < 2) return toast(t('Com uma família só não há o que trocar'));
     const tmp = T.fams[0]; T.fams[0] = T.fams[1]; T.fams[1] = tmp; T.disp = T.fams[0]; T.body = T.fams[1];
-    $('tWhy').textContent = t('{d} no título, {b} no texto — invertido à mão.', { d: T.fams[0].n, b: T.fams[1].n }); renderSpec() };
+    $('tWhy').textContent = t('{d} no título, {b} no texto — invertido à mão.', { d: T.fams[0].n, b: T.fams[1].n }); swapSpec() };
   $('tMono').onclick = () => {
     if (T.nFam < 3) { setFamN(3); return toast(t('Terceira família acrescentada, em rótulo e referência')) }
     const ms = candidates('mono'); if (!ms.length) return toast(t('Nenhuma monoespaçada passa nos filtros'));
@@ -79,7 +79,7 @@ export function initType(): void {
     const pick = other.length ? other[Math.floor(Math.random() * other.length)] : ms[0];
     const at = T.fams.findIndex(f => f.cls === 'mono');
     if (at >= 0) T.fams[at] = pick; else T.fams[2] = pick;
-    T.mono = pick; loadFont(pick); setTimeout(renderSpec, 80); renderSpec() };
+    T.mono = pick; loadFont(pick); setTimeout(renderSpec, 80); swapSpec() };
   $all<HTMLButtonElement>($('tFamN'), 'button').forEach(b => b.onclick = () => setFamN(+b.dataset.n!));
   $('tRoleReset').onclick = () => { delete T.ov[T.role]; renderSpec(); toast(t('Nível devolvido ao padrão')) };
   $('tRoleResetAll').onclick = () => { T.ov = {}; T.off = {}; renderSpec(); toast(t('Hierarquia inteira devolvida ao padrão')) };

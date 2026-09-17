@@ -2,7 +2,7 @@
 import { oklch2hex, readable, simulate } from '../core/color';
 import { atAngle, nameOf } from '../core/goethe';
 import { allCodes } from '../core/codes';
-import { $, $all, esc, copy } from '../core/dom';
+import { $, $all, esc, copy, reduceMotion } from '../core/dom';
 import { t } from '../i18n';
 import { S, hexOf, shown, proportions, hooks } from './state';
 
@@ -25,8 +25,13 @@ export function showDetail(i: number): void {
   const c = S.colors[i]; if (!c) return; S.sel = i;
   const h = hexOf(c);
   $('detail').style.display = 'block';
-  $('dHead').setAttribute('style', `background:${shown(c)};color:${readable(shown(c))}`);
-  $('dHead').textContent = t('{h} · {name} · {p}% da área', { h, name: nameOf(c.a), p: Math.round(proportions()[i]) });
+  const dHead = $('dHead'), bg = shown(c), fg = readable(bg), label = t('{h} · {name} · {p}% da área', { h, name: nameOf(c.a), p: Math.round(proportions()[i]) });
+  dHead.setAttribute('style', `background:${bg};color:${fg}`);
+  /* nome da cor: cross-fade só de opacidade quando o texto muda de fato, para
+     que um arrasto rápido não pisque o texto ilegível (DESIGN-MOTION-SPEC.md §3) */
+  const changed = dHead.textContent !== label;
+  if (!changed || reduceMotion()) dHead.textContent = label;
+  else { dHead.style.opacity = '0'; requestAnimationFrame(() => { dHead.textContent = label; requestAnimationFrame(() => { dHead.style.opacity = '1' }) }) }
   $('dTitle').textContent = t('Cor {n} — {name}', { n: i + 1, name: nameOf(c.a) });
   $('dCodes').innerHTML = allCodes(h).map(([k, v]) =>
     `<button class="code" data-v="${esc(v)}"><b>${k}</b><span>${esc(v)}</span></button>`).join('')
