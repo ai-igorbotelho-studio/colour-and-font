@@ -17,6 +17,7 @@ export const TOPICS: { k: Topic; pt: string; en: string }[] = [
 ];
 
 import { ARTICLES_2 } from './articles-2';
+import { ARTICLES_3 } from './articles-3';
 const ARTICLES_1: Article[] = [
 { slug: 'goethe-e-as-cores', date: '2026-08-14', min: 7, topics: ['cor', 'percepcao', 'cultura'],
   pt: { kicker: 'Origens', title: 'Quem é Goethe e o que ele tem a ver com as cores?',
@@ -442,4 +443,4 @@ That blue is safe, and that safety has a price. A blue palette will be accepted,
       outline: ['A colour without a name', 'What Goethe saw in blue', 'Why it unites', 'What this says to anyone who designs'], links: ['Colour', 'Trends'] },
     music: { title: 'Kind of Blue', artist: 'Miles Davis', why: 'The most listened-to record in jazz, and the bluest. Modal, calm, deep: everything the text says about the colour.', q: 'Miles Davis Kind of Blue' } } }
 ];
-export const ARTICLES: Article[] = [...ARTICLES_1, ...ARTICLES_2];
+export const ARTICLES: Article[] = [...ARTICLES_1, ...ARTICLES_2, ...ARTICLES_3];
