@@ -67,6 +67,40 @@ export function rgb2cmyk(r: number, g: number, b: number): [number, number, numb
   if (k === 1) return [0, 0, 0, 100];
   return [(1 - r - k) / (1 - k) * 100, (1 - g - k) / (1 - k) * 100, (1 - b - k) / (1 - k) * 100, k * 100];
 }
+export function cmyk2rgb(c: number, m: number, y: number, k: number): RGB {
+  return [255 * (1 - c / 100) * (1 - k / 100), 255 * (1 - m / 100) * (1 - k / 100), 255 * (1 - y / 100) * (1 - k / 100)];
+}
+
+/** Interpreta um código de cor digitado livremente (hex, rgb ou cmyk) e devolve #RRGGBB, ou null. */
+export function parseColorCode(input: string): string | null {
+  const s = input.trim();
+  if (!s) return null;
+  const hexM = s.match(/^#?([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/);
+  if (hexM) return rgb2hex(...hex2rgb('#' + hexM[1]));
+  const nums = (body: string): number[] | null => {
+    const parts = body.split(/[\s,]+/).filter(Boolean).map(Number);
+    return parts.some(n => Number.isNaN(n)) ? null : parts;
+  };
+  const rgbM = s.match(/^rgba?\(\s*([^)]+)\)$/i);
+  const cmykM = s.match(/^cmyk\(\s*([^)]+)\)$/i);
+  if (rgbM) {
+    const n = nums(rgbM[1]);
+    if (n && n.length === 3 && n.every(v => v >= 0 && v <= 255)) return rgb2hex(n[0], n[1], n[2]);
+    return null;
+  }
+  if (cmykM) {
+    const n = nums(cmykM[1]);
+    if (n && n.length === 4 && n.every(v => v >= 0 && v <= 100)) return rgb2hex(...cmyk2rgb(n[0], n[1], n[2], n[3]));
+    return null;
+  }
+  const bare = nums(s);
+  if (bare) {
+    if (bare.length === 3 && bare.every(v => v >= 0 && v <= 255)) return rgb2hex(bare[0], bare[1], bare[2]);
+    if (bare.length === 4 && bare.every(v => v >= 0 && v <= 100)) return rgb2hex(...cmyk2rgb(bare[0], bare[1], bare[2], bare[3]));
+  }
+  return null;
+}
+
 export function rgb2xyz(r: number, g: number, b: number): RGB {
   const R = lin(r), G = lin(g), B = lin(b);
   return [R * .4124564 + G * .3575761 + B * .1804375, R * .2126729 + G * .7151522 + B * .0721750, R * .0193339 + G * .1191920 + B * .9503041];

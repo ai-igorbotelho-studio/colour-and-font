@@ -326,6 +326,16 @@
       <label>Inspirar em imagem</label>
       <div id="imgCol"></div>
     </div>
+    <div class="ctl">
+      <label for="matchCode">Cores combinando — digite um código ou envie uma foto</label>
+      <div class="reqrow">
+        <input type="text" id="matchCode" placeholder="#C4003F, rgb(196,0,63) ou cmyk(0,100,68,23)">
+        <span class="okc" id="matchSw" hidden aria-hidden="true"></span>
+        <button type="button" class="act ghost" id="matchGo">Combinar cor</button>
+      </div>
+      <p class="sm" id="matchMsg" aria-live="polite"></p>
+      <div id="matchImg"></div>
+    </div>
     <div class="btnrow">
       <button class="act" id="gen">Gerar · barra de espaço</button>
       <button class="act ghost" id="undo" disabled>← Voltar</button>
@@ -612,6 +622,15 @@
   <div class="ctl">
     <label>Imagem de referência — paleta e tipografia inspiradas na imagem</label>
     <div id="cImg"></div>
+  </div>
+  <div class="ctl">
+    <label for="cMatchCode">Cores combinando — digite um código para ancorar o matiz das três propostas</label>
+    <div class="reqrow">
+      <input type="text" id="cMatchCode" placeholder="#C4003F, rgb(196,0,63) ou cmyk(0,100,68,23)">
+      <span class="okc" id="cMatchSw" hidden aria-hidden="true"></span>
+      <button type="button" class="act ghost" id="cMatchGo">Combinar cor</button>
+    </div>
+    <p class="sm" id="cMatchMsg" aria-live="polite"></p>
   </div>
   <div class="btnrow">
     <button class="act" id="cGo">Gerar três propostas</button>

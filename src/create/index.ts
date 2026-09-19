@@ -1,6 +1,6 @@
 /* ═══════════ CRIAÇÃO — montagem ═══════════ */
-import { hex2rgb, rgb2cmyk, readable, hex2lch } from '../core/color';
-import { nameOf, atAngle } from '../core/goethe';
+import { hex2rgb, rgb2cmyk, readable, hex2lch, parseColorCode } from '../core/color';
+import { nameOf, atAngle, angleFor } from '../core/goethe';
 import { $, $v, $n, $all, $set, esc, slug, copy, download, toast, fillSel } from '../core/dom';
 import { t, dec, isEn } from '../i18n';
 import { colourName } from '../core/names';
@@ -175,6 +175,18 @@ export function initCreate(): void {
         + t('Tipografia estimada: {s}, contraste {c}.', { s: t(m.serif >= .5 ? 'serifada' : 'sem serifa'), c: t(m.ct >= .6 ? 'alto' : m.ct <= .2 ? 'baixo' : 'médio') });
     } catch (_) { CR.imgBase = null; CR.imgType = null; if (note) note.textContent = t('Não consegui ler essa imagem — tente JPG, PNG, WEBP ou SVG.'); }
   });
+  const cmc = document.getElementById('cMatchCode') as HTMLInputElement | null, cmg = document.getElementById('cMatchGo'),
+    cmsw = document.getElementById('cMatchSw'), cmm = document.getElementById('cMatchMsg');
+  const tryCMatch = (): void => {
+    if (!cmc) return;
+    const hex = parseColorCode(cmc.value);
+    if (cmsw) { if (hex) { cmsw.style.background = hex; cmsw.hidden = false } else cmsw.hidden = true }
+    if (!hex) { if (cmm) cmm.textContent = cmc.value.trim() ? t('Não entendi esse código — tente HEX (#RRGGBB), RGB (196,0,63) ou CMYK (0,100,68,23).') : ''; return }
+    CR.imgBase = angleFor(hex2lch(hex).H);
+    if (cmm) cmm.textContent = t('Cor {h} ancorada — as três propostas serão geradas em torno desse matiz.', { h: hex });
+  };
+  if (cmg) cmg.onclick = tryCMatch;
+  if (cmc) cmc.onkeydown = e => { if (e.key === 'Enter') { e.preventDefault(); tryCMatch() } };
   // texto e controles da amostra: valem para as três propostas e mudam ao vivo
   ($('cText') as HTMLTextAreaElement).value = sampleText();
   $('cText').oninput = drawSpecimens;

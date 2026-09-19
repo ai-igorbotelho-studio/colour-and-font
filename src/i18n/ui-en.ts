@@ -690,6 +690,17 @@ export const UI: Record<string, string> = {
   '{n} cores extraídas da imagem, em esquema livre. Arraste as bolas para refinar.': '{n} colours extracted from the image, in free scheme. Drag the balls to refine.',
   'Não consegui ler essa imagem — tente JPG, PNG, WEBP ou SVG.': 'Could not read that image — try JPG, PNG, WEBP or SVG.',
   '{d} no título, {b} no texto — estimadas a partir da textura da imagem.': '{d} for the headline, {b} for the text — estimated from the image texture.',
+  /* cores combinando */
+  'Cores combinando — digite um código ou envie uma foto': 'Matching colours — type a code or upload a photo',
+  'Cores combinando — digite um código para ancorar o matiz das três propostas': 'Matching colours — type a code to anchor the hue of all three proposals',
+  '#C4003F, rgb(196,0,63) ou cmyk(0,100,68,23)': '#C4003F, rgb(196,0,63) or cmyk(0,100,68,23)',
+  'Combinar cor': 'Match colour',
+  'Cor {h} ancorada no círculo — use o esquema geométrico acima para ver diferentes tipos de combinação.':
+    'Colour {h} anchored on the wheel — use the geometric scheme above to see different kinds of match.',
+  'Cor {h} ancorada — as três propostas serão geradas em torno desse matiz.':
+    'Colour {h} anchored — all three proposals will be generated around that hue.',
+  'Não entendi esse código — tente HEX (#RRGGBB), RGB (196,0,63) ou CMYK (0,100,68,23).':
+    'Could not read that code — try HEX (#RRGGBB), RGB (196,0,63) or CMYK (0,100,68,23).',
   'Textura pouco nítida — a estimativa é fraca. ': 'Texture not clear — the estimate is weak. ',
   'Estimativa: {s}, contraste {c}. Famílias parecidas: {l}.': 'Estimate: {s}, {c} contrast. Similar families: {l}.',
   'serifada': 'serif',
