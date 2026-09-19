@@ -10,7 +10,8 @@ import { CULT } from '../data/cultures';
 import { MUS, CVDLIST } from '../data/music';
 import { S, cur, paletteStore, hooks, syncControls } from './state';
 import { generatePalette } from './generate';
-import { colorsFromHex } from '../core/goethe';
+import { colorsFromHex, angleFor } from '../core/goethe';
+import { hex2lch, parseColorCode } from '../core/color';
 import { fileToCanvas, extractPalette, mountImgPicker } from '../core/image';
 import { pushH, applyH, HIST } from './history';
 import { drawWheel, initWheel } from './wheel';
@@ -92,6 +93,34 @@ export function initPalette(): void {
       if (note) note.textContent = t('{n} cores extraídas da imagem, em esquema livre. Arraste as bolas para refinar.', { n: hs.length });
     } catch (_) { if (note) note.textContent = t('Não consegui ler essa imagem — tente JPG, PNG, WEBP ou SVG.'); }
   });
+
+  /* ── cores combinando: código digitado ou foto ── */
+  const matchTo = (hex: string, note: HTMLElement | null): void => {
+    S.baseOver = angleFor(hex2lch(hex).H);
+    syncControls(); render(); pushH();
+    if (note) note.textContent = t('Cor {h} ancorada no círculo — use o esquema geométrico acima para ver diferentes tipos de combinação.', { h: hex });
+  };
+  const mc = $('matchCode') as HTMLInputElement | null, mg = document.getElementById('matchGo'), msw = document.getElementById('matchSw'), mm = document.getElementById('matchMsg');
+  const tryMatch = (): void => {
+    if (!mc) return;
+    const hex = parseColorCode(mc.value);
+    if (msw) { if (hex) { msw.style.background = hex; msw.hidden = false } else msw.hidden = true }
+    if (!hex) { if (mm) mm.textContent = mc.value.trim() ? t('Não entendi esse código — tente HEX (#RRGGBB), RGB (196,0,63) ou CMYK (0,100,68,23).') : ''; return }
+    matchTo(hex, mm);
+  };
+  if (mg) mg.onclick = tryMatch;
+  if (mc) mc.onkeydown = e => { if (e.key === 'Enter') { e.preventDefault(); tryMatch() } };
+  const mi = document.getElementById('matchImg');
+  if (mi) mountImgPicker(mi, async file => {
+    const note = mi.querySelector('.imgnote');
+    if (!file) return;
+    if (note) note.textContent = t('Lendo a imagem…');
+    try {
+      const cv = await fileToCanvas(file), hs = extractPalette(cv, 1);
+      if (!hs.length) throw new Error('empty');
+      matchTo(hs[0], note as HTMLElement | null);
+    } catch (_) { if (note) note.textContent = t('Não consegui ler essa imagem — tente JPG, PNG, WEBP ou SVG.'); }
+  }, { camera: false });
 
   build(false);
   pushH();

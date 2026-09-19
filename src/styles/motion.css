@@ -1,11 +1,18 @@
 /* ═══════════ MOVIMENTO ═══════════
-   Suave e curto. Tudo aqui é desligado por prefers-reduced-motion. */
+   Suave e curto. Tudo aqui é desligado por prefers-reduced-motion.
+   Duas curvas só, definidas em tokens.css: --ease-out (assentar: hover,
+   entrada, soltar o clique) e --ease-in (confirmar: apertar, sair, início
+   da troca de polaridade). Nenhuma terceira curva — ver DESIGN-MOTION-SPEC.md §0. */
 @media(prefers-reduced-motion:no-preference){
   html{scroll-behavior:smooth}
-  /* revelação ao entrar na janela */
-  .rv{opacity:0;transform:translateY(16px);transition:opacity .55s cubic-bezier(.2,.7,.2,1),transform .55s cubic-bezier(.2,.7,.2,1)}
+  /* revelação ao entrar na janela — nunca em texto de leitura longa: Teoria,
+     o corpo editorial de Tendências, o corpo de artigo em Conteúdos e o
+     dek/standfirst (.lede) ficam de fora de propósito (DESIGN-MOTION-SPEC.md §4).
+     Não "conserte" isso adicionando essas classes à seleção REVEAL em motion.ts. */
+  .rv{opacity:0;transform:translateY(16px);transition:opacity var(--tw-slow) var(--ease-out),transform var(--tw-slow) var(--ease-out)}
   .rv.in{opacity:1;transform:none}
   .rv[data-d="1"]{transition-delay:.06s}.rv[data-d="2"]{transition-delay:.12s}.rv[data-d="3"]{transition-delay:.18s}.rv[data-d="4"]{transition-delay:.24s}
+  .lede{opacity:1!important;transform:none!important}
   /* paralaxe leve — a variável vem do scroll */
   [data-plx]{transform:translate3d(0,var(--plx,0px),0);will-change:transform}
   /* inclinação ao passar o ponteiro */
@@ -13,21 +20,78 @@
   .tilt:hover{--ty:-3px}
   /* zoom suave nas imagens que abrem em tela cheia */
   .mockimg,.bnr{cursor:zoom-in;overflow:hidden}
-  .mockimg svg,.bnr svg{transition:transform .5s cubic-bezier(.2,.7,.2,1)}
+  .mockimg svg,.bnr svg{transition:transform .5s var(--ease-out)}
   .mock:hover .mockimg svg,.card:hover .bnr svg{transform:scale(1.04)}
-  /* transição entre páginas (View Transitions) */
-  ::view-transition-old(root){animation:vt-out .18s ease-in both}
-  ::view-transition-new(root){animation:vt-in .34s cubic-bezier(.2,.7,.2,1) both}
-  @keyframes vt-out{to{opacity:0;transform:translateY(-6px)}}
-  @keyframes vt-in{from{opacity:0;transform:translateY(10px)}}
+  /* amostra de tipografia: o preview aumenta um pouco ao passar o ponteiro,
+     nunca o rótulo/metadados ao lado (DESIGN-MOTION-SPEC.md §3) */
+  .fontcard .big{transition:transform var(--tw-fast) var(--ease-out)}
+  .fontcard:hover .big{transform:scale(1.04)}
+  /* troca de par tipográfico: dissolução cruzada só de opacidade, sem
+     tocar no layout dos glifos — ver swapSpec() em src/type/specimen.ts */
+  #spec{transition:opacity var(--tw) var(--ease-out)}
+  #spec.no-t{transition:none}
+  /* rótulo do nome da cor: cross-fade de texto só de opacidade */
+  #dHead{transition:opacity var(--tw-fast) var(--ease-out)}
+  /* bola da roda: escala, nunca translateY (é uma alça circular de arrasto) */
+  .ball{transition:transform var(--tw-fast) var(--ease-out);transform-box:fill-box;transform-origin:center}
+  .ball:hover{transform:scale(1.15)}
+  .ball.dragging{transform:scale(1.25)}
+  /* transição entre páginas (View Transitions): dissolução cruzada pura —
+     sem translateY, o guia de marca proíbe o slide de página (§3/§9). */
+  ::view-transition-old(root){animation:vt-out var(--tw-fast) var(--ease-in) both}
+  ::view-transition-new(root){animation:vt-in var(--tw) var(--ease-out) both}
+  @keyframes vt-out{to{opacity:0}}
+  @keyframes vt-in{from{opacity:0}}
+  /* troca de polaridade luz/treva: crossfade das superfícies, escopada à
+     classe .polarity-swap que nav.ts liga/desliga em torno do momento em que
+     data-ground muda — nunca deixar esta regra ativa de forma permanente,
+     senão ela dispara (e atrasa) toda troca de conteúdo dinâmica também. */
+  html.polarity-swap, html.polarity-swap *{
+    transition:background-color var(--tw-slow) var(--ease-out),color var(--tw-slow) var(--ease-out),
+      border-color var(--tw-slow) var(--ease-out),box-shadow var(--tw-slow) var(--ease-out);
+  }
   /* fôlego dos botões e dos cartões */
-  button.act,button.mini,.homecard,.magopen,.mock,.card,.fontcard{transition:transform .22s cubic-bezier(.2,.7,.2,1),box-shadow .3s,background .2s,color .2s}
-  button.act:hover{transform:translateY(-2px) scale(1.02)}
-  .tab svg{transition:transform .25s cubic-bezier(.2,.7,.2,1)}
+  button.act,button.mini,.homecard,.magopen,.mock,.card,.fontcard{transition:transform var(--tw-fast) var(--ease-out),box-shadow var(--tw-fast) var(--ease-out),background .2s,color .2s}
+  button.act:hover,button.mini:hover{transform:translateY(-2px);box-shadow:var(--sh-2)}
+  button.act:active,button.mini:active{transform:translateY(-1px);box-shadow:var(--sh);transition:transform .08s var(--ease-out),box-shadow .08s var(--ease-out)}
+  button.act:disabled,button.mini:disabled,button:disabled{transition:none}
+  .tab svg{transition:transform var(--tw-fast) var(--ease-out)}
   .tab:hover svg{transform:scale(1.12)}
   .tab[aria-current="page"] svg{transform:scale(1.06)}
+  .tab[aria-current="page"]:hover svg{transform:scale(1.16)}
   input[type=range]::-webkit-slider-thumb{transition:transform .15s}
   input[type=range]:active::-webkit-slider-thumb{transform:scale(1.25)}
+  /* entrada em Conteúdos: a lista (índice, polaridade invertida) some e a
+     leitura (modo do usuário) aparece na mesma janela de tempo — o crossfade
+     narra a mudança de polaridade, não a esconde (DESIGN-CONTENTS-SPEC.md §3.3) */
+  #magHome,#magArt{transition:opacity var(--tw-fast) var(--ease-out)}
+  #magHome.artgone,#magArt.artgone{opacity:0}
+  /* revelação da citação sob o dek — aditiva e espacial, não uma troca de display (DESIGN-CONTENTS-CARDS-SPEC.md §2.2) */
+  .magquoterow{transition:grid-template-rows var(--tw-slow) var(--ease-out)}
+  .magquoterow>.magquote{transition:opacity var(--tw-fast) var(--ease-out),transform var(--tw-fast) var(--ease-out)}
+  #magList:not(.dysoff) .magopen:hover .magquoterow,
+  #magList:not(.dysoff) .magopen:focus-visible .magquoterow{grid-template-rows:1fr}
+  #magList:not(.dysoff) .magopen:hover .magquoterow>.magquote,
+  #magList:not(.dysoff) .magopen:focus-visible .magquoterow>.magquote{opacity:1;transform:none;transition-delay:.08s}
+}
+@media(prefers-reduced-motion:reduce){
+  #magHome,#magArt{transition:opacity .02s linear}
+}
+/* pressionar deve parecer instantâneo mesmo com movimento reduzido — é
+   retorno de estado essencial, não coreografia (DESIGN-MOTION-SPEC.md §5) */
+@media(prefers-reduced-motion:reduce){
+  button.act,button.mini,.tab svg{transition:box-shadow var(--tw-fast) var(--ease-out)}
+  button.act:hover,button.mini:hover,.tab:hover svg,.tab[aria-current="page"] svg,.tab[aria-current="page"]:hover svg{transform:none;box-shadow:var(--sh-2)}
+  button.act:active,button.mini:active{transform:none;box-shadow:var(--sh);transition:box-shadow .08s var(--ease-out)}
+  .fontcard:hover .big{transform:none}
+  .ball,.ball:hover,.ball.dragging{transition:none;transform:none}
+  #spec,#dHead{transition:none}
+  /* citação: sem tween, o estado aberto/fechado ainda muda instantaneamente (§2.3) */
+  .magquoterow,.magquoterow>.magquote{transition:none}
+  #magList:not(.dysoff) .magopen:hover .magquoterow,
+  #magList:not(.dysoff) .magopen:focus-visible .magquoterow{grid-template-rows:1fr}
+  #magList:not(.dysoff) .magopen:hover .magquoterow>.magquote,
+  #magList:not(.dysoff) .magopen:focus-visible .magquoterow>.magquote{opacity:1;transform:none}
 }
 /* lupa: sobreposição com zoom e arrasto */
 #zoom{position:fixed;inset:0;z-index:90;background:rgba(0,0,14,.78);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);display:flex;align-items:center;justify-content:center;touch-action:none}

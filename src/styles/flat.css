@@ -15,7 +15,7 @@ button.mini:hover,.tabs2 button:hover,.viewbar button:hover,.rolebar button:hove
 .ctpair .foot,.ratio div,th,td{border-bottom:0;border-top:0}
 tbody tr:nth-child(odd) td{background:var(--panel)}
 th{color:var(--soft);font-weight:500}
-.card:hover,.homecard:hover,.magopen:hover{box-shadow:var(--sh)}
+.card:hover,.magopen:hover{box-shadow:var(--sh)}
 .magbody .pull{border-left:0;padding-left:0;color:var(--deep)}
 .magdisc{background:var(--panel);border-radius:var(--r2)}
 #exp .sheet{box-shadow:var(--sh);border-radius:var(--r)}

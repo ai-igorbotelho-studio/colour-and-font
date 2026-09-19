@@ -388,6 +388,8 @@ export const UI: Record<string, string> = {
   '{f} — famílias citadas na edição {e}.': '{f} — families cited in the {e} edition.', 'Famílias da edição carregadas': 'Edition families loaded',
   'Copiar o código SVG': 'Copy the SVG code', 'SVG copiado': 'SVG copied', 'tendencias': 'trends',
   '{n} edições no arquivo. A mais antiga é {e}.': '{n} editions in the archive. The oldest is {e}.',
+  'Forma da letra': 'Letterform', 'Combinações': 'Pairing', 'Aplicações': 'Surface',
+  '(fora do banco do instrumento)': '(not in the instrument\'s library)', '+{n} mais': '+{n} more',
   '# Tendências — {e}': '# Trends — {e}', '| Cor | HEX aproximado | Observação |': '| Colour | Approximate HEX | Note |', 'Famílias citadas: {f}': 'Families cited: {f}', 'Fontes:': 'Sources:',
   'Os valores em hex são aproximações em sRGB feitas a partir da descrição e da imagem divulgadas, não os códigos oficiais. Compilado em {d}.': 'The hex values are sRGB approximations made from the published description and image, not the official codes. Compiled on {d}.',
   '// rótulo da aba': '// tab label', '// pal.hex alimenta o botão que abre a paleta no instrumento de cor': '// pal.hex feeds the button that opens the palette in the colour instrument',
@@ -473,6 +475,14 @@ export const UI: Record<string, string> = {
   '{n} artigos': '{n} articles',
   '{n} min de leitura': '{n} min read',
   'Nada encontrado com esses filtros.': 'Nothing found with these filters.',
+  /* ── módulos, ordenação e leitura (redesenho Conteúdos) ── */
+  'Módulos': 'Modules', 'Ordenar por': 'Sort by', 'Por tema': 'By theme', 'Por data': 'By date',
+  'Ensaios': 'Essays', 'Léxico': 'Lexicon', 'Leituras': 'Readings',
+  'Termos compartilhados entre Teoria e Tendências — em preparação': 'Terms shared across Theory and Trends — in progress',
+  'Edições encadernadas de Tendências — em preparação': 'Bound editions of Trends — in progress',
+  'Indicações externas selecionadas — em preparação': 'Selected outside reading — in progress',
+  'Sumário': 'Table of contents', 'Nesta página': 'On this page',
+  '{n} min restantes': '{n} min left', 'Ir às referências': 'Jump to references',
   'referência {n}': 'reference {n}',
   '← Todos os artigos': '← All articles',
   'Ajustes de leitura': 'Reading settings',
@@ -680,6 +690,17 @@ export const UI: Record<string, string> = {
   '{n} cores extraídas da imagem, em esquema livre. Arraste as bolas para refinar.': '{n} colours extracted from the image, in free scheme. Drag the balls to refine.',
   'Não consegui ler essa imagem — tente JPG, PNG, WEBP ou SVG.': 'Could not read that image — try JPG, PNG, WEBP or SVG.',
   '{d} no título, {b} no texto — estimadas a partir da textura da imagem.': '{d} for the headline, {b} for the text — estimated from the image texture.',
+  /* cores combinando */
+  'Cores combinando — digite um código ou envie uma foto': 'Matching colours — type a code or upload a photo',
+  'Cores combinando — digite um código para ancorar o matiz das três propostas': 'Matching colours — type a code to anchor the hue of all three proposals',
+  '#C4003F, rgb(196,0,63) ou cmyk(0,100,68,23)': '#C4003F, rgb(196,0,63) or cmyk(0,100,68,23)',
+  'Combinar cor': 'Match colour',
+  'Cor {h} ancorada no círculo — use o esquema geométrico acima para ver diferentes tipos de combinação.':
+    'Colour {h} anchored on the wheel — use the geometric scheme above to see different kinds of match.',
+  'Cor {h} ancorada — as três propostas serão geradas em torno desse matiz.':
+    'Colour {h} anchored — all three proposals will be generated around that hue.',
+  'Não entendi esse código — tente HEX (#RRGGBB), RGB (196,0,63) ou CMYK (0,100,68,23).':
+    'Could not read that code — try HEX (#RRGGBB), RGB (196,0,63) or CMYK (0,100,68,23).',
   'Textura pouco nítida — a estimativa é fraca. ': 'Texture not clear — the estimate is weak. ',
   'Estimativa: {s}, contraste {c}. Famílias parecidas: {l}.': 'Estimate: {s}, {c} contrast. Similar families: {l}.',
   'serifada': 'serif',

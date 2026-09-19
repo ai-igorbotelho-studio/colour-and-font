@@ -15,7 +15,7 @@ A dependency-free MCP server over stdio exposes the engine as tools.
 Claude Code:
 
 ```bash
-claude mcp add auge -- node /absolute/path/to/colour-and-font/agent/mcp-server.mjs
+claude mcp add auge -- node /absolute/path/to/auge/agent/mcp-server.mjs
 ```
 
 Claude Desktop (`claude_desktop_config.json`):
@@ -23,7 +23,7 @@ Claude Desktop (`claude_desktop_config.json`):
 ```json
 {
   "mcpServers": {
-    "auge": { "command": "node", "args": ["/absolute/path/to/colour-and-font/agent/mcp-server.mjs"] }
+    "auge": { "command": "node", "args": ["/absolute/path/to/auge/agent/mcp-server.mjs"] }
   }
 }
 ```

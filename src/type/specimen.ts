@@ -1,6 +1,6 @@
 /* ── amostra ao vivo com a paleta aplicada, e a amostra em PNG ── */
 import { readable } from '../core/color';
-import { $, $v, $n, esc, slug, download } from '../core/dom';
+import { $, $v, $n, esc, slug, download, reduceMotion } from '../core/dom';
 import { t, dec, isEn } from '../i18n';
 import { MOODS_EN, SAMPLE_TXT_EN } from '../i18n/data-en';
 import { ROLES, SAMPLE_TXT, type Font, bankName } from '../data/fonts';
@@ -27,6 +27,21 @@ export function specHtml(env: TypeEnv, text: string): { style: string; html: str
     if (b.r === 'referencia') return `<p style="${s.style}margin:14px 0 0;max-width:${meas}ch">${esc(b.t)}</p>`;
     return `<p style="${s.style}margin:0 0 13px;max-width:${meas}ch">${esc(b.t)}</p>` }).join('');
   return { style: `background:${C.bg};color:${C.fg}`, html };
+}
+
+/** Troca de par (nova amostra substitui a antiga): dissolução cruzada só de
+    opacidade no contentor, nunca no layout dos glifos — a antiga some assim
+    que a nova chega a opacidade 1, sem dupla exposição (DESIGN-MOTION-SPEC.md §3).
+    Usar só quando o par tipográfico muda de verdade (newPair/tSwap/tMono); os
+    demais ajustes finos (base, medida, texto…) continuam chamando renderSpec()
+    direto, sem animação. */
+export function swapSpec(): void {
+  const el = document.getElementById('spec');
+  if (!el || reduceMotion()) { renderSpec(); return }
+  el.classList.add('no-t'); el.style.opacity = '0';
+  renderSpec();
+  el.style.opacity = '0';
+  requestAnimationFrame(() => { el.classList.remove('no-t'); requestAnimationFrame(() => { el.style.opacity = '1' }) });
 }
 
 export function renderSpec(): void {
