@@ -8,6 +8,10 @@ import { S, cur, hexOf, shown, proportions, hooks, type ViewKey } from './state'
 import { pushH } from './history';
 import { openDetail, rampLch, RAMP_STEPS } from './detail';
 
+/* cadeado aberto/fechado — mesmo traço das demais svg do app (viewBox 24, currentColor) */
+const LOCK_CLOSED = '<svg viewBox="0 0 24 24" class="lockicon"><path d="M7 10V7a5 5 0 0 1 10 0v3"/><rect x="5" y="10" width="14" height="10" rx="2"/></svg>';
+const LOCK_OPEN = '<svg viewBox="0 0 24 24" class="lockicon"><path d="M7 10V7a5 5 0 0 1 9-3.2"/><rect x="5" y="10" width="14" height="10" rx="2"/></svg>';
+
 export interface View { v: ViewKey; n: string; d: string }
 const VIEWS_PT: View[] = [
   { v: 'faixas', n: 'Faixas', d: 'Arraste as células para reordenar. O cadeado congela a cor na hora de gerar. Toque numa cor para abrir todos os códigos e a escala de tons.' },
@@ -50,7 +54,7 @@ export function viewHtml(v: ViewKey, x: StripCtx): { className: string; html: st
   if (v === 'faixas') return { className: 'strip', html: H.map((_h, i) => `<div class="cell${lowc(i) ? ' lowc' : ''}" ${x.tools ? 'draggable="true"' : ''} data-i="${i}" style="background:${V[i]};color:${fg(i)}">
       <div class="top"><span class="rl">${i + 1} · ${Math.round(pr[i])}%</span>
         ${x.tools ? `<span class="tools">
-          <button data-act="lock" title="${t('Congelar')}">${x.locks[i] ? '●' : '○'}</button>
+          <button data-act="lock" class="lockbtn" aria-pressed="${x.locks[i]}" title="${t(x.locks[i] ? 'Destravar esta cor' : 'Travar esta cor')}">${x.locks[i] ? LOCK_CLOSED : LOCK_OPEN}</button>
           <button data-act="left" title="${t('Mover para trás')}">‹</button>
           <button data-act="right" title="${t('Mover para frente')}">›</button>
           <button data-act="copy" title="${t('Copiar')}">⧉</button>

@@ -19,7 +19,10 @@ button.mini:hover,.tabs2 button:hover,.viewbar button:hover,.rolebar button:hove
 /* button.act/.mini: hover-lift, press e desabilitado seguem a linguagem única
    de botão em motion.css §1 (DESIGN-MOTION-SPEC.md) — não duplicar aqui. */
 button:disabled{opacity:.45;cursor:not-allowed;transform:none!important;transition:opacity 0s,transform 0s!important}
-.cell:hover{transform:translateY(-2px);box-shadow:var(--sh);z-index:1}
+/* sem transform aqui: um .cell é arrastável (draggable="true") para reordenar a
+   paleta, e deslocar o elemento no :hover atrapalha a captura da imagem de
+   arrasto nativa em navegadores reais — só sombra/z-index, nunca deslocamento. */
+.cell:hover{box-shadow:var(--sh);z-index:1}
 .card:hover{border-color:var(--ink)}
 .page{animation:pagein .32s cubic-bezier(.2,.7,.2,1)}
 @keyframes pagein{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}

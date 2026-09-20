@@ -246,7 +246,7 @@ export const UI: Record<string, string> = {
   '← Voltar ({n})': '← Undo ({n})',
   'Arraste cada bola livremente: o ângulo é o matiz, a distância do centro é o croma. Nenhuma geometria é imposta.': 'Drag each ball freely: the angle is the hue, the distance from the centre is the chroma. No geometry is imposed.',
   '{n}. {d} Arraste qualquer bola e o conjunto gira junto, mantendo as distâncias.': '{n}. {d} Drag any ball and the whole set turns with it, keeping the distances.',
-  'Congelar': 'Freeze', 'Mover para trás': 'Move back', 'Mover para frente': 'Move forward', 'Abrir códigos': 'Open codes',
+  'Travar esta cor': 'Lock this colour', 'Destravar esta cor': 'Unlock this colour', 'Mover para trás': 'Move back', 'Mover para frente': 'Move forward', 'Abrir códigos': 'Open codes',
   '% da área': '% of the area', 'Painel': 'Panel', 'Coleções': 'Collections', 'Histórico': 'History', 'Ajustes': 'Settings',
   'Um título dentro de uma interface': 'A headline inside an interface', 'O contraste aqui é {r} para 1.': 'The contrast here is {r} to 1.',
   'Ação principal': 'Primary action', 'Secundária': 'Secondary',
