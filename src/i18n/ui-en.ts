@@ -700,8 +700,8 @@ export const UI: Record<string, string> = {
   'Combinar cor': 'Match colour',
   'Cor {h} travada e ancorada no círculo — gere de novo para ver outras combinações ao redor dela, ou trave mais cores conforme forem agradando.':
     'Colour {h} locked and anchored on the wheel — generate again to see other combinations around it, or lock more colours as you like them.',
-  'Cor {h} ancorada — as três propostas serão geradas em torno desse matiz.':
-    'Colour {h} anchored — all three proposals will be generated around that hue.',
+  'Cor {h} ancorada — gerando as três propostas em torno desse matiz…':
+    'Colour {h} anchored — generating all three proposals around that hue…',
   'Não entendi esse código — tente HEX (#RRGGBB), RGB (196,0,63) ou CMYK (0,100,68,23).':
     'Could not read that code — try HEX (#RRGGBB), RGB (196,0,63) or CMYK (0,100,68,23).',
   'Textura pouco nítida — a estimativa é fraca. ': 'Texture not clear — the estimate is weak. ',

@@ -183,7 +183,8 @@ export function initCreate(): void {
     if (cmsw) { if (hex) { cmsw.style.background = hex; cmsw.hidden = false } else cmsw.hidden = true }
     if (!hex) { if (cmm) cmm.textContent = cmc.value.trim() ? t('Não entendi esse código — tente HEX (#RRGGBB), RGB (196,0,63) ou CMYK (0,100,68,23).') : ''; return }
     CR.imgBase = angleFor(hex2lch(hex).H);
-    if (cmm) cmm.textContent = t('Cor {h} ancorada — as três propostas serão geradas em torno desse matiz.', { h: hex });
+    if (cmm) cmm.textContent = t('Cor {h} ancorada — gerando as três propostas em torno desse matiz…', { h: hex });
+    $('cGo').click();
   };
   if (cmg) cmg.onclick = tryCMatch;
   if (cmc) cmc.onkeydown = e => { if (e.key === 'Enter') { e.preventDefault(); tryCMatch() } };
