@@ -97,8 +97,10 @@ export function initPalette(): void {
   /* ── cores combinando: código digitado ou foto ── */
   const matchTo = (hex: string, note: HTMLElement | null): void => {
     S.baseOver = angleFor(hex2lch(hex).H);
-    syncControls(); render(); pushH();
-    if (note) note.textContent = t('Cor {h} ancorada no círculo — use o esquema geométrico acima para ver diferentes tipos de combinação.', { h: hex });
+    build(true);
+    if (S.colors[0]) S.colors[0].lock = true;
+    render(); syncControls(); pushH();
+    if (note) note.textContent = t('Cor {h} travada e ancorada no círculo — gere de novo para ver outras combinações ao redor dela, ou trave mais cores conforme forem agradando.', { h: hex });
   };
   const mc = $('matchCode') as HTMLInputElement | null, mg = document.getElementById('matchGo'), msw = document.getElementById('matchSw'), mm = document.getElementById('matchMsg');
   const tryMatch = (): void => {

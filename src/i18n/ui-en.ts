@@ -695,8 +695,8 @@ export const UI: Record<string, string> = {
   'Cores combinando — digite um código para ancorar o matiz das três propostas': 'Matching colours — type a code to anchor the hue of all three proposals',
   '#C4003F, rgb(196,0,63) ou cmyk(0,100,68,23)': '#C4003F, rgb(196,0,63) or cmyk(0,100,68,23)',
   'Combinar cor': 'Match colour',
-  'Cor {h} ancorada no círculo — use o esquema geométrico acima para ver diferentes tipos de combinação.':
-    'Colour {h} anchored on the wheel — use the geometric scheme above to see different kinds of match.',
+  'Cor {h} travada e ancorada no círculo — gere de novo para ver outras combinações ao redor dela, ou trave mais cores conforme forem agradando.':
+    'Colour {h} locked and anchored on the wheel — generate again to see other combinations around it, or lock more colours as you like them.',
   'Cor {h} ancorada — as três propostas serão geradas em torno desse matiz.':
     'Colour {h} anchored — all three proposals will be generated around that hue.',
   'Não entendi esse código — tente HEX (#RRGGBB), RGB (196,0,63) ou CMYK (0,100,68,23).':
