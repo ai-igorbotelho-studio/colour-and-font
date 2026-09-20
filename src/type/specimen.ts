@@ -59,15 +59,18 @@ export function renderSpec(): void {
     return `<div><span>${s.size}px</span><span style="font-family:${famAttr(c.f)};font-weight:${c.wt};font-size:${Math.min(s.size, 54)}px;line-height:1.1;font-style:${c.it ? 'italic' : 'normal'}">${lb}</span></div>` }).join('');
   drawCards(); drawTOut();
 }
+const LOCK_SLOTS = ['disp', 'body', 'mono'] as const;
 export function drawCards(): void {
   const roleOf = (f: Font) => ROLES.filter(r => !T.off[r.k] && roleCfg(r.k).f === f).map(r => r.n).join(', ') || t('sem nível atribuído');
-  $('tCards').innerHTML = T.fams.map(f => `<div class="fontcard">
+  $('tCards').innerHTML = T.fams.map((f, i) => { const slot = LOCK_SLOTS[i]; const locked = slot ? T.lock[slot] : false;
+    return `<div class="fontcard">
+    ${slot ? `<button class="lockbtn" data-act="lock" data-slot="${slot}" aria-pressed="${locked}" title="${t(locked ? 'Destravar esta família' : 'Travar esta família')}">${locked ? '●' : '○'}</button>` : ''}
     <div class="big" style="font-family:${famAttr(f)}">${esc(f.n)}</div>
     <div class="meta">${roleOf(f)}</div>
     <div class="meta">${bankName(f)}${t(' · pesos ')}${f.wts.replace(/;/g, ', ')}</div>
     <div class="meta">${describe(f)}</div>
     <div class="pills">${f.moods.map(m => `<span class="pill">${isEn() ? (MOODS_EN[m] || m) : m}</span>`).join('')}</div>
-  </div>`).join('');
+  </div>` }).join('');
   const d = T.fams[0], b = T.fams[1] || T.fams[0];
   const xd = Math.abs(d.x - b.x), ctd = Math.abs(d.ct - b.ct);
   const met = t(xd <= .03 ? 'muito próximas' : xd <= .07 ? 'compatíveis' : 'distantes');

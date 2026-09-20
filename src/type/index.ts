@@ -9,8 +9,9 @@ import { CLS, USES, STRATS, WIDTHS, CONTRS, BANKS, type Font } from '../data/fon
 import { paletteStore } from '../palette/state';
 import { T, typeStore, typeHooks } from './state';
 import { loadFont } from './loader';
-import { candidates, pickSet } from './pairing';
-import { renderSpec, swapSpec, specPng, sampleText } from './specimen';
+import { candidates, pickSet, pickPairFixed, isSerif } from './pairing';
+import { pool } from '../data/fonts';
+import { renderSpec, swapSpec, specPng, sampleText, drawCards } from './specimen';
 import { initTypeExport } from './export';
 import { listTSaved, initTypeSaved } from './saved';
 
@@ -30,17 +31,51 @@ export function setFamilies(fs: Font[], why: string): void {
   swapSpec(); typeStore.notify();
 }
 
+/** Preenche as famílias 4 e 5, com a mesma heurística de pickSet — usada tanto no
+    caminho sem trava (via pickSet) quanto no caminho com trava (pickPairFixed),
+    para que travar disp/body não perca a lógica de preenchimento das demais vagas. */
+function fillExtra(set: Font[], n: number, d: Font, b: Font): Font[] {
+  const FONTS = pool();
+  if (n >= 4) { const qs = FONTS.filter(f => f.cls !== 'mono' && set.indexOf(f) < 0 && f.role !== 'body' && isSerif(f.cls) !== isSerif(b.cls));
+    set.push(qs[Math.floor(Math.random() * qs.length)] || FONTS.find(f => set.indexOf(f) < 0)!) }
+  if (n >= 5) { const as = FONTS.filter(f => f.cls !== 'mono' && set.indexOf(f) < 0 && Math.abs(f.x - b.x) <= .06);
+    set.push(as[Math.floor(Math.random() * as.length)] || FONTS.find(f => set.indexOf(f) < 0)!) }
+  return set.filter(Boolean).slice(0, n);
+}
+
+/** Monta o conjunto quando ao menos uma família está travada pelo usuário — nunca
+    chamado quando nada está travado, que continua indo direto a pickSet() (sem
+    mudança de comportamento em relação à versão original). */
+function pickSetLocked(n: number): Font[] | null {
+  const fixed: Partial<Record<'disp' | 'body', Font>> = {};
+  if (T.lock.disp && T.disp) fixed.disp = T.disp;
+  if (T.lock.body && T.body) fixed.body = T.body;
+  const pair = pickPairFixed(fixed);
+  if (!pair) return null;
+  if (n === 1) return [fixed.disp || fixed.body || pair.d];
+  const out: Font[] = [pair.d, pair.b];
+  if (n >= 3) {
+    if (T.lock.mono && T.mono) out.push(T.mono);
+    else { const ms = candidates('mono');
+      out.push(ms.find(m => m.sf && (m.sf === pair.d.sf || m.sf === pair.b.sf)) || ms[Math.floor(Math.random() * ms.length)] || pair.b) }
+  }
+  return fillExtra(out, n, pair.d, pair.b);
+}
+
 export function newPair(): void {
-  const set = pickSet(T.nFam);
+  const locked = T.lock.disp || T.lock.body || (T.lock.mono && T.nFam >= 3);
+  const set = locked ? pickSetLocked(T.nFam) : pickSet(T.nFam);
   if (!set || !set.length) { $('tWhy').textContent = t('Nenhuma família atende a todos os filtros ao mesmo tempo. Solte um deles — ou volte algum para Nenhuma.');
     $('tCards').innerHTML = ''; $('tScore').innerHTML = ''; return }
   T.fams = set; set.forEach(loadFont);
   T.disp = set[0]; T.body = set[1] || set[0]; T.mono = set.find(f => f.cls === 'mono') || null;
   const E = EMO[+$v('tEmo')], st = STRATS.find(x => x.v === $v('tStrat'))!;
+  const lockedNames = [T.lock.disp && set[0], T.lock.body && set[1]].filter(Boolean) as Font[];
   $('tWhy').textContent = (set.length === 1 ? t('{d} sozinha, carregando a hierarquia inteira', { d: set[0].n })
     : t('{d} no título, {b} no texto', { d: set[0].n, b: set[1].n }) + (set.length > 2 ? t(', mais {x}', { x: set.slice(2).map(f => f.n).join(' + ') }) : ''))
     + (E.a !== null ? t(', para provocar {e}', { e: E.n.toLowerCase() }) : '')
-    + (st.v !== 'none' && set.length > 1 ? t(', pela estratégia de {s}', { s: st.n.toLowerCase() }) : '') + '.';
+    + (st.v !== 'none' && set.length > 1 ? t(', pela estratégia de {s}', { s: st.n.toLowerCase() }) : '')
+    + (lockedNames.length ? t(', mantendo {l} travada', { l: lockedNames.map(f => f.n).join(' e ') }) : '') + '.';
   setTimeout(renderSpec, 80); swapSpec(); typeStore.notify();
 }
 function setFamN(n: number): void { T.nFam = n; $('tFamLbl').textContent = String(n);
@@ -81,6 +116,11 @@ export function initType(): void {
     if (at >= 0) T.fams[at] = pick; else T.fams[2] = pick;
     T.mono = pick; loadFont(pick); setTimeout(renderSpec, 80); swapSpec() };
   $all<HTMLButtonElement>($('tFamN'), 'button').forEach(b => b.onclick = () => setFamN(+b.dataset.n!));
+  fillSel($('tFamPick'), [{ v: '', n: t('— escolher —') }].concat(pool().map(f => ({ v: f.n, n: f.n }))), 'v');
+  $('tFamPick').onchange = () => { const v = ($('tFamPick') as HTMLSelectElement).value; const f = pool().find(x => x.n === v);
+    if (!f) return; T.disp = f; T.lock.disp = true; newPair() };
+  $('tCards').addEventListener('click', ev => { const b = (ev.target as Element).closest('button[data-act="lock"]') as HTMLElement | null;
+    if (!b) return; const slot = b.dataset.slot as 'disp' | 'body' | 'mono'; T.lock[slot] = !T.lock[slot]; drawCards() });
   $('tRoleReset').onclick = () => { delete T.ov[T.role]; renderSpec(); toast(t('Nível devolvido ao padrão')) };
   $('tRoleResetAll').onclick = () => { T.ov = {}; T.off = {}; renderSpec(); toast(t('Hierarquia inteira devolvida ao padrão')) };
   ($('tText') as HTMLTextAreaElement).value = sampleText();

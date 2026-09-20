@@ -82,6 +82,26 @@ export function pickPair(seed: number = T.seed, F: Filters = filtersFromUI()): P
   const pool = pairs.slice(0, Math.max(1, Math.min(8, pairs.length)));
   return pool[Math.floor(rnd() * pool.length)];
 }
+/** Como pickPair, mas com uma das duas pontas travada — usada quando o instrumento
+    tem um título ou um texto fixado pelo usuário (nunca chamada no caminho sem trava,
+    que continua indo direto a pickPair/pickSet). */
+export function pickPairFixed(fixed: Partial<Record<'disp' | 'body', Font>>, seed: number = T.seed, F: Filters = filtersFromUI()): { d: Font; b: Font } | null {
+  if (fixed.disp && fixed.body) return { d: fixed.disp, b: fixed.body };
+  const rnd = lcg(seed, 1);
+  if (fixed.disp) {
+    const B = candidates('body', F); if (!B.length) return null;
+    const scored = B.map(b => ({ b, s: pairScore(fixed.disp!, b, F) + rnd() * 24 })).sort((x, y) => y.s - x.s);
+    const top = scored.slice(0, Math.max(1, Math.min(8, scored.length)));
+    return { d: fixed.disp, b: top[Math.floor(rnd() * top.length)].b };
+  }
+  if (fixed.body) {
+    const D = candidates('disp', F); if (!D.length) return null;
+    const scored = D.map(d => ({ d, s: pairScore(d, fixed.body!, F) + rnd() * 24 })).sort((x, y) => y.s - x.s);
+    const top = scored.slice(0, Math.max(1, Math.min(8, scored.length)));
+    return { d: top[Math.floor(rnd() * top.length)].d, b: fixed.body };
+  }
+  return null;
+}
 export function pickSet(n: number): Font[] | null {
   const p = pickPair(); if (!p) return null;
   const out: Font[] = [];

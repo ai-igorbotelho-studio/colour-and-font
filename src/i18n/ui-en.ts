@@ -161,6 +161,8 @@ export const UI: Record<string, string> = {
   'woff2 — padrão da web': 'woff2 — the web standard', 'woff2 variável': 'variable woff2', 'Nenhum — só a CDN': 'None — CDN only',
   'Quantas famílias': 'How many families', 'Número de famílias': 'Number of families',
   'Gerar combinação': 'Generate pairing', 'Trocar título e texto': 'Swap headline and text', 'Somar uma monoespaçada': 'Add a monospaced',
+  'Escolher a família do título': 'Choose the headline family', '— escolher —': '— choose —',
+  'Travar esta família': 'Lock this family', 'Destravar esta família': 'Unlock this family',
   'A combinação': 'The pairing', 'Hierarquia': 'Hierarchy',
   'Cada nível tem família, peso, degrau da escala, entrelinha, entreletra, caixa e cor próprios. Toque num nível para ajustá-lo; use o botão da direita para ligar e desligar os que o projeto não usa.':
     'Each level has its own family, weight, scale step, leading, tracking, case and colour. Tap a level to adjust it; use the button on the right to switch off the ones the project does not use.',
@@ -311,6 +313,7 @@ export const UI: Record<string, string> = {
   'Nenhuma família atende a todos os filtros ao mesmo tempo. Solte um deles — ou volte algum para Nenhuma.': 'No family meets every filter at once. Release one — or set one back to None.',
   '{d} sozinha, carregando a hierarquia inteira': '{d} alone, carrying the whole hierarchy', '{d} no título, {b} no texto': '{d} for headlines, {b} for text',
   ', mais {x}': ', plus {x}', ', para provocar {e}': ', to evoke {e}', ', pela estratégia de {s}': ', by the strategy of {s}',
+  ', mantendo {l} travada': ', keeping {l} locked',
   'Com uma família só não há o que trocar': 'With a single family there is nothing to swap', '{d} no título, {b} no texto — invertido à mão.': '{d} for headlines, {b} for text — swapped by hand.',
   'Terceira família acrescentada, em rótulo e referência': 'Third family added, for labels and references', 'Nenhuma monoespaçada passa nos filtros': 'No monospaced passes the filters',
   'Nível devolvido ao padrão': 'Level reset', 'Hierarquia inteira devolvida ao padrão': 'Whole hierarchy reset',
