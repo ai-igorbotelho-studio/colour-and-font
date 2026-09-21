@@ -690,7 +690,8 @@ export const UI: Record<string, string> = {
   'Usar câmera': 'Use camera',
   'Remover': 'Remove',
   'Lendo a imagem…': 'Reading the image…',
-  '{n} cores extraídas da imagem, em esquema livre. Arraste as bolas para refinar.': '{n} colours extracted from the image, in free scheme. Drag the balls to refine.',
+  '{n} cores extraídas da imagem, travadas — Gerar de novo preserva estas cores. Arraste as bolas para refinar ou destrave uma para variar.':
+    '{n} colours extracted from the image, locked — Generate again keeps them. Drag the balls to refine, or unlock one to let it vary.',
   'Não consegui ler essa imagem — tente JPG, PNG, WEBP ou SVG.': 'Could not read that image — try JPG, PNG, WEBP or SVG.',
   '{d} no título, {b} no texto — estimadas a partir da textura da imagem.': '{d} for the headline, {b} for the text — estimated from the image texture.',
   /* cores combinando */

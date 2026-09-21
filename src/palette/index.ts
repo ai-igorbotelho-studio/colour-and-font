@@ -116,9 +116,9 @@ export function initPalette(): void {
       if (note) note.textContent = t('{n} cores extraídas — escolha quais usar abaixo.', { n: hs.length });
       if (igrid) mountSwatchGrid(igrid, hs, (picked, mode) => {
         if (mode === 'replace') {
-          S.colors = colorsFromHex(picked); S.n = picked.length; S.scheme = 0; S.baseOver = S.colors[0].a;
+          S.colors = colorsFromHex(picked); S.colors.forEach(c => { c.lock = true }); S.n = picked.length; S.scheme = 0; S.baseOver = S.colors[0].a;
           syncControls(); render(); pushH();
-          if (note) note.textContent = t('{n} cores extraídas da imagem, em esquema livre. Arraste as bolas para refinar.', { n: picked.length });
+          if (note) note.textContent = t('{n} cores extraídas da imagem, travadas — Gerar de novo preserva estas cores. Arraste as bolas para refinar ou destrave uma para variar.', { n: picked.length });
         } else { matchTo(picked[0], note as HTMLElement | null); }
       });
     } catch (_) { if (note) note.textContent = t('Não consegui ler essa imagem — tente JPG, PNG, WEBP ou SVG.'); if (igrid) igrid.innerHTML = ''; }
