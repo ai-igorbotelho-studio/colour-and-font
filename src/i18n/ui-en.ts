@@ -353,6 +353,7 @@ export const UI: Record<string, string> = {
   'não definida': 'not set', 'não definido': 'not set', 'Campos limpos': 'Fields cleared',
   ' · dinâmica de {u}': ' · dynamics of {u}', 'Amostra — {f}': 'Specimen — {f}', 'Área': 'Area',
   'Baixar em Markdown': 'Download as Markdown', 'Baixar .zip': 'Download .zip', 'Levar para Cores': 'Take to Colour', 'Levar para Tipografia': 'Take to Type', 'Copiar os hex': 'Copy the hex values',
+  'Gerar de novo esta proposta — preserva as cores travadas': 'Generate this proposal again — keeps locked colours',
   'Hex copiados': 'Hex values copied', 'Paleta carregada no instrumento de cor': 'Palette loaded into the colour instrument', 'Combinação carregada no instrumento de tipografia': 'Pairing loaded into the type instrument',
   '{f} — vindo da proposta {a}.': '{f} — from the {a} proposal.', '{e} em {m}': '{e} in {m}', 'Proposta': 'Proposal',
   'O esquema é {s} — {d} ': 'The scheme is {s} — {d} ', 'A área vem do método de {l}: {m}.': 'The area comes from the {l} method: {m}.',

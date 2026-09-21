@@ -36,8 +36,8 @@ const CR = createStoreCR.state;
 
 /* ambiente da amostra de uma proposta: famílias e paleta dela, controles da página */
 const envOf = (p: Proposal): TypeEnv => ({ fams: p.fonts, ov: {}, off: {}, hs: p.hs, mode: $v('cPal'), base: $n('cBase'), rt: $n('cRatio'), lh: $n('cLh') / 100, tr: $n('cTrack') / 1000, meas: $n('cMeasure') });
-const ctxOf = (p: Proposal): StripCtx => ({ H: p.hs, V: p.hs, pr: p.areas, names: p.hs.map((h, i) => colourName(h)[isEn() ? 1 : 0] + ' · ' + nameOf(p.cols[i].a)), locks: p.cols.map(() => false),
-  lch: p.cols.map(x => ({ L: x.L, C: x.C, H: atAngle(x.a).H })), schemeName: SCH[p.si].n, title: titleFor(p.br), cvd: 'none', tools: false });
+const ctxOf = (p: Proposal): StripCtx => ({ H: p.hs, V: p.hs, pr: p.areas, names: p.hs.map((h, i) => colourName(h)[isEn() ? 1 : 0] + ' · ' + nameOf(p.cols[i].a)), locks: p.cols.map(c => c.lock),
+  lch: p.cols.map(x => ({ L: x.L, C: x.C, H: atAngle(x.a).H })), schemeName: SCH[p.si].n, title: titleFor(p.br), cvd: 'none', tools: true });
 
 /** Só a amostra de cada proposta — chamada a cada movimento dos controles. */
 function drawSpecimens(): void {
@@ -51,10 +51,29 @@ function drawSpecimens(): void {
 function drawView(i: number): void {
   const p = CR.props[i], v = CR.views[i] || 'faixas', out = viewHtml(v, ctxOf(p));
   const wrap = $('cView' + i); wrap.className = out.className; wrap.innerHTML = out.html;
-  $all<HTMLElement>(wrap, '.pick, .cell button[data-act="copy"]').forEach(el => { el.onclick = ev => { ev.stopPropagation();
-    const h = el.dataset.h || p.hs[+(el.dataset.i ?? (el.closest('.cell') as HTMLElement).dataset.i!)]; copy(h, h + ' ' + t('Copiado').toLowerCase()) } });
+  $all<HTMLElement>(wrap, '.pick').forEach(el => { el.onclick = ev => { ev.stopPropagation();
+    const h = el.dataset.h || p.hs[+el.dataset.i!]; copy(h, h + ' ' + t('Copiado').toLowerCase()) } });
+  /* trava/reordena/copia as cores da própria proposta — nunca toca em S.colors (o instrumento de cor é outra tela) */
+  $all<HTMLElement>(wrap, '.cell').forEach(el => {
+    const j = +el.dataset.i!;
+    $all<HTMLButtonElement>(el, 'button[data-act]').forEach(b => b.onclick = ev => { ev.stopPropagation();
+      const a = b.dataset.act;
+      if (a === 'copy' || a === 'info') return copy(p.hs[j], p.hs[j] + ' ' + t('Copiado').toLowerCase());
+      if (a === 'lock') p.cols[j].lock = !p.cols[j].lock;
+      if (a === 'left' && j > 0) { [p.cols[j - 1], p.cols[j]] = [p.cols[j], p.cols[j - 1]]; [p.hs[j - 1], p.hs[j]] = [p.hs[j], p.hs[j - 1]] }
+      if (a === 'right' && j < p.cols.length - 1) { [p.cols[j + 1], p.cols[j]] = [p.cols[j], p.cols[j + 1]]; [p.hs[j + 1], p.hs[j]] = [p.hs[j], p.hs[j + 1]] }
+      drawView(i);
+    });
+  });
   $('cHint' + i).textContent = VIEWS.find(x => x.v === v)!.d;
   $all<HTMLButtonElement>($('cBar' + i), 'button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.v === v)));
+}
+/** Gera de novo só esta proposta, preservando as cores travadas — refaz a seção
+    inteira (não só a paleta) para que baixar/copiar não fiquem presos à proposta antiga. */
+function regenProposal(i: number): void {
+  const p = CR.props[i];
+  CR.props[i] = makeProposal(p.ang, p.br, Math.random(), p.cols, true);
+  drawProposals();
 }
 
 function drawProposals(): void {
@@ -67,6 +86,7 @@ function drawProposals(): void {
       <div class="viewbar" id="cBar${i}" role="group" aria-label="${t('Modo de visualização')}">${VIEWS.map(x => `<button data-v="${x.v}" aria-pressed="${x.v === (CR.views[i] || 'faixas')}">${x.n}</button>`).join('')}</div>
       <div class="vwrap" id="cView${i}"></div>
       <p class="sm" id="cHint${i}" style="margin-top:10px"></p>
+      <button class="mini" data-act="regen" style="margin-top:8px">${t('Gerar de novo esta proposta — preserva as cores travadas')}</button>
       <h3 style="margin-top:22px">${t('Amostra — {f}', { f: p.fonts.map(f => esc(f.n)).join(' + ') })}</h3>
       <div class="spec" id="cSpec${i}"></div>
       <div class="grid2" style="margin-top:18px">
@@ -93,11 +113,14 @@ function drawProposals(): void {
   $all<HTMLElement>($('cOut'), '.prop').forEach(sec => {
     const p = CR.props[+sec.dataset.p!];
     $all<HTMLButtonElement>(sec, '.propstrip button').forEach(b => b.onclick = () => copy(b.dataset.h!, b.dataset.h + ' ' + t('Copiado').toLowerCase()));
-    $all<HTMLButtonElement>(sec, '[data-act]').forEach(b => b.onclick = () => {
+    /* fora do .vwrap: drawView() já cuida dos botões por cor (trava, mover, copiar) dentro dele,
+       e essa varredura genérica não deve sobrescrever aquela ligação. */
+    $all<HTMLButtonElement>(sec, '[data-act]').forEach(b => { if (b.closest('.cell')) return; b.onclick = () => {
       const a = b.dataset.act, nm = slug(titleFor(p.br) + '-' + p.ang.n);
       if (a === 'md') return download(nm + '.md', mdProposal(p), 'text/markdown');
       if (a === 'copy') return copy(p.hs.join('\n'), t('Hex copiados'));
       if (a === 'zip') return zipProposal(p, nm);
+      if (a === 'regen') return regenProposal(+sec.dataset.p!);
       if (a === 'cores') {
         S.emo = p.br.e; S.mkt = p.br.m; S.scheme = p.si; S.lens = p.li; S.cult = p.k; S.mus = p.u; S.pos = Math.round(p.t * 100);
         S.n = p.hs.length; S.range = p.br.range || 'normal';
@@ -106,7 +129,7 @@ function drawProposals(): void {
       if (a === 'tipo') {
         setFamilies(p.fonts.slice(), t('{f} — vindo da proposta {a}.', { f: p.fonts.map(f => f.n).join(' + '), a: p.ang.n.toLowerCase() }));
         goto('tipo'); toast(t('Combinação carregada no instrumento de tipografia')) }
-    });
+    } });
   });
   resetPath(CR.props); createStoreCR.notify();
 }

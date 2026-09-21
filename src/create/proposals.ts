@@ -56,7 +56,10 @@ export function genFonts(o: { e: number; strat: string; use: string; nf: number;
   return out.filter(Boolean);
 }
 
-export function makeProposal(ang: Angle, br: Brief, seed: number): Proposal {
+/** `prev`/`keepLocks` regeneram só as cores destravadas de uma proposta já existente —
+    omitidos, o comportamento é idêntico ao original (nunca usados nas três primeiras
+    propostas geradas por um pedido, só no botão "Gerar de novo" de uma proposta já na tela). */
+export function makeProposal(ang: Angle, br: Brief, seed: number, prev?: PaletteColor[], keepLocks?: boolean): Proposal {
   const lensName = (br.lensFrag && ang.k === 'convencao') ? br.lensFrag : ang.lens[Math.floor(seed * ang.lens.length) % ang.lens.length];
   let li = findIdx(LENS, lensName); if (li < 0) li = findIdx(LENS, ang.lens[0]); if (li < 0) li = 1;
   let si = findIdx(SCH, ang.sch[Math.floor(seed * 97 * ang.sch.length) % ang.sch.length]); if (si < 0) si = 2;
@@ -67,7 +70,8 @@ export function makeProposal(ang: Angle, br: Brief, seed: number): Proposal {
   let u = br.u; const k = br.k;
   if (ang.k === 'lateral' && u === 0) u = 1 + Math.floor(seed * 631) % (MUS.length - 1);
   if (ang.k === 'ruptura' && u === 0 && br.t > .6) u = 6;
-  const cols = generatePalette({ seed, n: br.n, E: EMO[br.e], M: MKT[br.m], SC: SCH[si], L: LENS[li], K: CULT[k], U: MUS[u], t, jit: 40 * R.jit, dc: br.dc * R.dc, baseOver: br.imgBase ?? undefined });
+  const cols = generatePalette({ seed, n: br.n, E: EMO[br.e], M: MKT[br.m], SC: SCH[si], L: LENS[li], K: CULT[k], U: MUS[u], t, jit: 40 * R.jit, dc: br.dc * R.dc, baseOver: br.imgBase ?? undefined,
+    prev, keepLocks });
   const fonts = genFonts({ e: br.e, strat: ang.strat, use: br.piece, nf, seed, range: br.range, img: br.imgType ?? null });
   const areas = proportionsFor(LENS[li].w, MUS[u].sy, br.n);
   fonts.forEach(loadFont);
