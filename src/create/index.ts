@@ -6,6 +6,7 @@ import { t, dec, isEn } from '../i18n';
 import { colourName } from '../core/names';
 import { colorsFromHex } from '../core/goethe';
 import { fileToCanvas, extractPalette, analyzeType, mountImgPicker, type TypeMetrics } from '../core/image';
+import { mountSwatchGrid } from '../core/imgpicker-grid';
 import { createStore } from '../core/state';
 import { EMO } from '../data/emotions';
 import { MKT } from '../data/markets';
@@ -162,18 +163,30 @@ export function initCreate(): void {
   $('cRange').innerHTML = segHtml();
   $all<HTMLButtonElement>($('cRange'), 'button').forEach(b => b.onclick = () => $all($('cRange'), 'button').forEach(x => x.setAttribute('aria-pressed', String(x === b))));
   initPath();
-  const ci = document.getElementById('cImg');
+  const ci = document.getElementById('cImg'), cigrid = document.getElementById('cImgGrid');
   if (ci) mountImgPicker(ci, async file => {
     const note = ci.querySelector('.imgnote');
-    if (!file) { CR.imgBase = null; CR.imgType = null; CR.imgHs = []; if (note) note.innerHTML = ''; return; }
+    if (!file) { CR.imgBase = null; CR.imgType = null; CR.imgHs = []; if (note) note.innerHTML = ''; if (cigrid) cigrid.innerHTML = ''; return; }
     if (note) note.textContent = t('Lendo a imagem…');
     try {
-      const cv = await fileToCanvas(file), hs = extractPalette(cv, CR.n), m = analyzeType(cv);
-      CR.imgHs = hs; CR.imgBase = hs.length ? colorsFromHex([hs[0]])[0].a : null; CR.imgType = m;
-      if (note) note.innerHTML = t('A primeira proposta usa exatamente estas cores; as outras duas as interpretam.') + ' '
-        + `<span class="imgsw">${hs.map(h => `<i style="background:${h}" title="${h}"></i>`).join('')}</span> `
-        + t('Tipografia estimada: {s}, contraste {c}.', { s: t(m.serif >= .5 ? 'serifada' : 'sem serifa'), c: t(m.ct >= .6 ? 'alto' : m.ct <= .2 ? 'baixo' : 'médio') });
-    } catch (_) { CR.imgBase = null; CR.imgType = null; if (note) note.textContent = t('Não consegui ler essa imagem — tente JPG, PNG, WEBP ou SVG.'); }
+      const cv = await fileToCanvas(file), hs = extractPalette(cv, 10), m = analyzeType(cv);
+      CR.imgType = m;
+      if (note) note.textContent = t('{n} cores extraídas — escolha quais usar abaixo.', { n: hs.length });
+      if (cigrid) mountSwatchGrid(cigrid, hs, (picked, mode) => {
+        if (mode === 'replace') {
+          CR.imgHs = picked; CR.imgBase = picked.length ? colorsFromHex([picked[0]])[0].a : null;
+          if (note) note.innerHTML = t('A primeira proposta usa exatamente estas cores; as outras duas as interpretam.') + ' '
+            + `<span class="imgsw">${picked.map(h => `<i style="background:${h}" title="${h}"></i>`).join('')}</span> `
+            + t('Tipografia estimada: {s}, contraste {c}.', { s: t(m.serif >= .5 ? 'serifada' : 'sem serifa'), c: t(m.ct >= .6 ? 'alto' : m.ct <= .2 ? 'baixo' : 'médio') });
+        } else {
+          CR.imgHs = []; CR.imgBase = angleFor(hex2lch(picked[0]).H);
+          if (note) note.textContent = t('Cor {h} ancorada — gerando as três propostas em torno desse matiz…', { h: picked[0] });
+          updateAnchorNoteCreate();
+          $('cGo').click();
+        }
+        updateAnchorNoteCreate();
+      });
+    } catch (_) { CR.imgBase = null; CR.imgType = null; if (note) note.textContent = t('Não consegui ler essa imagem — tente JPG, PNG, WEBP ou SVG.'); if (cigrid) cigrid.innerHTML = ''; }
   });
   const cmc = document.getElementById('cMatchCode') as HTMLInputElement | null, cmg = document.getElementById('cMatchGo'),
     cmsw = document.getElementById('cMatchSw'), cmm = document.getElementById('cMatchMsg');
@@ -184,10 +197,38 @@ export function initCreate(): void {
     if (!hex) { if (cmm) cmm.textContent = cmc.value.trim() ? t('Não entendi esse código — tente HEX (#RRGGBB), RGB (196,0,63) ou CMYK (0,100,68,23).') : ''; return }
     CR.imgBase = angleFor(hex2lch(hex).H);
     if (cmm) cmm.textContent = t('Cor {h} ancorada — gerando as três propostas em torno desse matiz…', { h: hex });
+    updateAnchorNoteCreate();
     $('cGo').click();
   };
   if (cmg) cmg.onclick = tryCMatch;
   if (cmc) cmc.onkeydown = e => { if (e.key === 'Enter') { e.preventDefault(); tryCMatch() } };
+
+  /* ── nota de âncora persistente ── */
+  function updateAnchorNoteCreate(): void {
+    const note = document.getElementById('anchorNoteCreate'); if (!note) return;
+    if (CR.imgBase !== null) {
+      note.hidden = false;
+      note.innerHTML = `<span>${t('Ancorado — a próxima geração explora combinações ao redor dessa cor, ou limpe a âncora.')}</span>
+        <button type="button" class="mini" id="clearAnchorCreate">${t('Limpar âncora')}</button>`;
+      const cl = document.getElementById('clearAnchorCreate');
+      if (cl) cl.onclick = () => { CR.imgBase = null; CR.imgHs = []; updateAnchorNoteCreate() };
+    } else { note.hidden = true; note.innerHTML = ''; }
+  }
+
+  /* ── seletor de caminho de entrada: imagem / código / exploração ── */
+  const entryCreate = document.getElementById('entryCreate');
+  if (entryCreate) {
+    const tabs = $all<HTMLButtonElement>(entryCreate, '.entrytab');
+    const panels: Record<string, HTMLElement | null> = { image: document.getElementById('entryImageCreate'), code: document.getElementById('entryCodeCreate') };
+    const briefDetails = document.getElementById('cBriefDetails') as HTMLDetailsElement | null;
+    const setPath = (path: string): void => {
+      tabs.forEach(b => b.setAttribute('aria-selected', String(b.dataset.path === path)));
+      Object.entries(panels).forEach(([k, el]) => { if (el) el.hidden = k !== path });
+      if (briefDetails) briefDetails.open = path === 'explore';
+    };
+    tabs.forEach(b => b.onclick = () => setPath(b.dataset.path!));
+  }
+  updateAnchorNoteCreate();
   // texto e controles da amostra: valem para as três propostas e mudam ao vivo
   ($('cText') as HTMLTextAreaElement).value = sampleText();
   $('cText').oninput = drawSpecimens;

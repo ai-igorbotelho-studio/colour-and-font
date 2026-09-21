@@ -299,6 +299,30 @@
     <p class="wheelcap" id="wheelcap"></p>
   </div>
   <div>
+    <div class="entrychoice" id="entryCol" role="group" aria-label="Comece sua jornada de cor">
+      <p class="entrylabel">Comece sua jornada de cor</p>
+      <div class="entrytabs" role="tablist" aria-label="Caminho de partida">
+        <button type="button" class="entrytab" role="tab" data-path="image" aria-selected="false">Com uma imagem</button>
+        <button type="button" class="entrytab" role="tab" data-path="code" aria-selected="false">Com um código de cor</button>
+        <button type="button" class="entrytab" role="tab" data-path="explore" aria-selected="true">Com uma exploração</button>
+      </div>
+      <p class="sm anchornote" id="anchorNoteCol" hidden></p>
+      <div class="entrypanel" id="entryPanelCol">
+        <div class="entrysub" id="entryImageCol" hidden>
+          <div id="imgCol"></div>
+          <div id="imgColGrid"></div>
+        </div>
+        <div class="entrysub" id="entryCodeCol" hidden>
+          <label for="matchCode">Cores combinando — digite um código</label>
+          <div class="reqrow">
+            <input type="text" id="matchCode" placeholder="#C4003F, rgb(196,0,63) ou cmyk(0,100,68,23)">
+            <span class="okc" id="matchSw" hidden aria-hidden="true"></span>
+            <button type="button" class="act ghost" id="matchGo">Combinar cor</button>
+          </div>
+          <p class="sm" id="matchMsg" aria-live="polite"></p>
+        </div>
+      </div>
+    </div>
     <div class="ctl"><label for="emo">O que a peça precisa provocar</label><select id="emo"></select></div>
     <div class="ctl"><label for="mkt">Campo de atuação</label><select id="mkt"></select></div>
     <div class="ctl">
@@ -322,20 +346,6 @@
     <div class="ctl"><label for="cult">Referência cultural</label><select id="cult"></select></div>
     <div class="ctl"><label for="mus">Estilo musical</label><select id="mus"></select></div>
     <div class="ctl"><label for="cvd">Simular visão de cor</label><select id="cvd"></select></div>
-    <div class="ctl">
-      <label>Inspirar em imagem</label>
-      <div id="imgCol"></div>
-    </div>
-    <div class="ctl">
-      <label for="matchCode">Cores combinando — digite um código ou envie uma foto</label>
-      <div class="reqrow">
-        <input type="text" id="matchCode" placeholder="#C4003F, rgb(196,0,63) ou cmyk(0,100,68,23)">
-        <span class="okc" id="matchSw" hidden aria-hidden="true"></span>
-        <button type="button" class="act ghost" id="matchGo">Combinar cor</button>
-      </div>
-      <p class="sm" id="matchMsg" aria-live="polite"></p>
-      <div id="matchImg"></div>
-    </div>
     <div class="btnrow">
       <button class="act" id="gen">Gerar · barra de espaço</button>
       <button class="act ghost" id="undo" disabled>← Voltar</button>
@@ -589,6 +599,33 @@
 </section>
 
 <section>
+  <div class="entrychoice" id="entryCreate" role="group" aria-label="Comece sua jornada de cor">
+    <p class="entrylabel">Comece sua jornada de cor</p>
+    <div class="entrytabs" role="tablist" aria-label="Caminho de partida">
+      <button type="button" class="entrytab" role="tab" data-path="image" aria-selected="false">Com uma imagem</button>
+      <button type="button" class="entrytab" role="tab" data-path="code" aria-selected="false">Com um código de cor</button>
+      <button type="button" class="entrytab" role="tab" data-path="explore" aria-selected="true">Com uma exploração</button>
+    </div>
+    <p class="sm anchornote" id="anchorNoteCreate" hidden></p>
+    <div class="entrypanel" id="entryPanelCreate">
+      <div class="entrysub" id="entryImageCreate" hidden>
+        <label>Imagem de referência — paleta e tipografia inspiradas na imagem</label>
+        <div id="cImg"></div>
+        <div id="cImgGrid"></div>
+      </div>
+      <div class="entrysub" id="entryCodeCreate" hidden>
+        <label for="cMatchCode">Cores combinando — digite um código para ancorar o matiz das três propostas</label>
+        <div class="reqrow">
+          <input type="text" id="cMatchCode" placeholder="#C4003F, rgb(196,0,63) ou cmyk(0,100,68,23)">
+          <span class="okc" id="cMatchSw" hidden aria-hidden="true"></span>
+          <button type="button" class="act ghost" id="cMatchGo">Combinar cor</button>
+        </div>
+        <p class="sm" id="cMatchMsg" aria-live="polite"></p>
+      </div>
+    </div>
+  </div>
+  <details id="cBriefDetails" open>
+  <summary>Refinar com um briefing (opcional)</summary>
   <div class="grid3">
     <div class="ctl"><label for="cPiece">O que você está criando</label><select id="cPiece"></select></div>
     <div class="ctl"><label for="cSup">Onde isso vai existir</label><select id="cSup"></select></div>
@@ -620,19 +657,7 @@
     <textarea id="cBrief" spellcheck="false" placeholder="Ex.: um relatório anual de uma cooperativa de café na Amazônia, sério mas quente, para investidores que não conhecem o setor"></textarea>
   </div>
   <p class="sm" id="cWords" style="margin-top:8px"></p>
-  <div class="ctl">
-    <label>Imagem de referência — paleta e tipografia inspiradas na imagem</label>
-    <div id="cImg"></div>
-  </div>
-  <div class="ctl">
-    <label for="cMatchCode">Cores combinando — digite um código para ancorar o matiz das três propostas</label>
-    <div class="reqrow">
-      <input type="text" id="cMatchCode" placeholder="#C4003F, rgb(196,0,63) ou cmyk(0,100,68,23)">
-      <span class="okc" id="cMatchSw" hidden aria-hidden="true"></span>
-      <button type="button" class="act ghost" id="cMatchGo">Combinar cor</button>
-    </div>
-    <p class="sm" id="cMatchMsg" aria-live="polite"></p>
-  </div>
+  </details>
   <div class="btnrow">
     <button class="act" id="cGo">Gerar três propostas</button>
     <button class="act ghost" id="cAgain">Outras três</button>

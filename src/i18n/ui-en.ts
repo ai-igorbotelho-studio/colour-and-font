@@ -715,4 +715,32 @@ export const UI: Record<string, string> = {
   'Paleta extraída da imagem': 'Palette extracted from the image',
   'cores exatas da imagem': 'exact image colours',
   'A primeira proposta usa exatamente estas cores; as outras duas as interpretam.': 'The first proposal uses exactly these colours; the other two interpret them.',
+
+  /* ── jornada de cor: chooser de entrada + grade de seleção ── */
+  'Comece sua jornada de cor': 'Start your colour journey',
+  'Caminho de partida': 'Starting path',
+  'Com uma imagem': 'With an image',
+  'Com um código de cor': 'With a colour code',
+  'Com uma exploração': 'With an exploration',
+  'Cores combinando — digite um código': 'Matching colours — type a code',
+  'Ancorado em {h} — troque para Exploração para navegar combinações ao redor dela, ou limpe a âncora.':
+    'Anchored on {h} — switch to Exploration to browse combinations around it, or clear the anchor.',
+  'Ancorado — a próxima geração explora combinações ao redor dessa cor, ou limpe a âncora.':
+    'Anchored — the next generation explores combinations around that colour, or clear the anchor.',
+  'Limpar âncora': 'Clear anchor',
+  '{n} cores extraídas — escolha quais usar abaixo.': '{n} colours extracted — pick which to use below.',
+  'O que fazer com as cores escolhidas': 'What to do with the picked colours',
+  'Substituir a paleta inteira': 'Replace the whole palette',
+  'Ancorar uma cor e continuar explorando': 'Anchor one colour, keep exploring',
+  'Cores extraídas — escolha quais usar': 'Extracted colours — pick which to use',
+  '{n} selecionadas — escolha ao menos 1.': '{n} selected — pick at least 1.',
+  'Selecionar todas': 'Select all',
+  'Limpar escolhas': 'Clear picks',
+  'Inverter ordem': 'Reverse order',
+  'Usar {n} cor(es) selecionada(s)': 'Use {n} selected colour(s)',
+  'Ancorar cor ① — usar só a primeira escolha': 'Anchor colour ① — use only the first pick',
+  'No modo âncora, só a primeira escolha vira a cor-semente. Troque para "Substituir a paleta inteira" para usar as {n} escolhidas.':
+    'Anchor mode uses only your first pick as the seed colour. Switch to "Replace the whole palette" to use all {n} picks.',
+  'Escolha ao menos {n} cores para substituir a paleta.': 'Pick at least {n} colours to replace the palette.',
+  'Refinar com um briefing (opcional)': 'Refine with a brief (optional)',
 };
