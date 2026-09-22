@@ -72,23 +72,28 @@ Portões medidos nesta rodada: `tsc` limpo · `vitest` 103/103, 5/5 sem erro ·
 `tokens.test.ts` 34/34 (contraste dos pares ≥ 4,5:1) · `vite build` ok ·
 `audit:viewports` **10 janelas × 7 páginas limpas** (320–1920).
 
-### Achado ABERTO — contraste (pré-existente, não desta rodada)
+### Contraste — RESOLVIDO (rodada 2)
 
-`audit:axe` acusa **0 críticas, 28 sérias** de `color-contrast`. Diff desta
-rodada é **neutro em cor** (provado: nenhuma cor nem tamanho dos elementos
-marcados mudou), logo as 28 já existiam na base — o "0 sérias" da AUDITORIA
-estava velho (o cabeçalho do `axe.mjs` ainda diz "cinco páginas", mas o código
-percorre 7, incluindo `cont` e `fund`, adicionadas depois).
+`audit:axe` acusava **0 críticas, 28 sérias** de `color-contrast`, todas
+pré-existentes (o diff da rodada 1 era neutro em cor; provado). Causa-raiz:
+`nav.ts` reatribui `--accent` a uma âncora de Goethe por página, mas
+`--accent-ink` ficava fixo em quase-preto — `.act` (ex.: `#gen`, `#copy`) e os
+cartões de `.magcard[data-tone="accent"]` (que herdam `--accent-ink`) reprovavam
+nas âncoras escuras (púrpura, azul, violeta), pior em treva.
 
-Causa-raiz: `nav.ts` reatribui `--accent` a uma âncora de Goethe por página, mas
-`--accent-ink` fica fixo em quase-preto — então `.act` (ex.: `#gen`) e `.kicker`
-em `var(--accent)` reprovam 4,5:1 nas âncoras mais escuras (pior em treva); e as
-`.kicker`/`.magcard` de `cont` têm pares próprios que reprovam.
+Correções (verificadas → axe **0 críticas, 0 sérias**, 7 páginas × luz/treva):
+1. **Tinta ciente de luminância** (`nav.ts`): ao trocar de página, `--accent-ink`
+   passa a escolher preto ou branco pela relação de contraste WCAG da âncora, e
+   `--accent-lite` guarda uma versão clareada (`color-mix`) do acento.
+2. **Kicker em cartão escuro** (`shell.css`, `data-tone="ink"`): usa `--accent-lite`
+   em vez de `--accent`, para o rótulo ler sobre o cartão preto.
+3. **Primeiro cartão de Início** (`shell.css`): recebe a âncora púrpura fixa
+   (`#C4003F`, cor da página Cores, seu destino) + tinta branca — antes dependia
+   do `--accent` de Início, que é transparente, e o texto sumia no treva.
 
-Proposta (próximo passo com portão): **tinta ciente de luminância por âncora** —
-escolher tinta clara ou escura conforme a luminância da âncora, e revisar os
-tons de `.magcard`. Toca o sistema de acento e precisa de verificação no
-navegador; fica para um commit próprio, revisado, não escondido neste.
+Restam só **moderadas** já declaradas na AUDITORIA (`region` na tabbar,
+`heading-order`/`page-has-heading-one`) — fora do portão (0 críticas/sérias).
+Endereçá-las é um próximo passo opcional.
 
 ### Nota de ambiente
 

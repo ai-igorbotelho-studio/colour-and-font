@@ -80,8 +80,11 @@ button:disabled{opacity:.45;cursor:not-allowed;transform:none!important}
 .homecard b{font-family:"DM Serif Display",serif;font-weight:400;font-size:24px;line-height:1}
 .homecard span{font-size:13px;color:var(--soft);line-height:1.5}
 .homecard:hover{border-color:var(--ink);transform:translateY(-2px);box-shadow:var(--sh)}
-.homecard:first-child{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
-.homecard:first-child span{color:var(--accent-ink)}
+/* o primeiro cartão leva a Cores: recebe a âncora púrpura fixa (a mesma cor da
+   página Cores) e tinta branca — antes dependia do --accent da página Início,
+   que é transparente, e o texto quase-preto sumia no modo treva */
+.homecard:first-child{background:#C4003F;color:#FFFDF9;border-color:#C4003F}
+.homecard:first-child span{color:#FFFDF9}
 @media(max-width:520px){#tabbar{gap:0;padding:5px}#tabbar button{min-width:44px;padding:10px 2px;font-size:9.5px}#tabbar button span{max-width:44px;overflow:hidden;text-overflow:ellipsis}}
 
 nav .gt+.gt{margin-left:6px}
@@ -120,7 +123,7 @@ nav .gt+.gt{margin-left:6px}
 .magcard[data-tone="deep"] .magopen{background:#700034;color:#FFFDF9}
 .magcard[data-tone="deep"] .kicker,.magcard[data-tone="deep"] .magdek,.magcard[data-tone="deep"] .magmeta{color:#FFFDF9}
 .magcard[data-tone="ink"] .magopen{background:#00000E;color:#FFFDF9}
-.magcard[data-tone="ink"] .kicker{color:var(--accent)}
+.magcard[data-tone="ink"] .kicker{color:var(--accent-lite,var(--deep))}
 .magcard[data-tone="ink"] .magdek,.magcard[data-tone="ink"] .magmeta{color:#FFFDF9;opacity:.85}
 .magcard[data-tone="card"] .kicker{color:var(--deep)}
 .kicker{font-family:"Roboto Mono",ui-monospace,monospace;font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--deep);margin:0}

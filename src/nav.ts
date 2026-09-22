@@ -12,6 +12,11 @@ const label = (p: Page): string => t(LABEL[p]);
 /* cada página de ferramenta/conteúdo recebe uma das seis âncoras de Goethe como
    assinatura de cor — a própria roda vira o sistema de orientação da navegação */
 const ACCENT: Partial<Record<Page, string>> = { cores: ANCHORS[0].hex, tipo: ANCHORS[1].hex, criacao: ANCHORS[2].hex, tend: ANCHORS[3].hex, cont: ANCHORS[4].hex, fund: ANCHORS[5].hex };
+/* tinta ciente de luminância: texto sobre o acento da página escolhe preto ou
+   branco pela relação de contraste WCAG — as âncoras escuras (púrpura, azul,
+   violeta) pediam branco e reprovavam com o quase-preto fixo. */
+const lum = (hex: string): number => { const n = parseInt(hex.slice(1), 16), f = (c: number): number => (c /= 255) <= .03928 ? c / 12.92 : ((c + .055) / 1.055) ** 2.4; return .2126 * f((n >> 16) & 255) + .7152 * f((n >> 8) & 255) + .0722 * f(n & 255); };
+const onAccent = (hex: string): string => { const L = lum(hex); return (L + .05) / .05 >= 1.05 / (L + .05) ? '#00000E' : '#FFFDF9'; };
 
 let booted = false;
 /* leva o foco ao cabeçalho da nova página: sem isso, teclado e leitor de tela
@@ -34,7 +39,9 @@ export function goto(p: Page | string): void {
   document.documentElement.setAttribute('data-section', ['cores', 'tipo', 'criacao'].includes(p as string) ? 'tool' : 'content');
   $all<HTMLButtonElement>(document, '.tab').forEach(b => { const on = b.dataset.p === p; b.setAttribute('aria-current', on ? 'page' : 'false'); b.setAttribute('aria-selected', String(on)) });
   $('hereLbl').textContent = p !== 'home' && LABEL[p as Page] ? label(p as Page) : '';
-  document.documentElement.style.setProperty('--accent', ACCENT[p as Page] || 'transparent');
+  const acc = ACCENT[p as Page], rs = document.documentElement.style;
+  if (acc) { rs.setProperty('--accent', acc); rs.setProperty('--accent-ink', onAccent(acc)); rs.setProperty('--accent-lite', `color-mix(in srgb, ${acc} 55%, #FFFDF9)`); }
+  else { rs.setProperty('--accent', 'transparent'); rs.removeProperty('--accent-ink'); rs.removeProperty('--accent-lite'); }
   try { window.scrollTo({ top: 0, behavior: 'instant' as ScrollBehavior }) } catch (_) {}
   if (p === 'tipo' && !T.disp) newPair();
   if (p === 'tipo') renderSpec();
