@@ -9,8 +9,13 @@ const REVEAL = '.stage > div, .homecard, .magcard, .mock, .card, .prop, .fontcar
 const TILT = '.homecard, .magopen, .mock';
 const ZOOM = '.mockimg, .bnr, .v-poster, .v-ui, .spec';
 
+/* matchMedia com reserva: fora do navegador (jsdom nos testes) não existe */
+const mm = (q: string): boolean => typeof matchMedia === 'function' && matchMedia(q).matches;
+
 export function initMotion(): void {
-  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // carregado por import() assíncrono; em teste pode resolver após o teardown do jsdom
+  if (typeof document === 'undefined' || !document.body) return;
+  const reduce = mm('(prefers-reduced-motion: reduce)');
   initZoom();
   if (reduce) return;
   initReveal(); initParallax(); initTilt(); initMagnet();
@@ -21,7 +26,9 @@ function initReveal(): void {
   if (!('IntersectionObserver' in window)) return;
   const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target) } }), { rootMargin: '0px 0px -6% 0px', threshold: .08 });
   const seen = new WeakSet<Element>();
-  const scan = (root: ParentNode = document): void => {
+  const scan = (root?: ParentNode): void => {
+    if (typeof document === 'undefined') return;  // documento sumiu (teardown)
+    root = root || document;
     root.querySelectorAll<HTMLElement>(REVEAL).forEach((el, i) => { if (seen.has(el)) return; seen.add(el);
       const r = el.getBoundingClientRect(); if (r.top < innerHeight && r.bottom > 0 && document.readyState === 'complete' && performance.now() > 2500) return; // já visível: não esconder
       el.classList.add('rv'); el.dataset.d = String(i % 5); io.observe(el) });
@@ -29,16 +36,19 @@ function initReveal(): void {
   scan();
   let h = 0; const mo = new MutationObserver(() => { clearTimeout(h); h = window.setTimeout(() => scan(), 40) });
   mo.observe(document.body, { childList: true, subtree: true });
-  // rede de segurança: nada fica invisível se o observador não disparar
-  setInterval(() => document.querySelectorAll('.rv:not(.in)').forEach(el => { const r = el.getBoundingClientRect(); if (r.top < innerHeight * 1.1 && r.bottom > -50) el.classList.add('in') }), 900);
+  // rede de segurança: nada fica invisível se o observador não disparar.
+  // Para sozinha se o documento sumir (teardown nos testes) — sem timer órfão.
+  const iv = setInterval(() => { if (typeof document === 'undefined') return clearInterval(iv);
+    document.querySelectorAll('.rv:not(.in)').forEach(el => { const r = el.getBoundingClientRect(); if (r.top < innerHeight * 1.1 && r.bottom > -50) el.classList.add('in') }) }, 900);
 }
 
 /* ── paralaxe: o título da página desce mais devagar que a rolagem ── */
 function initParallax(): void {
-  const mark = (): void => document.querySelectorAll<HTMLElement>('.hero h1, .hero .lede, .maghead h1, .maghead .dek').forEach((el, i) => { if (!el.dataset.plx) el.dataset.plx = String(i % 2 ? .06 : .1) });
+  const mark = (): void => { if (typeof document === 'undefined') return;
+    document.querySelectorAll<HTMLElement>('.hero h1, .hero .lede, .maghead h1, .maghead .dek').forEach((el, i) => { if (!el.dataset.plx) el.dataset.plx = String(i % 2 ? .06 : .1) }) };
   mark(); new MutationObserver(mark).observe(document.body, { childList: true, subtree: true });
   let tick = false;
-  const run = (): void => { tick = false; const y = scrollY;
+  const run = (): void => { tick = false; if (typeof document === 'undefined') return; const y = scrollY;
     document.querySelectorAll<HTMLElement>('[data-plx]').forEach(el => { const f = +el.dataset.plx!; const r = el.getBoundingClientRect();
       if (r.bottom < -100 || r.top > innerHeight + 100) return; el.style.setProperty('--plx', (Math.min(y, 900) * f).toFixed(1) + 'px') }) };
   addEventListener('scroll', () => { if (!tick) { tick = true; requestAnimationFrame(run) } }, { passive: true }); run();
@@ -46,7 +56,7 @@ function initParallax(): void {
 
 /* ── inclinação: só com ponteiro fino e hover real ── */
 function initTilt(): void {
-  if (!matchMedia('(hover: hover) and (pointer: fine)').matches) return;
+  if (!mm('(hover: hover) and (pointer: fine)')) return;
   document.addEventListener('pointermove', ev => { const el = (ev.target as Element).closest<HTMLElement>(TILT); if (!el) return; el.classList.add('tilt');
     const r = el.getBoundingClientRect(), x = (ev.clientX - r.left) / r.width - .5, y = (ev.clientY - r.top) / r.height - .5;
     el.style.setProperty('--ry', (x * 5).toFixed(2) + 'deg'); el.style.setProperty('--rx', (-y * 5).toFixed(2) + 'deg') }, { passive: true });
@@ -74,7 +84,12 @@ function initZoom(): void {
   z.querySelector('.zclose')!.addEventListener('click', close);
   z.addEventListener('click', ev => { if (ev.target === z) close() });
   z.querySelectorAll<HTMLButtonElement>('[data-z]').forEach(b => b.onclick = () => { const k = b.dataset.z; if (k === '0') { s = 1; x = 0; y = 0; apply() } else setS(s * (k === '+' ? 1.25 : .8)) });
-  addEventListener('keydown', ev => { if (z.hidden) return; if (ev.key === 'Escape') close(); if (ev.key === '+' || ev.key === '=') setS(s * 1.25); if (ev.key === '-') setS(s * .8) });
+  addEventListener('keydown', ev => { if (z.hidden) return; if (ev.key === 'Escape') close(); if (ev.key === '+' || ev.key === '=') setS(s * 1.25); if (ev.key === '-') setS(s * .8);
+    // prende o Tab dentro do diálogo — foco não escapa para o fundo
+    if (ev.key === 'Tab') { const f = [...z.querySelectorAll<HTMLElement>('button')]; if (!f.length) return;
+      const first = f[0], lastEl = f[f.length - 1], a = document.activeElement;
+      if (ev.shiftKey && (a === first || !z.contains(a))) { ev.preventDefault(); lastEl.focus() }
+      else if (!ev.shiftKey && (a === lastEl || !z.contains(a))) { ev.preventDefault(); first.focus() } } });
   wrap.addEventListener('wheel', ev => { ev.preventDefault(); const r = wrap.getBoundingClientRect(); setS(s * (ev.deltaY < 0 ? 1.1 : .9), ev.clientX - r.left - r.width / 2, ev.clientY - r.top - r.height / 2) }, { passive: false });
   // arrasto e pinça com pointer events
   const pts = new Map<number, { x: number; y: number }>(); let d0 = 0, s0 = 1, px = 0, py = 0;
@@ -90,7 +105,7 @@ function initZoom(): void {
 
 /* ── botões principais seguem levemente o ponteiro ── */
 function initMagnet(): void {
-  if (!matchMedia('(hover: hover) and (pointer: fine)').matches) return;
+  if (!mm('(hover: hover) and (pointer: fine)')) return;
   document.addEventListener('pointermove', ev => { const b = (ev.target as Element).closest<HTMLElement>('button.act'); if (!b) return;
     const r = b.getBoundingClientRect(); b.style.transform = `translate(${((ev.clientX - r.left) / r.width - .5) * 8}px,${((ev.clientY - r.top) / r.height - .5) * 6}px) scale(1.02)` }, { passive: true });
   document.addEventListener('pointerout', ev => { const b = (ev.target as Element).closest<HTMLElement>('button.act'); if (b && !b.contains(ev.relatedTarget as Node)) b.style.transform = '' }, { passive: true });

@@ -1,14 +1,42 @@
-/* ═══════════ TOKENS ═══════════
+/* ═══════════ TOKENS — v1.0.0 ═══════════
    Luz e treva. Todos os pares de texto ficam acima de 4,5:1 — tests/tokens.test.ts
-   mede com a fórmula do WCAG 2.1 e derruba o build se um deles cair. */
+   mede com a fórmula do WCAG 2.1 e derruba o build se um deles cair.
+
+   Versionamento (design/30-tokens-components.md): os nomes existentes
+   (--ground..--deep, --r, --sh, --tw, --sp, --sp2) permanecem; as escalas de
+   tipo, espaço e movimento abaixo são ADITIVAS e valem os mesmos valores que já
+   estavam no CSS — refator sem mudança visual. Mudar valor de cor = minor;
+   renomear/remover = major. */
 :root{
   color-scheme:light;
   --ground:#FFFDF9;--panel:#F3F7FC;--ink:#00000E;--soft:#4A3F47;
-  --rule:rgba(0,0,14,.30);--rule2:rgba(0,0,14,.14);--field:#F3F1EC;--tw:.38s;
+  --rule:rgba(0,0,14,.30);--rule2:rgba(0,0,14,.14);--field:#F3F1EC;
   --r:22px;--r2:15px;--pill:999px;--sh:0 8px 26px rgba(0,0,14,.12);
   --rail:#00000E;--rail-ink:#FFFDF9;--rail-soft:#B9B4BC;--rail-on:#DE3D7D;--rail-on-ink:#00000E;
   --card:#D4E7FA;--frame:#D4E7FA;
   --accent:#DE3D7D;--accent-ink:#00000E;--deep:#700034;
+
+  /* ── escala tipográfica (não muda por tema) ── valores = os já usados no CSS */
+  --fs-xs:11px;      /* micro-rótulo, aba, pílula */
+  --fs-sm:12.5px;    /* apoio, legenda, rodapé */
+  --fs-base:15px;    /* corpo */
+  --fs-h4:16px;      /* cabeçalho de bloco */
+  --fs-h3:19px;
+  --fs-lede:clamp(15px,1.6vw,17px);
+  --fs-h2:clamp(22px,4.2vw,32px);   /* valor efetivo (fluid.css vence base.css) */
+  --fs-h1:clamp(34px,8.5vw,76px);   /* valor efetivo (fluid.css vence base.css) */
+  --lh-tight:1.02;--lh-snug:1.1;--lh-body:1.55;
+
+  /* ── escala de espaço (não muda por tema) ── */
+  --space-1:4px;--space-2:8px;--space-3:12px;--space-4:16px;--space-5:24px;
+  --space-6:clamp(14px,3.5vw,34px);   /* = --sp de origem */
+  --space-7:clamp(20px,5vw,48px);     /* = --sp2 de origem */
+  --space-8:clamp(40px,7vw,72px);
+  --sp:var(--space-6);--sp2:var(--space-7);  /* apelidos de compat */
+
+  /* ── movimento ── valores = os já usados em motion.css/shell.css */
+  --dur-fast:.18s;--dur-base:.25s;--dur-slow:.5s;--tw:.38s;
+  --ease-out:cubic-bezier(.2,.7,.2,1);
 }
 html[data-ground="treva"]{
   color-scheme:dark;
@@ -32,3 +60,10 @@ input,select,textarea,button{color-scheme:inherit}
   src:url("/fonts/mulish-latin-wght-italic.woff2") format("woff2-variations"),url("/fonts/mulish-latin-wght-italic.woff2") format("woff2")}
 @font-face{font-family:"Roboto Mono";font-style:normal;font-weight:100 700;font-display:swap;
   src:url("/fonts/roboto-mono-latin-wght-normal.woff2") format("woff2-variations"),url("/fonts/roboto-mono-latin-wght-normal.woff2") format("woff2")}
+/* Bodoni Moda (variável, peso) nos números grandes: hex da paleta, pôsteres,
+   cabeçalho do dispositivo. Auto-hospedada — antes referida sem carregar, caía
+   no serif genérico (design/20-visual-system.md, D-1/A). */
+@font-face{font-family:"Bodoni Moda";font-style:normal;font-weight:400 900;font-display:swap;
+  src:url("/fonts/bodoni-moda-latin-wght-normal.woff2") format("woff2-variations"),url("/fonts/bodoni-moda-latin-wght-normal.woff2") format("woff2")}
+@font-face{font-family:"Bodoni Moda";font-style:italic;font-weight:400 900;font-display:swap;
+  src:url("/fonts/bodoni-moda-latin-wght-italic.woff2") format("woff2-variations"),url("/fonts/bodoni-moda-latin-wght-italic.woff2") format("woff2")}
