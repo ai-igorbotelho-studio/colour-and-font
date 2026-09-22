@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="pt" data-ground="luz">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Auge · protótipo de movimento</title>
+<!--
+  Protótipo da fase Interação & Movimento (design/50-interaction-motion.md).
+  NÃO entra no build. Serve para o Head aprovar tempos e comportamentos antes
+  de qualquer mudança em src/. Usa os mesmos tokens --dur-*/--ease-* propostos.
+  Cada efeito tem seu equivalente de teclado/leitor de tela anotado no cartão.
+-->
+<style>
+:root{
+  color-scheme:light;
+  --ground:#FFFDF9;--panel:#F3F7FC;--ink:#00000E;--soft:#4A3F47;
+  --rule:rgba(0,0,14,.30);--rule2:rgba(0,0,14,.14);--card:#D4E7FA;
+  --accent:#C4003F;--accent-ink:#FFFDF9;--r:22px;--pill:999px;--sh:0 8px 26px rgba(0,0,14,.12);
+  --dur-fast:.18s;--dur-base:.25s;--dur-slow:.5s;--ease-out:cubic-bezier(.2,.7,.2,1);
+}
+html[data-ground="treva"]{
+  color-scheme:dark;
+  --ground:#00000E;--panel:#0F1121;--ink:#FFFDF9;--soft:#C6C1CB;
+  --rule:rgba(255,253,249,.34);--rule2:rgba(255,253,249,.17);--card:#141729;
+  --accent:#22409B;--accent-ink:#FFFDF9;--sh:0 8px 26px rgba(0,0,0,.6);
+}
+/* interruptor: quando o protótipo simula "menos movimento", tudo aqui zera */
+html[data-reduce="on"] *{transition:none!important;animation:none!important;scroll-behavior:auto!important}
+*{box-sizing:border-box}
+body{margin:0;background:var(--ground);color:var(--ink);font:15px/1.55 system-ui,sans-serif;padding:0 0 80px;transition:background var(--dur-slow),color var(--dur-slow)}
+.wrap{max-width:900px;margin:0 auto;padding:0 clamp(16px,4.5vw,40px)}
+header{position:sticky;top:0;z-index:20;background:color-mix(in srgb,var(--ground) 88%,transparent);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);border-bottom:1px solid var(--rule2)}
+header .wrap{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding-top:12px;padding-bottom:12px}
+h1{font-size:clamp(24px,4vw,34px);margin:0 auto 0 0;line-height:1.1}
+h2{font-size:19px;margin:0 0 4px}
+.lede{color:var(--soft);max-width:60ch}
+.eq{color:var(--soft);font-size:12.5px;margin:8px 0 0;padding-left:14px;border-left:2px solid var(--accent)}
+button{font:inherit;cursor:pointer;border-radius:var(--pill);min-height:44px;padding:10px 18px;border:1px solid var(--rule);background:transparent;color:var(--ink);transition:transform var(--dur-fast) var(--ease-out),background var(--dur-base),border-color var(--dur-base)}
+button[aria-pressed="true"]{background:var(--ink);color:var(--ground);border-color:var(--ink)}
+.act{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.act:hover{transform:translateY(-2px) scale(1.02)}
+button:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+section{padding:28px 0;border-bottom:1px solid var(--rule2)}
+.card{background:var(--card);border:1px solid var(--rule2);border-radius:var(--r);padding:20px;transition:transform var(--dur-base) var(--ease-out),box-shadow var(--dur-base)}
+.card:hover{transform:translateY(-2px);box-shadow:var(--sh)}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:12px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr));gap:14px;margin-top:14px}
+/* revelação */
+.rv{opacity:0;transform:translateY(16px);transition:opacity var(--dur-slow) var(--ease-out),transform var(--dur-slow) var(--ease-out)}
+.rv.in{opacity:1;transform:none}
+.rv[data-d="1"]{transition-delay:.06s}.rv[data-d="2"]{transition-delay:.12s}.rv[data-d="3"]{transition-delay:.18s}
+/* páginas simuladas */
+.page{display:none}.page.on{display:block}
+.pageview{border:1px dashed var(--rule);border-radius:var(--r);padding:22px;min-height:120px;margin-top:12px}
+::view-transition-old(root){animation:vo var(--dur-fast) ease-in both}
+::view-transition-new(root){animation:vn var(--dur-base) var(--ease-out) both}
+@keyframes vo{to{opacity:0;transform:translateY(-6px)}}
+@keyframes vn{from{opacity:0;transform:translateY(10px)}}
+.pageview h3{margin:0 0 6px}.pageview:focus-visible{outline:2px solid var(--accent);outline-offset:4px}
+/* lupa */
+#zoom{position:fixed;inset:0;z-index:90;background:rgba(0,0,14,.78);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);display:flex;align-items:center;justify-content:center}
+#zoom[hidden]{display:none}
+#zoom .box{width:min(90vw,520px);background:var(--ground);border-radius:var(--r);padding:26px}
+#zoom .zbar{display:flex;gap:8px;justify-content:flex-end;margin-top:16px}
+.tag{display:inline-block;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--accent);font-weight:600}
+footer{color:var(--soft);font-size:12.5px;padding-top:20px}
+code{font-family:ui-monospace,Menlo,monospace;background:var(--panel);padding:1px 6px;border-radius:6px}
+</style>
+</head>
+<body>
+<header><div class="wrap">
+  <h1>Auge · protótipo de movimento</h1>
+  <button id="tReduce" aria-pressed="false" title="Simula prefers-reduced-motion">Menos movimento: off</button>
+  <button id="tVT" aria-pressed="true" title="Liga/desliga View Transitions">View Transitions: on</button>
+  <button id="tGround" aria-pressed="false">Treva</button>
+</div></header>
+
+<main class="wrap">
+  <p class="lede" style="margin-top:20px">Cada efeito responde a uma pergunta do usuário e tem equivalente de teclado/leitor de tela. Os tempos vêm dos tokens <code>--dur-fast .18s</code>, <code>--dur-base .25s</code>, <code>--dur-slow .5s</code>, curva <code>--ease-out</code>. O interruptor <b>Menos movimento</b> desliga tudo (kill-switch), como no app.</p>
+
+  <section>
+    <span class="tag">"Para onde fui?"</span>
+    <h2>Troca de página · View Transitions</h2>
+    <p class="lede">Fade curto na troca; reserva instantânea quando o navegador não oferece ou com menos movimento. <b>O foco vai ao título da nova página</b> — sem isso o teclado fica preso na navegação.</p>
+    <div class="row">
+      <button data-goto="a" aria-current="page">Página A</button>
+      <button data-goto="b">Página B</button>
+      <button data-goto="c">Página C</button>
+    </div>
+    <div id="pv" class="pageview">
+      <div class="page on" id="pg-a"><h3 tabindex="-1">Página A</h3><p class="lede">Conteúdo da página A.</p></div>
+      <div class="page" id="pg-b"><h3 tabindex="-1">Página B</h3><p class="lede">Conteúdo da página B.</p></div>
+      <div class="page" id="pg-c"><h3 tabindex="-1">Página C</h3><p class="lede">Conteúdo da página C.</p></div>
+    </div>
+    <p class="eq">Teclado/SR: ao trocar, o foco move ao <code>&lt;h3 tabindex="-1"&gt;</code> da página; <code>aria-current="page"</code> no botão ativo.</p>
+  </section>
+
+  <section>
+    <span class="tag">"Isto é novo na tela?"</span>
+    <h2>Revelação ao rolar</h2>
+    <p class="lede">Os cartões entram com um leve deslize ao aparecerem. Rede de segurança garante que nada fica invisível; nada nasce oculto acima da dobra.</p>
+    <div class="grid" id="revealGrid">
+      <div class="card rv" data-d="0"><h2>Um</h2><p class="lede">Revela ao entrar na janela.</p></div>
+      <div class="card rv" data-d="1"><h2>Dois</h2><p class="lede">Escalonado em 60&nbsp;ms.</p></div>
+      <div class="card rv" data-d="2"><h2>Três</h2><p class="lede">Escalonado em 120&nbsp;ms.</p></div>
+      <div class="card rv" data-d="3"><h2>Quatro</h2><p class="lede">Escalonado em 180&nbsp;ms.</p></div>
+    </div>
+    <p class="eq">Teclado/SR: conteúdo sempre no DOM; só a opacidade muda. Com menos movimento, aparece sem animar.</p>
+  </section>
+
+  <section>
+    <span class="tag">"Isto é clicável / ampliável?"</span>
+    <h2>Elevação e lupa acessível</h2>
+    <p class="lede">Cartões e botões sobem 2&nbsp;px no hover. A lupa abre em diálogo modal com <b>foco preso (Tab não escapa)</b>, <code>Esc</code> fecha e o foco volta a quem abriu.</p>
+    <div class="row">
+      <button class="act" id="openZoom">Abrir lupa</button>
+      <button>Botão comum</button>
+    </div>
+    <p class="eq">Teclado/SR: <code>role="dialog" aria-modal</code>; Tab/Shift+Tab ciclam dentro; <code>Esc</code> fecha; foco restaurado.</p>
+  </section>
+
+  <footer>Protótipo · não faz parte do app. Aprovado o comportamento, integro em <code>src/nav.ts</code> e <code>src/motion.ts</code> sob os portões (axe, viewports, Lighthouse/INP).</footer>
+</main>
+
+<div id="zoom" hidden role="dialog" aria-modal="true" aria-label="Ampliar">
+  <div class="box">
+    <h2 style="margin:0 0 6px">Amostra ampliada</h2>
+    <p class="lede">O foco está preso neste diálogo. Experimente Tab, Shift+Tab e Esc.</p>
+    <div class="zbar">
+      <button data-z="-">−</button><button data-z="0">1:1</button><button data-z="+">+</button>
+      <button class="act zclose">Fechar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const de = document.documentElement;
+const mmReduce = () => de.dataset.reduce === 'on' || (matchMedia('(prefers-reduced-motion: reduce)').matches);
+// interruptores
+const tReduce = document.getElementById('tReduce');
+tReduce.onclick = () => { const on = de.dataset.reduce !== 'on'; de.dataset.reduce = on ? 'on' : 'off'; tReduce.setAttribute('aria-pressed', on); tReduce.textContent = 'Menos movimento: ' + (on ? 'on' : 'off'); };
+const tVT = document.getElementById('tVT'); let useVT = true;
+tVT.onclick = () => { useVT = !useVT; tVT.setAttribute('aria-pressed', useVT); tVT.textContent = 'View Transitions: ' + (useVT ? 'on' : 'off'); };
+const tG = document.getElementById('tGround');
+tG.onclick = () => { const treva = de.getAttribute('data-ground') !== 'treva'; de.setAttribute('data-ground', treva ? 'treva' : 'luz'); tG.setAttribute('aria-pressed', treva); tG.textContent = treva ? 'Luz' : 'Treva'; };
+
+// troca de página + foco ao título
+function goto(p){
+  const swap = () => document.querySelectorAll('.page').forEach(el => el.classList.toggle('on', el.id === 'pg-' + p));
+  if (useVT && document.startViewTransition && !mmReduce()) document.startViewTransition(swap); else swap();
+  document.querySelectorAll('[data-goto]').forEach(b => b.setAttribute('aria-current', b.dataset.goto === p ? 'page' : 'false'));
+  const h = document.querySelector('#pg-' + p + ' h3'); if (h) try { h.focus({preventScroll:true}) } catch(e){ h.focus() }
+}
+document.querySelectorAll('[data-goto]').forEach(b => b.onclick = () => goto(b.dataset.goto));
+
+// revelação
+const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target) } }), { threshold:.15 });
+document.querySelectorAll('.rv').forEach(el => io.observe(el));
+
+// lupa com foco preso
+const z = document.getElementById('zoom'); let lastFocus = null;
+const openZoom = () => { lastFocus = document.activeElement; z.hidden = false; document.body.style.overflow = 'hidden'; z.querySelector('.zclose').focus(); };
+const closeZoom = () => { z.hidden = true; document.body.style.overflow = ''; if (lastFocus) lastFocus.focus(); };
+document.getElementById('openZoom').onclick = openZoom;
+z.querySelector('.zclose').onclick = closeZoom;
+z.addEventListener('click', e => { if (e.target === z) closeZoom(); });
+addEventListener('keydown', e => {
+  if (z.hidden) return;
+  if (e.key === 'Escape') closeZoom();
+  if (e.key === 'Tab'){ const f = [...z.querySelectorAll('button')]; const first = f[0], last = f[f.length-1], a = document.activeElement;
+    if (e.shiftKey && (a === first || !z.contains(a))){ e.preventDefault(); last.focus(); }
+    else if (!e.shiftKey && (a === last || !z.contains(a))){ e.preventDefault(); first.focus(); } }
+});
+</script>
+</body>
+</html>
