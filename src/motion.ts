@@ -104,9 +104,14 @@ function initZoom(): void {
 }
 
 /* ── botões principais seguem levemente o ponteiro ── */
+/* limitado a uma escrita por quadro (rAF): o pointermove dispara dezenas de
+   vezes por segundo, mas só tocamos o layout uma vez por frame — sem custo de INP. */
 function initMagnet(): void {
   if (!mm('(hover: hover) and (pointer: fine)')) return;
-  document.addEventListener('pointermove', ev => { const b = (ev.target as Element).closest<HTMLElement>('button.act'); if (!b) return;
-    const r = b.getBoundingClientRect(); b.style.transform = `translate(${((ev.clientX - r.left) / r.width - .5) * 8}px,${((ev.clientY - r.top) / r.height - .5) * 6}px) scale(1.02)` }, { passive: true });
+  let raf = 0, pend: PointerEvent | null = null;
+  const flush = (): void => { raf = 0; const ev = pend; pend = null; if (!ev) return;
+    const b = (ev.target as Element).closest<HTMLElement>('button.act'); if (!b) return;
+    const r = b.getBoundingClientRect(); b.style.transform = `translate(${((ev.clientX - r.left) / r.width - .5) * 8}px,${((ev.clientY - r.top) / r.height - .5) * 6}px) scale(1.02)` };
+  document.addEventListener('pointermove', ev => { pend = ev; if (!raf) raf = requestAnimationFrame(flush) }, { passive: true });
   document.addEventListener('pointerout', ev => { const b = (ev.target as Element).closest<HTMLElement>('button.act'); if (b && !b.contains(ev.relatedTarget as Node)) b.style.transform = '' }, { passive: true });
 }

@@ -124,8 +124,11 @@ Restam moderados aceitos (`region` na tabbar, `heading-order` em Teoria).
   sobre os diffs de `audit:shots`. Não entra sem sua aprovação visual.
 - **Renomear breakpoints (5 nomeados)** — só arrumação interna, mas com risco de
   drift de pixel; melhor sob `audit:shots` estável, não na véspera do deploy.
-- **Remover parallax/ímã (D-4)** — política é "remover se custar INP"; sem
-  medição confiável de INP neste ambiente, não removo por palpite. Ficam.
+- **Parallax/ímã (D-4) — RESOLVIDO (rodada 4).** Sem medição confiável de INP
+  no ambiente, a melhor solução não era remover no palpite: o parallax já é
+  throttled por rAF (barato, fica intacto); o ímã escrevia layout a cada
+  `pointermove` — agora é **limitado a uma escrita por quadro (rAF)**, o que
+  elimina o único risco real de INP e preserva o efeito. `src/motion.ts`.
 - **`region` na tabbar e `heading-order` em Teoria** — moderados, abaixo do
   portão; mexer em semântica na véspera do deploy é risco desnecessário.
 
