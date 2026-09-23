@@ -6,6 +6,7 @@ export const UI: Record<string, string> = {
   'Ir para o conteúdo': 'Skip to content',
   'Início': 'Home', 'Fundo': 'Ground', 'Luz': 'Light', 'Treva': 'Dark', 'Seções': 'Sections', 'Idioma': 'Language',
   'Cores': 'Colour', 'Tipografia': 'Type', 'Criação': 'Create', 'Tendências': 'Trends', 'Teoria': 'Theory',
+  'Ver em exemplos': 'See it in mockups',
   'Auge — instrumentos de cor e tipografia': 'Auge — instruments for colour and type',
   'Instrumentos de cor e tipografia derivados do círculo cromático de Goethe: paletas por intenção e campo, combinação de famílias, hierarquia, legibilidade medida e tendências trimestrais.':
     'Instruments for colour and type derived from Goethe\'s colour circle: palettes by intention and field, type pairing, hierarchy, measured legibility and quarterly trends.',

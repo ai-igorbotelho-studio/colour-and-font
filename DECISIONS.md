@@ -102,6 +102,33 @@ headless e são instáveis neste ambiente remoto (processos de fundo recebem
 SIGTERM entre chamadas; `pkill` derruba o próprio grupo). Rodar servidor e
 auditoria numa só chamada, sem `pkill`, funciona.
 
+### Build — rodada 3 (entrada das maquetes + h1 por ferramenta)
+
+- **D-3 · entrada explícita para a Visualização** (`index.html`, `shell.css`):
+  cada ferramenta (Cores, Tipografia, Criação) ganha um link discreto "Ver em
+  exemplos ↓" no topo, que rola até a seção `.mocksec` (agora com `id`). A seção
+  já existia embaixo de cada ferramenta; faltava descoberta.
+- **Um `h1` por página de ferramenta** (só para leitor de tela, `.vh`): Cores e
+  Tipografia não tinham `h1` — resolve o moderado `page-has-heading-one` sem
+  mudar o visual. Criação já tinha `h1` visível.
+- Nova string de interface com fonte PT + entrada EN em `ui-en.ts`
+  ('Ver em exemplos' → 'See it in mockups'); `i18n.test.ts` verde.
+
+Portões (rodada 3): axe **0 críticas, 0 sérias**; `audit:viewports` 10×7 limpo;
+`audit:ref` **0 divergências, erros JS 0**; `tsc`/`vitest` 103/103/`build` ok.
+Restam moderados aceitos (`region` na tabbar, `heading-order` em Teoria).
+
+### Itens adiados (com motivo)
+
+- **Retorno modular 1.20 da escala de tipo** — muda pixels; precisa do seu olho
+  sobre os diffs de `audit:shots`. Não entra sem sua aprovação visual.
+- **Renomear breakpoints (5 nomeados)** — só arrumação interna, mas com risco de
+  drift de pixel; melhor sob `audit:shots` estável, não na véspera do deploy.
+- **Remover parallax/ímã (D-4)** — política é "remover se custar INP"; sem
+  medição confiável de INP neste ambiente, não removo por palpite. Ficam.
+- **`region` na tabbar e `heading-order` em Teoria** — moderados, abaixo do
+  portão; mexer em semântica na véspera do deploy é risco desnecessário.
+
 ### Invariantes reafirmados (não entram em trade-off)
 
 Âncoras de Goethe e opostos 180°, OKLab com busca binária de croma, três regimes,

@@ -3,6 +3,13 @@
    abaixo disso continua a pílula flutuante no rodapé, com as safe-areas do iOS. */
 .skip{position:absolute;left:12px;top:-60px;z-index:100;background:var(--ink);color:var(--ground);padding:10px 16px;border-radius:var(--pill);font-size:13.5px;text-decoration:none}
 .skip:focus{top:12px}
+/* só para leitor de tela: dá um h1 a cada página de ferramenta sem mudar o visual */
+.vh{position:absolute!important;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+/* entrada explícita para a Visualização de exemplos (design/10-ux-architecture.md, D-3) */
+.toolhead{display:flex;justify-content:flex-end;align-items:center;margin:0 0 6px}
+.mkjump{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;color:var(--soft);text-decoration:none;border:1px solid var(--rule2);border-radius:var(--pill);padding:7px 14px;min-height:36px;transition:border-color var(--dur-base),color var(--dur-base)}
+.mkjump:hover{border-color:var(--ink);color:var(--ink)}
+.mocksec{scroll-margin-top:80px}
 .gt button{min-height:40px}
 .tblwrap{overflow-x:auto;-webkit-overflow-scrolling:touch;max-width:100%}
 html{scroll-padding-top:80px;scroll-padding-bottom:calc(112px + env(safe-area-inset-bottom))}
