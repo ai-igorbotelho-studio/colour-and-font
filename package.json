@@ -27,10 +27,6 @@
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.10.2",
-    "@fontsource-variable/bodoni-moda": "^5.1.0",
-    "@fontsource-variable/mulish": "^5.1.0",
-    "@fontsource-variable/roboto-mono": "^5.1.0",
-    "@fontsource/dm-serif-display": "^5.1.0",
     "jsdom": "^25.0.1",
     "lighthouse": "^12.2.1",
     "pixelmatch": "^6.0.0",

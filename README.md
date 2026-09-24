@@ -29,7 +29,7 @@ npm run assets          # regenera public/og.png e os ícones a partir da ediç�
 
 ```
 index.html                 casca: nav, tabbar, os sete <main> (Início, Cores, Tipografia, Criação, Tendências, Conteúdos, Teoria)
-public/                    og.png, icons/, fonts/ (DM Serif Display, Mulish e Roboto Mono, latino, woff2), _headers (CSP libera Google, Fontshare e a CDN do Fontsource/jsDelivr), manifest, sitemap, robots
+public/                    og.png, icons/, fonts/ (DM Serif Display, Mulish, Roboto Mono e Bodoni Moda — subconjunto latino em woff2, de origem Fontsource, committados), _headers (CSP libera Google, Fontshare e a CDN do Fontsource/jsDelivr), manifest, sitemap, robots
 src/
   core/    color.ts goethe.ts codes.ts rng.ts state.ts store.ts dom.ts
   data/    emotions markets schemes lenses cultures music fonts lexicon trends articles
